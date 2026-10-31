@@ -25,6 +25,15 @@ import {
 import { cleanInput, resource, resources } from './registry';
 import { uniqueCustomer } from './customer-policy';
 import { recalculateCustomerContracts } from './contract-change-policy';
+import {
+  activeDelivery,
+  deliveryEvent,
+  deliveryManager,
+  projectDeliveryCommand,
+  taskHours,
+  taskProject,
+  validateTaskMilestone,
+} from './delivery-policy';
 import { checkVersion, id, object, runCommand, text, json, type Tx, type Row } from './command-runner';
 
 // Runtime registry delegates are constrained to resource(), while payloads are validated by cleanInput().
@@ -66,7 +75,11 @@ export class WorkspaceService {
           (key !== 'products' || admin(a))
         );
         const actions = canEdit
-          ? r.actions.filter((action) => action !== 'follow' && (action !== 'assign' || admin(a) || manager(a)))
+          ? r.actions.filter(
+              (action) =>
+                action !== 'follow' &&
+                (!['assign', 'accept', 'reject_acceptance'].includes(action) || admin(a) || manager(a)),
+            )
           : [];
         const properties = Object.fromEntries(
           r.fields.map((f) => [
@@ -178,11 +191,20 @@ export class WorkspaceService {
               : []),
             ...actions.map((action) => ({
               id: `${key}.${action}`,
-              version: '1.0',
+              version: key === 'projects' || key === 'tasks' ? '2.0' : '1.0',
               effect: 'write',
               inputSchema: {
                 type: 'object',
-                required: ['requestKey', 'expectedUpdatedAt'],
+                required: [
+                  'requestKey',
+                  'expectedUpdatedAt',
+                  ...((key === 'projects' &&
+                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(action)) ||
+                  key === 'tasks'
+                    ? ['note']
+                    : []),
+                  ...(key === 'tasks' && action === 'complete' ? ['actualHours'] : []),
+                ],
                 properties: {
                   ...commandProperties,
                   ...(action === 'submit'
@@ -196,7 +218,14 @@ export class WorkspaceService {
                   ...(action === 'assign' ? { userId: { type: 'integer', minimum: 1 } } : {}),
                   ...(action === 'quote' ? { items: { type: 'array', minItems: 1, maxItems: 20 } } : {}),
                   ...(action === 'lose' ? { reason: { type: 'string', minLength: 1 } } : {}),
-                  ...(action === 'accept' ? { note: { type: 'string', minLength: 1 } } : {}),
+                  ...((key === 'projects' &&
+                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(action)) ||
+                  key === 'tasks'
+                    ? { note: { type: 'string', minLength: 1, maxLength: 3000 } }
+                    : {}),
+                  ...(key === 'tasks' && action === 'complete'
+                    ? { actualHours: { type: 'string', pattern: '^\\d{1,4}(\\.\\d)?$' } }
+                    : {}),
                 },
               },
               guards: [
@@ -235,7 +264,13 @@ export class WorkspaceService {
       visibility = {
         OR: [
           await ownerScope(tx, a, 'assigneeId'),
-          { project: { tenantId: a.tenantId, ...(await ownerScope(tx, a, 'salesOwnerId')) } },
+          {
+            project: {
+              tenantId: a.tenantId,
+              deletedAt: null,
+              OR: [await ownerScope(tx, a, 'salesOwnerId'), await ownerScope(tx, a, 'pmId')],
+            },
+          },
         ],
       };
     else if (kind === 'followups' || kind === 'receipts')
@@ -384,6 +419,11 @@ export class WorkspaceService {
       });
     }
     if (kind === 'projects') {
+      related.deliveryEvents = await tx.deliveryEvent.findMany({
+        where: { tenantId: a.tenantId, projectId: recordId },
+        orderBy: { id: 'desc' },
+        take: 100,
+      });
       related.tasks = await this.db(tx, 'tasks').findMany({
         where: { ...(await this.scope(tx, a, 'tasks')), projectId: recordId },
       });
@@ -392,6 +432,12 @@ export class WorkspaceService {
         orderBy: { sortOrder: 'asc' },
       });
     }
+    if (kind === 'tasks')
+      related.deliveryEvents = await tx.deliveryEvent.findMany({
+        where: { tenantId: a.tenantId, taskId: recordId, projectId: id(row.projectId) },
+        orderBy: { id: 'desc' },
+        take: 100,
+      });
     return { ...row, related };
   }
   async approvalForm(a: Actor, kind: string, recordId: number) {
@@ -506,7 +552,20 @@ export class WorkspaceService {
         }
         if (kind === 'projects')
           Object.assign(defaults, { projectNo: code('XM'), salesOwnerId: a.userId, pmId: a.userId, status: 'draft' });
-        if (kind === 'tasks') defaults.assigneeId = a.userId;
+        if (kind === 'tasks') {
+          const p = await taskProject(tx, a, id(data.projectId ?? row?.projectId));
+          activeDelivery(p);
+          if (recordId) {
+            if (row?.status === 'done') throw new ConflictException('已完成任务不可编辑，请先发起整改');
+            if (row?.assigneeId !== a.userId) deliveryManager(a, p);
+          } else deliveryManager(a, p);
+          await validateTaskMilestone(tx, a, p.id, data.milestoneId ?? row?.milestoneId);
+          defaults.assigneeId = a.userId;
+          await tx.project.update({
+            where: { id: p.id },
+            data: { updatedAt: new Date(Math.max(Date.now(), p.updatedAt.getTime() + 1)) },
+          });
+        }
         if (kind === 'actions') Object.assign(defaults, { assigneeId: a.userId, targetType: 'customer' });
         if (kind === 'followups')
           Object.assign(defaults, { targetType: 'customer', targetId: data.customerId, method: 'visit' });
@@ -569,7 +628,8 @@ export class WorkspaceService {
     requirePermission(a, kind, 'update');
     if (
       Object.keys(body).some(
-        (k) => !['requestKey', 'expectedUpdatedAt', 'userId', 'reason', 'note', 'items', 'form'].includes(k),
+        (k) =>
+          !['requestKey', 'expectedUpdatedAt', 'userId', 'reason', 'note', 'items', 'form', 'actualHours'].includes(k),
       )
     )
       throw new BadRequestException('存在未定义参数');
@@ -823,44 +883,78 @@ export class WorkspaceService {
           if (action === 'start') {
             if (row.status !== 'active') throw new BadRequestException('项目未激活');
             if (row.actualStartDate) throw new ConflictException('项目已启动');
+            deliveryManager(a, await taskProject(tx, a, recordId));
             await tx.project.update({ where, data: { actualStartDate: new Date() } });
+            await deliveryEvent(tx, a, recordId, 'project.started', '项目启动', { pmId: row.pmId });
           }
-          if (action === 'advance') {
-            if (row.status !== 'active') throw new BadRequestException('项目已结束');
-            const ms = await tx.projectMilestone.findFirst({
-              where: { tenantId: a.tenantId, projectId: recordId, status: { not: 'completed' } },
-              orderBy: { sortOrder: 'asc' },
-            });
-            if (!ms) throw new BadRequestException('里程碑已完成，请提交验收');
-            await tx.projectMilestone.update({
-              where: { id: ms.id },
-              data: { status: 'completed', completedAt: new Date(), completedBy: a.userId, actualDate: new Date() },
-            });
-            const total = await tx.projectMilestone.count({ where: { tenantId: a.tenantId, projectId: recordId } }),
-              done = await tx.projectMilestone.count({
-                where: { tenantId: a.tenantId, projectId: recordId, status: 'completed' },
-              });
-            await tx.project.update({ where, data: { progress: Math.round((done / total) * 100) } });
+          if (['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(action)) {
+            const project = await taskProject(tx, a, recordId);
+            await projectDeliveryCommand(tx, a, project, action, body);
           }
-          if (action === 'accept') {
-            if (row.status !== 'active' || Number(row.progress) < 100)
-              throw new BadRequestException('所有里程碑完成后才能验收');
-            await tx.project.update({
+        } else if (kind === 'tasks') {
+          const p = await taskProject(tx, a, id(row.projectId));
+          activeDelivery(p);
+          if (row.assigneeId !== a.userId || action === 'reopen_task') {
+            deliveryManager(a, p);
+            if (!admin(a) && p.pmId !== a.userId) await this.require(tx, a, 'projects', p.id);
+          }
+          const note = text(body.note, '任务结果或整改说明', 3000);
+          if (action === 'start_task') {
+            if (row.status !== 'todo') throw new ConflictException('仅待办任务可开始');
+            await tx.projectTask.update({ where, data: { status: 'in_progress' } });
+          } else if (action === 'complete') {
+            if (row.status !== 'in_progress') throw new ConflictException('请先开始任务再记录完成');
+            await tx.projectTask.update({
               where,
+              data: { status: 'done', completedAt: new Date(), actualHours: taskHours(body.actualHours) },
+            });
+          } else if (action === 'reopen_task') {
+            if (row.status !== 'done') throw new ConflictException('仅已完成任务可发起整改');
+            await tx.projectTask.update({ where, data: { status: 'todo', completedAt: null } });
+            const milestone = row.milestoneId
+              ? await tx.projectMilestone.findFirst({
+                  where: { id: id(row.milestoneId), tenantId: a.tenantId, projectId: p.id },
+                })
+              : await tx.projectMilestone.findFirst({
+                  where: { tenantId: a.tenantId, projectId: p.id },
+                  orderBy: { sortOrder: 'desc' },
+                });
+            if (milestone)
+              await tx.projectMilestone.updateMany({
+                where: { tenantId: a.tenantId, projectId: p.id, sortOrder: { gte: milestone.sortOrder } },
+                data: { status: 'pending', completedAt: null, completedBy: null, actualDate: null, deliverables: null },
+              });
+            const total = await tx.projectMilestone.count({ where: { tenantId: a.tenantId, projectId: p.id } });
+            const done = await tx.projectMilestone.count({
+              where: { tenantId: a.tenantId, projectId: p.id, status: 'completed' },
+            });
+            await tx.project.update({
+              where: { id: p.id },
               data: {
-                status: 'completed',
-                acceptanceDate: new Date(),
-                actualEndDate: new Date(),
-                closureNote: text(body.note, '验收说明', 1000),
+                progress: total ? Math.round((done / total) * 100) : 0,
+                stage: (milestone?.stage ?? 'initiation') as 'initiation',
               },
             });
           }
-        } else if (['actions', 'tasks'].includes(kind) && action === 'complete') {
-          if (['completed', 'done'].includes(String(row.status))) throw new ConflictException('已完成');
-          await this.db(tx, kind).update({
-            where,
-            data: { status: kind === 'tasks' ? 'done' : 'completed', completedAt: new Date() },
+          await tx.project.update({
+            where: { id: p.id },
+            data: { updatedAt: new Date(Math.max(Date.now(), p.updatedAt.getTime() + 1)) },
           });
+          await deliveryEvent(
+            tx,
+            a,
+            p.id,
+            'task.' + action,
+            note,
+            {
+              from: row.status,
+              ...(action === 'complete' ? { actualHours: taskHours(body.actualHours).toFixed(1) } : {}),
+            },
+            recordId,
+          );
+        } else if (kind === 'actions' && action === 'complete') {
+          if (row.status === 'completed') throw new ConflictException('Already complete');
+          await this.db(tx, kind).update({ where, data: { status: 'completed', completedAt: new Date() } });
         }
         return { id: recordId, kind, action };
       } finally {

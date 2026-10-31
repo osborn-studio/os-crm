@@ -40,6 +40,9 @@ interface ListResult {
 }
 const labels: Record<string, string> = {
   id: '编号',
+  acceptanceState: '验收状态',
+  actualHours: '累计实际工时',
+  milestoneId: '关联里程碑',
   name: '名称',
   code: '编码',
   companyName: '企业名称',
@@ -119,7 +122,7 @@ const stages: Record<string, string> = {
 const display = (name: string, v: unknown) =>
   v === null || v === undefined ? (
     '—'
-  ) : name === 'status' || name === 'poolType' ? (
+  ) : name === 'status' || name === 'poolType' || name === 'acceptanceState' ? (
     <Tag
       color={
         ['approved', 'signed', 'completed', 'won', 'delivered'].includes(String(v))
@@ -166,6 +169,23 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
     actionRequestKey = useRef(key());
   const [form] = Form.useForm(),
     [actionForm] = Form.useForm();
+  const selectedProject = Form.useWatch('projectId', form);
+  const [taskMilestones, setTaskMilestones] = useState<RecordRow[]>([]);
+  useEffect(() => {
+    let current = true;
+    setTaskMilestones([]);
+    if (kind === 'tasks' && selectedProject)
+      void get<RecordRow>(`/workspace/projects/${selectedProject}`)
+        .then((p) => {
+          if (current) setTaskMilestones(((p.related as Record<string, unknown>)?.milestones ?? []) as RecordRow[]);
+        })
+        .catch(() => {
+          if (current) setTaskMilestones([]);
+        });
+    return () => {
+      current = false;
+    };
+  }, [kind, selectedProject]);
   const load = async () => {
     setLoading(true);
     setError('');
@@ -342,9 +362,24 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
       if (a === 'deliver') return row.status === 'confirmed';
       if (a === 'order' || a === 'project') return ['signed', 'executing'].includes(String(row.status));
       if (kind === 'opportunities') return row.status === 'open';
-      if (a === 'accept') return row.status === 'active' && Number(row.progress) === 100;
+      if (a === 'accept' || a === 'reject_acceptance')
+        return row.status === 'active' && row.acceptanceState === 'pending';
+      if (a === 'request_acceptance')
+        return row.status === 'active' && row.acceptanceState !== 'pending' && Number(row.progress) === 100;
       if (a === 'start') return row.status === 'active' && !row.actualStartDate;
-      if (kind === 'projects' && a === 'advance') return row.status === 'active' && Number(row.progress) < 100;
+      if (kind === 'projects' && a === 'advance')
+        return (
+          row.status === 'active' &&
+          !!row.actualStartDate &&
+          row.acceptanceState !== 'pending' &&
+          Number(row.progress) < 100
+        );
+      if (kind === 'tasks')
+        return a === 'start_task'
+          ? row.status === 'todo'
+          : a === 'complete'
+            ? row.status === 'in_progress'
+            : a === 'reopen_task' && row.status === 'done';
       if (a === 'complete') return !['done', 'completed'].includes(String(row.status));
       return true;
     }) ?? [];
@@ -356,7 +391,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
     opportunities: ['stage', 'amount', 'ownerName'],
     contracts: ['customerName', 'status', 'amount', 'ownerName'],
     orders: ['customerName', 'status', 'totalAmountInclTax', 'orderDate'],
-    projects: ['status', 'progress', 'plannedEndDate'],
+    projects: ['status', 'progress', 'acceptanceState', 'plannedEndDate'],
     tasks: ['status', 'assigneeName', 'dueDate'],
     actions: ['status', 'assigneeName', 'dueDate'],
     followups: ['customerName', 'nextAction', 'nextFollowAt'],
@@ -507,13 +542,45 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                         'payment-plans': '回款计划',
                         tasks: '任务',
                         milestones: '里程碑',
+                        deliveryEvents: '交付与验收记录',
                         quote: '报价明细',
                         quoteVersions: '报价历史版本',
                         changes: '合同变更记录',
                       } as Record<string, string>
                     )[name] ?? name,
                   children:
-                    name === 'quoteVersions' ? (
+                    name === 'deliveryEvents' ? (
+                      <Table
+                        rowKey="id"
+                        size="small"
+                        dataSource={values as RecordRow[]}
+                        pagination={{ pageSize: 10 }}
+                        columns={[
+                          {
+                            title: '时间',
+                            dataIndex: 'createdAt',
+                            render: (v: unknown) => String(v).replace('T', ' ').slice(0, 19),
+                          },
+                          {
+                            title: '动作',
+                            dataIndex: 'kind',
+                            render: (v: unknown) =>
+                              ({
+                                'project.started': '项目启动',
+                                'milestone.completed': '里程碑完成',
+                                'acceptance.requested': '提交验收',
+                                'acceptance.rejected': '拒收整改',
+                                'acceptance.accepted': '确认验收',
+                                'task.start_task': '任务开始',
+                                'task.complete': '任务完成',
+                                'task.reopen_task': '任务整改',
+                              })[String(v)] ?? String(v),
+                          },
+                          { title: '依据/整改要求', dataIndex: 'note' },
+                          { title: '记录人', dataIndex: 'actorId' },
+                        ]}
+                      />
+                    ) : name === 'quoteVersions' ? (
                       <QuoteHistory versions={values as RecordRow[]} />
                     ) : (
                       <Table
@@ -551,7 +618,15 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               label={f.label}
               rules={[{ required: f.required, message: `请填写${f.label}` }]}
             >
-              {f.reference ? (
+              {f.key === 'milestoneId' ? (
+                <Select
+                  allowClear
+                  placeholder="选择项目后可关联里程碑；未关联任务在最终交付前检查"
+                  options={taskMilestones
+                    .filter((m) => m.status !== 'completed')
+                    .map((m) => ({ value: m.id, label: String(m.name) }))}
+                />
+              ) : f.reference ? (
                 <Select
                   showSearch
                   optionFilterProp="label"
@@ -615,9 +690,17 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               <Input.TextArea />
             </Form.Item>
           )}
-          {command?.action === 'accept' && (
-            <Form.Item name="note" label="验收说明" rules={[{ required: true }]}>
-              <Input.TextArea />
+          {command &&
+            ((kind === 'projects' &&
+              ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(command.action)) ||
+              kind === 'tasks') && (
+              <Form.Item name="note" label="交付结果、验收依据或整改要求" rules={[{ required: true }]}>
+                <Input.TextArea rows={3} maxLength={3000} />
+              </Form.Item>
+            )}
+          {kind === 'tasks' && command?.action === 'complete' && (
+            <Form.Item name="actualHours" label="本任务累计实际工时（小时）" rules={[{ required: true }]}>
+              <InputNumber stringMode min="0.1" max="9999.9" precision={1} />
             </Form.Item>
           )}
           {command?.action === 'quote' && (

@@ -71,6 +71,9 @@ export const statusNames: Record<string, string> = {
   in_progress: '进行中',
   withdrawn: '已撤回',
   terminated: '已终止',
+  not_requested: '未提交',
+  accepted: '已验收',
+  legacy_completed: '历史完成（无新版验收记录）',
 };
 export const actionNames: Record<string, string> = {
   claim: '领取',
@@ -88,6 +91,10 @@ export const actionNames: Record<string, string> = {
   confirm: '确认订单',
   deliver: '确认交付',
   start: '启动项目',
-  accept: '验收完成',
+  request_acceptance: '提交验收',
+  reject_acceptance: '拒收并整改',
+  accept: '确认验收',
+  start_task: '开始任务',
+  reopen_task: '发起整改',
   complete: '完成',
 };
