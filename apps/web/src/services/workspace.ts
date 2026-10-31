@@ -70,6 +70,7 @@ export const statusNames: Record<string, string> = {
   done: '完成',
   in_progress: '进行中',
   withdrawn: '已撤回',
+  terminated: '已终止',
 };
 export const actionNames: Record<string, string> = {
   claim: '领取',

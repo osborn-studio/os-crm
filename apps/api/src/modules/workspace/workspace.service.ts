@@ -23,7 +23,9 @@ import {
   requirePermission,
 } from './access';
 import { cleanInput, resource, resources } from './registry';
-import { checkVersion, id, object, runCommand, text, type Tx, type Row } from './command-runner';
+import { uniqueCustomer } from './customer-policy';
+import { recalculateCustomerContracts } from './contract-change-policy';
+import { checkVersion, id, object, runCommand, text, json, type Tx, type Row } from './command-runner';
 
 // Runtime registry delegates are constrained to resource(), while payloads are validated by cleanInput().
 interface Delegate {
@@ -358,11 +360,22 @@ export class WorkspaceService {
           orderBy: { createdAt: 'desc' },
         });
     }
-    if (kind === 'opportunities')
+    if (kind === 'opportunities') {
       related.quote = await tx.opportunityProduct.findMany({
         where: { tenantId: a.tenantId, opportunityId: recordId },
       });
+      related.quoteVersions = await tx.opportunityQuote.findMany({
+        where: { tenantId: a.tenantId, opportunityId: recordId },
+        orderBy: { version: 'desc' },
+        take: 30,
+      });
+    }
     if (kind === 'contracts') {
+      related.changes = await tx.contractChange.findMany({
+        where: { tenantId: a.tenantId, contractId: recordId },
+        orderBy: { createdAt: 'desc' },
+        take: 30,
+      });
       related.orders = await tx.order.findMany({
         where: { ...(await this.scope(tx, a, 'orders')), contractId: recordId },
       });
@@ -433,6 +446,8 @@ export class WorkspaceService {
         if (recordId) {
           row = await this.require(tx, a, kind, recordId);
           checkVersion(row as { updatedAt: Date }, body.expectedUpdatedAt);
+          if (kind === 'leads' && row.status === 'converted')
+            throw new BadRequestException('已转化线索保留原始记录，不可继续编辑');
           if (kind === 'customers' && row.poolType === 'public' && !admin(a) && !manager(a))
             throw new ForbiddenException('公海客户请先领取');
           if (['contracts', 'orders', 'projects'].includes(kind) && !['draft', 'rejected'].includes(String(row.status)))
@@ -445,6 +460,16 @@ export class WorkspaceService {
             throw new BadRequestException('关联对象创建后不可修改，请新建记录');
         }
         await this.references(tx, a, kind, { ...row, ...data });
+        if (
+          ['orders', 'projects'].includes(kind) &&
+          (data.contractId ?? row?.contractId) &&
+          (await tx.contractChange.count({
+            where: { tenantId: a.tenantId, contractId: id(data.contractId ?? row?.contractId), status: 'pending' },
+          }))
+        )
+          throw new ConflictException('关联合同变更审批中，请先完成或撤回');
+        if (kind === 'customers' && typeof data.name === 'string')
+          data.nameFingerprint = await uniqueCustomer(tx, a.tenantId, data.name, recordId);
         const base = { tenantId: a.tenantId, ...(kind === 'products' ? {} : { createdBy: a.userId }) };
         const defaults: Record<string, unknown> = {};
         if (kind === 'products') defaults.category = 'service';
@@ -457,8 +482,14 @@ export class WorkspaceService {
             protectUntil: new Date(Date.now() + 30 * 86400000),
           });
         if (kind === 'leads') Object.assign(defaults, { code: code('XS'), assigneeId: a.userId, status: 'assigned' });
-        if (kind === 'opportunities')
-          Object.assign(defaults, { code: code('SJ'), ownerId: a.userId, stage: 'intention' });
+        if (kind === 'opportunities' && !recordId) {
+          const first = await tx.opportunityStage.findFirst({
+            where: { tenantId: a.tenantId, isActive: true },
+            orderBy: { sortOrder: 'asc' },
+          });
+          if (!first) throw new BadRequestException('请先配置商机阶段');
+          Object.assign(defaults, { code: code('SJ'), ownerId: a.userId, stage: first.code });
+        }
         if (kind === 'contracts') Object.assign(defaults, { contractNo: code('HT'), ownerId: a.userId });
         if (kind === 'orders') {
           const contract = await this.require(tx, a, 'contracts', id(data.contractId ?? row?.contractId));
@@ -480,6 +511,27 @@ export class WorkspaceService {
         if (kind === 'followups')
           Object.assign(defaults, { targetType: 'customer', targetId: data.customerId, method: 'visit' });
         if (kind === 'contracts') {
+          const opportunityId = data.opportunityId ?? row?.opportunityId;
+          if (
+            opportunityId &&
+            (!recordId ||
+              (data.amount !== undefined && !new Prisma.Decimal(String(data.amount)).eq(String(row?.amount ?? 0))))
+          ) {
+            const quote = await tx.opportunityQuote.findFirst({
+              where: { tenantId: a.tenantId, opportunityId: id(opportunityId) },
+              orderBy: { version: 'desc' },
+            });
+            if (quote) {
+              if (!quote.total.eq(String(data.amount ?? row?.amount ?? 0)))
+                throw new BadRequestException('合同金额需与选用的最新报价一致，请先更新商机报价或核对合同金额');
+              data.quoteSnapshot = json({
+                quoteId: quote.id,
+                version: quote.version,
+                total: quote.total.toFixed(2),
+                items: quote.items,
+              });
+            }
+          }
           const amount = new Prisma.Decimal(String(data.amount ?? row?.amount ?? 0)),
             tax = new Prisma.Decimal(String(data.taxRate ?? row?.taxRate ?? 13));
           data.amountExclTax = amount.div(tax.div(100).add(1)).toDecimalPlaces(2);
@@ -525,10 +577,23 @@ export class WorkspaceService {
     return runCommand(this.prisma, a, `${kind}.${action}`, { ...body, recordId }, async (tx) => {
       const row = await this.require(tx, a, kind, recordId);
       checkVersion(row as { updatedAt: Date }, body.expectedUpdatedAt);
+      if (
+        kind === 'contracts' &&
+        (await tx.contractChange.count({ where: { tenantId: a.tenantId, contractId: recordId, status: 'pending' } }))
+      )
+        throw new ConflictException('合同变更审批中，请先完成或撤回');
       const writeStamp = new Date(Math.max(Date.now(), new Date(row.updatedAt!).getTime() + 1));
       try {
         const where = { id: recordId, tenantId: a.tenantId };
         if (kind === 'customers') {
+          const linked =
+            (await tx.opportunity.count({ where: { tenantId: a.tenantId, customerId: recordId, deletedAt: null } })) +
+            (await tx.contract.count({ where: { tenantId: a.tenantId, customerId: recordId, deletedAt: null } })) +
+            (await tx.order.count({ where: { tenantId: a.tenantId, customerId: recordId, deletedAt: null } })) +
+            (await tx.project.count({ where: { tenantId: a.tenantId, customerId: recordId, deletedAt: null } })) +
+            (await tx.lead.count({ where: { tenantId: a.tenantId, convertedCustomerId: recordId, deletedAt: null } }));
+          if (linked && ['claim', 'return', 'assign'].includes(action))
+            throw new ConflictException('客户含关联销售业务，请通过销售归属交接处理，避免业务失联');
           if (action === 'follow') throw new BadRequestException('请通过跟进表单记录内容');
           if (action === 'claim') {
             if (row.poolType !== 'public') throw new ConflictException('客户已被领取');
@@ -594,10 +659,12 @@ export class WorkspaceService {
               tenantId: a.tenantId,
               code: code('KH'),
               name: String(row.companyName),
+              nameFingerprint: await uniqueCustomer(tx, a.tenantId, String(row.companyName)),
               industry: row.industry as string | null,
               ownerId: a.userId,
               ownerDeptId: a.deptId,
               poolType: 'private',
+              protectUntil: new Date(Date.now() + 30 * 86400000),
               createdBy: a.userId,
             },
           });
@@ -605,6 +672,15 @@ export class WorkspaceService {
             await tx.contact.create({
               data: { tenantId: a.tenantId, customerId: c.id, name: String(row.contactName), createdBy: a.userId },
             });
+          await tx.privateHolding.create({
+            data: {
+              tenantId: a.tenantId,
+              customerId: c.id,
+              userId: a.userId,
+              claimedAt: new Date(),
+              protectUntil: c.protectUntil ?? new Date(Date.now() + 30 * 86400000),
+            },
+          });
           await tx.lead.update({
             where,
             data: { status: 'converted', convertedCustomerId: c.id, convertedAt: new Date() },
@@ -654,15 +730,7 @@ export class WorkspaceService {
           } else if (action === 'sign' && kind === 'contracts') {
             if (row.status !== 'approved') throw new BadRequestException('合同必须先审批通过');
             await tx.contract.update({ where, data: { status: 'signed', signDate: new Date() } });
-            await tx.customer.update({
-              where: { id: id(row.customerId), tenantId: a.tenantId },
-              data: {
-                isTrading: true,
-                isProspect: false,
-                contractCount: { increment: 1 },
-                contractAmount: { increment: String(row.amount) },
-              },
-            });
+            await recalculateCustomerContracts(tx, a.tenantId, id(row.customerId));
             if (row.opportunityId)
               await tx.opportunity.updateMany({
                 where: { id: id(row.opportunityId), tenantId: a.tenantId },
@@ -839,7 +907,7 @@ export class WorkspaceService {
         quantity.gt(100000) ||
         !price.isFinite() ||
         price.lt(0) ||
-        price.gt('999999999999')
+        price.gt('9999999999.99')
       )
         throw new BadRequestException('数量或单价无效');
       const amount = quantity.mul(price).toDecimalPlaces(2);
@@ -854,10 +922,22 @@ export class WorkspaceService {
         estimatedAmount: amount,
       });
     }
+    if (total.gt('9999999999999.99')) throw new BadRequestException('报价总额超出合同金额支持范围');
     await tx.opportunityProduct.deleteMany({ where: { tenantId: a.tenantId, opportunityId: row.id } });
     await tx.opportunityProduct.createMany({ data: items });
-    await tx.opportunity.update({ where: { id: row.id, tenantId: a.tenantId }, data: { amount: total } });
-    return { id: row.id, total: total.toString(), items };
+    await tx.opportunity.update({
+      where: { id: row.id, tenantId: a.tenantId },
+      data: { amount: total, updatedAt: new Date(Math.max(Date.now(), new Date(row.updatedAt!).getTime() + 1)) },
+    });
+    const latest = await tx.opportunityQuote.findFirst({
+      where: { tenantId: a.tenantId, opportunityId: row.id },
+      orderBy: { version: 'desc' },
+    });
+    const version = (latest?.version ?? 0) + 1;
+    await tx.opportunityQuote.create({
+      data: { tenantId: a.tenantId, opportunityId: row.id, version, total, items: json(items), createdBy: a.userId },
+    });
+    return { id: row.id, version, total: total.toString(), items };
   }
   async overview(a: Actor) {
     const tx = this.prisma.system;

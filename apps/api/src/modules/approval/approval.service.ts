@@ -12,6 +12,7 @@ import type { Actor } from '../../common/types/actor';
 import { admin } from '../workspace/access';
 import { checkVersion, id, json, object, runCommand, text, type Tx } from '../workspace/command-runner';
 import { condition, flowInput, type FlowField } from './flow-rules';
+import { applyContractChange } from '../workspace/contract-change-policy';
 
 function canDecide(roles: { role: { code: string; permissions: Prisma.JsonValue } }[]): boolean {
   if (roles.some((r) => r.role.code === 'super_admin')) return true;
@@ -154,6 +155,7 @@ export class ApprovalService {
       amount: Prisma.Decimal;
       form?: Record<string, unknown>;
       flowId?: number;
+      businessSnapshot?: Record<string, unknown>;
     },
   ) {
     if (
@@ -200,6 +202,7 @@ export class ApprovalService {
         applicantId: a.userId,
         formData: json({
           ...form,
+          ...(data.businessSnapshot ? { businessSnapshot: data.businessSnapshot } : {}),
           amount: data.amount.toString(),
           flowSnapshot: {
             id: flow.id,
@@ -243,7 +246,7 @@ export class ApprovalService {
       form = object(body.form ?? {});
     return runCommand(this.prisma, a, 'approval.create', body, async (tx) => {
       const flow = await tx.approvalFlow.findFirst({ where: { id: flowId, tenantId: a.tenantId, isActive: true } });
-      if (!flow || ['contract', 'order', 'project_initiation'].includes(flow.bizType))
+      if (!flow || ['contract', 'contract_change', 'order', 'project_initiation'].includes(flow.bizType))
         throw new BadRequestException('请选择通用表单流程；业务单据请从详情页提交');
       return this.start(tx, a, {
         bizType: flow.bizType,
@@ -297,7 +300,7 @@ export class ApprovalService {
           bizId: approval.id,
         },
       });
-      if (!next) await this.callback(tx, a.tenantId, approval.bizType, approval.bizId, approval.id, action);
+      if (!next) await this.callback(tx, a.tenantId, approval.bizType, approval.bizId, approval.id, action, a.userId);
       return { id: approvalId, status, nextNode: next?.nodeName };
     });
   }
@@ -347,7 +350,9 @@ export class ApprovalService {
     bizId: number,
     approvalId: number,
     status: 'approved' | 'rejected' | 'draft',
+    approverId?: number,
   ) {
+    if (type === 'contract_change') await applyContractChange(tx, tenantId, bizId, approvalId, status, approverId);
     if (type === 'contract')
       await tx.contract.updateMany({
         where: { id: bizId, tenantId, approvalId, status: 'pending_approval' },

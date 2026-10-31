@@ -19,6 +19,8 @@ import {
   message,
 } from 'antd';
 import { PlusOutlined, ReloadOutlined, ExportOutlined } from '@ant-design/icons';
+import ContractChanges from './ContractChanges';
+import QuoteHistory, { QuoteLines } from './QuoteHistory';
 import {
   get,
   post,
@@ -102,6 +104,8 @@ const labels: Record<string, string> = {
   pmId: '项目经理',
 };
 const stages: Record<string, string> = {
+  new: '初步接洽',
+  qualified: '需求确认',
   intention: '意向',
   contact: '初步接触',
   requirement: '需求确认',
@@ -312,7 +316,13 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
     const csv =
       '\uFEFF' +
       [columns.map((k) => labels[k]), ...rows.map((r) => columns.map((k) => String(r[k] ?? '')))]
-        .map((line) => line.map((c) => '"' + (/^[=+\-@]/.test(c) ? "'" : '') + c.split('"').join('""') + '"').join(','))
+        .map((line) =>
+          line
+            .map(
+              (c) => '"' + (/^[\s]*[=+\-@]/.test(c) || /^[\t\r\n]/.test(c) ? "'" : '') + c.split('"').join('""') + '"',
+            )
+            .join(','),
+        )
         .join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
     const a = document.createElement('a');
@@ -389,6 +399,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               {actionNames[a]}
             </Button>
           ))}
+          {kind === 'contracts' && <ContractChanges row={r} onChanged={() => void load()} />}
         </Space>
       ),
     },
@@ -404,7 +415,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           <Typography.Text type="secondary">
             {spec?.readonly
               ? '合成数据用于展示业务结构，财务处理暂未开放。'
-              : '按当前账号权限展示与操作，所有变更保存到演示数据库。'}
+              : '按当前账号权限展示与操作，所有变更保存到当前企业数据库。'}
           </Typography.Text>
         </div>
         <Space>
@@ -471,6 +482,14 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                 .filter(([k, v]) => k in labels && v !== null)
                 .map(([k, v]) => ({ key: k, label: labels[k], children: display(k, v) }))}
             />
+            {kind === 'contracts' && detail.quoteSnapshot && typeof detail.quoteSnapshot === 'object' && (
+              <Card
+                title={`选用报价版本 ${(detail.quoteSnapshot as Record<string, unknown>).version}`}
+                style={{ marginTop: 16 }}
+              >
+                <QuoteLines items={(detail.quoteSnapshot as Record<string, unknown>).items} />
+              </Card>
+            )}
             {detail.related && typeof detail.related === 'object' && (
               <Tabs
                 style={{ marginTop: 24 }}
@@ -489,21 +508,26 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                         tasks: '任务',
                         milestones: '里程碑',
                         quote: '报价明细',
+                        quoteVersions: '报价历史版本',
+                        changes: '合同变更记录',
                       } as Record<string, string>
                     )[name] ?? name,
-                  children: (
-                    <Table
-                      size="small"
-                      rowKey="id"
-                      dataSource={values as RecordRow[]}
-                      pagination={false}
-                      scroll={{ x: 500 }}
-                      columns={Object.keys((values as RecordRow[])[0] ?? {})
-                        .filter((k) => labels[k] || k === 'name')
-                        .slice(0, 7)
-                        .map((k) => ({ title: labels[k] ?? k, dataIndex: k, render: (v: unknown) => display(k, v) }))}
-                    />
-                  ),
+                  children:
+                    name === 'quoteVersions' ? (
+                      <QuoteHistory versions={values as RecordRow[]} />
+                    ) : (
+                      <Table
+                        size="small"
+                        rowKey="id"
+                        dataSource={values as RecordRow[]}
+                        pagination={false}
+                        scroll={{ x: 500 }}
+                        columns={Object.keys((values as RecordRow[])[0] ?? {})
+                          .filter((k) => labels[k] || k === 'name')
+                          .slice(0, 7)
+                          .map((k) => ({ title: labels[k] ?? k, dataIndex: k, render: (v: unknown) => display(k, v) }))}
+                      />
+                    ),
                 }))}
               />
             )}

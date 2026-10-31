@@ -3,26 +3,24 @@ import { useState, useEffect } from 'react';
 import { Alert, Button, Card, Space, Tag, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { get, post, key, errorText, money, type RecordRow } from '../../services/workspace';
-const stages = [
-  ['intention', '意向'],
-  ['contact', '初步接触'],
-  ['requirement', '需求确认'],
-  ['proposal', '方案报价'],
-  ['negotiation', '商务谈判'],
-  ['signing', '签约'],
-  ['delivery', '交付'],
-];
 export default function BoardPage() {
   const canEdit = !useAuthStore((s) => s.user?.roles.includes('gm'));
+  const [stages, setStages] = useState<string[][]>([]);
   const [rows, setRows] = useState<RecordRow[]>([]),
     [total, setTotal] = useState(0),
     [error, setError] = useState('');
   const navigate = useNavigate();
   const load = async () => {
     try {
-      const r = await get<{ items: RecordRow[]; meta: { total: number } }>('/workspace/opportunities', {
-        pageSize: 100,
-      });
+      const [r, definitions] = await Promise.all([
+        get<{ items: RecordRow[]; meta: { total: number } }>('/workspace/opportunities', { pageSize: 100 }),
+        get<{ code: string; name: string }[]>('/commercial/opportunity-stages'),
+      ]);
+      const known = definitions.map((d) => [d.code, d.name]);
+      for (const row of r.items)
+        if (!known.some(([code]) => code === String(row.stage)))
+          known.push([String(row.stage), '历史阶段：' + String(row.stage)]);
+      setStages(known);
       setRows(r.items);
       setTotal(r.meta.total);
       setError('');

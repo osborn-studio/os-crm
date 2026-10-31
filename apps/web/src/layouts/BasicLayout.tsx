@@ -39,6 +39,9 @@ export default function BasicLayout() {
       label: '客户经营',
       children: [
         { key: '/customers', label: '客户档案' },
+        ...(isAdmin || roles.includes('sales_manager')
+          ? [{ key: '/customer-operations', label: '客户导入 / 销售交接' }]
+          : []),
         { key: '/contacts', label: '联系人' },
         { key: '/pool/public', label: '公海客户' },
         { key: '/pool/private', label: '私海客户' },

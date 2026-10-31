@@ -25,7 +25,7 @@ export async function initializeProduction(db, env) {
     const definitions = [
       { code: 'super_admin', name: '管理员', dataScope: 'all', permissions: ['*'] },
       { code: 'sales_manager', name: '销售主管', dataScope: 'dept', permissions: ['customer:*', 'lead:*', 'pool:*', 'opportunity:*', 'contract:*', 'order:*', 'project:*', 'follow_up:*', 'action:*', 'product:read', 'finance:read', 'approval:*', 'dashboard:team', 'ai:use'] },
-      { code: 'sales', name: '销售', dataScope: 'self', permissions: ['customer:read', 'customer:create', 'customer:update', 'lead:*', 'pool:claim', 'pool:return', 'opportunity:*', 'contract:read', 'contract:create', 'order:read', 'order:create', 'project:read', 'project:create', 'follow_up:*', 'action:*', 'product:read', 'finance:read', 'approval:create', 'approval:withdraw', 'ai:use'] },
+      { code: 'sales', name: '销售', dataScope: 'self', permissions: ['customer:read', 'customer:create', 'customer:update', 'lead:*', 'pool:claim', 'pool:return', 'opportunity:*', 'contract:read', 'contract:create', 'contract:update', 'order:read', 'order:create', 'project:read', 'project:create', 'follow_up:*', 'action:*', 'product:read', 'finance:read', 'approval:create', 'approval:withdraw', 'ai:use'] },
       { code: 'gm', name: '老板', dataScope: 'all', permissions: ['customer:read', 'lead:read', 'opportunity:read', 'contract:read', 'order:read', 'project:read', 'product:read', 'finance:read', 'follow_up:read', 'action:read', 'approval:approve', 'approval:reject', 'dashboard:*'] },
     ];
     const roles = [];

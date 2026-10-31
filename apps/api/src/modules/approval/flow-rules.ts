@@ -38,9 +38,17 @@ export function flowInput(value: unknown): FlowInput {
   const name = text(body.name, '流程名称', 100);
   const bizType = text(body.bizType, '业务类型', 30);
   if (
-    !['general', 'contract', 'order', 'project_initiation', 'discount', 'expense', 'leave', 'purchase'].includes(
-      bizType,
-    )
+    ![
+      'general',
+      'contract',
+      'contract_change',
+      'order',
+      'project_initiation',
+      'discount',
+      'expense',
+      'leave',
+      'purchase',
+    ].includes(bizType)
   )
     throw new BadRequestException('不支持的审批业务类型');
   const expression = typeof body.condition === 'string' ? body.condition.trim() : 'always';
@@ -66,6 +74,8 @@ export function flowInput(value: unknown): FlowInput {
   const fields: FlowField[] = (Array.isArray(body.fields) ? body.fields : []).map((value) => {
     const f = object(value),
       key = text(f.key, '字段编码', 30);
+    if (['flowSnapshot', 'businessSnapshot', 'amount'].includes(key))
+      throw new BadRequestException('字段编码与系统审批证据保留字段冲突');
     if (!/^[a-z][a-zA-Z0-9_]*$/.test(key) || !['text', 'number', 'date'].includes(String(f.type)))
       throw new BadRequestException('字段编码或类型无效');
     return {

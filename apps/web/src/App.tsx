@@ -11,6 +11,7 @@ const Designer = lazy(() => import('./pages/approval/FlowDesignerPage'));
 const Integration = lazy(() => import('./pages/workspace/IntegrationPage'));
 const System = lazy(() => import('./pages/workspace/SystemPage'));
 const Account = lazy(() => import('./pages/workspace/AccountPage'));
+const CustomerOperations = lazy(() => import('./pages/workspace/CustomerOperationsPage'));
 const Ai = lazy(() => import('./pages/workspace/AiPage'));
 const Notifications = lazy(() => import('./pages/notification/NotificationCenterPage'));
 const Finance = lazy(() => import('./pages/workspace/FinancePage'));
@@ -23,6 +24,13 @@ function Admin({ children }: { children: React.ReactNode }) {
     <>{children}</>
   ) : (
     <Result status="403" title="无权访问" subTitle="此功能仅限管理员" />
+  );
+}
+function Supervisor({ children }: { children: React.ReactNode }) {
+  return useAuthStore((s) => s.user?.roles.some((r) => ['super_admin', 'sales_manager'].includes(r))) ? (
+    <>{children}</>
+  ) : (
+    <Result status="403" title="此功能仅限管理员或销售主管" />
   );
 }
 const routes: Record<string, string> = {
@@ -69,6 +77,14 @@ export default function App() {
             <Route path="pool/public" element={<Workspace key="public" kind="customers" poolType="public" />} />
             <Route path="pool/private" element={<Workspace key="private" kind="customers" poolType="private" />} />
             <Route path="opportunities/board" element={<Board />} />
+            <Route
+              path="customer-operations"
+              element={
+                <Supervisor>
+                  <CustomerOperations />
+                </Supervisor>
+              }
+            />
             <Route path="notifications" element={<Notifications />} />
             <Route path="approvals" element={<Approval />} />
             <Route

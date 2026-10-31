@@ -197,7 +197,16 @@ export function cleanInput(kind: string, value: unknown, partial = false): Recor
       continue;
     }
     if (['text', 'textarea'].includes(field.type))
-      result[field.key] = text(v, field.label, field.type === 'textarea' ? 3000 : field.key === 'code' ? 30 : 200);
+      result[field.key] = text(
+        v,
+        field.label,
+        (
+          {
+            customers: { name: 200, industry: 50, level: 20, region: 50, address: 500, website: 200, remark: 3000 },
+            leads: { companyName: 200, contactName: 50, industry: 50, demand: 3000 },
+          } as Record<string, Record<string, number>>
+        )[kind]?.[field.key] ?? (field.type === 'textarea' ? 3000 : field.key === 'code' ? 30 : 200),
+      );
     if (field.type === 'money') {
       const s = String(v);
       if (!/^\d{1,12}(\.\d{1,2})?$/.test(s)) throw new BadRequestException(`${field.label}须为非负金额，最多两位小数`);
