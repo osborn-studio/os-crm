@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, Menu, Avatar, Dropdown, Tag, Typography } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, Tag, Typography, message } from 'antd';
+import { authApi } from '../services/auth.api';
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -141,15 +142,27 @@ export default function BasicLayout() {
           <div>
             <Typography.Text strong>客户经营与销售协同</Typography.Text>
             <Tag style={{ marginLeft: 12 }} color="blue">
-              演示版 v0.2
+              商用建设预览
             </Tag>
           </div>
           <Dropdown
             menu={{
-              items: [{ key: 'logout', label: '退出登录', icon: <LogoutOutlined /> }],
-              onClick: () => {
-                logout();
-                navigate('/login');
+              items: [
+                { key: 'account', label: '账号与安全' },
+                { key: 'logout', label: '退出登录', icon: <LogoutOutlined /> },
+              ],
+              onClick: async ({ key }) => {
+                if (key === 'account') {
+                  navigate('/account');
+                  return;
+                }
+                try {
+                  await authApi.logout();
+                  logout();
+                  navigate('/login');
+                } catch {
+                  message.error('服务器未确认退出，请重试或在账号与安全中撤销全部会话');
+                }
               },
             }}
           >

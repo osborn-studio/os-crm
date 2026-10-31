@@ -16,7 +16,9 @@ export default tseslint.config(
     files: ['apps/api/src/modules/capability/**/*.ts', 'apps/api/src/common/types/**/*.ts',
       'apps/api/src/common/filters/**/*.ts', 'apps/api/src/common/interceptors/response.interceptor.ts',
       'apps/api/src/modules/customer/customer-visibility.ts', 'apps/api/src/modules/workspace/**/*.ts',
-      'apps/api/src/modules/approval/**/*.ts', 'apps/api/src/modules/integration/platform*.ts'],
+      'apps/api/src/modules/approval/**/*.ts', 'apps/api/src/modules/integration/platform*.ts',
+      'apps/api/src/modules/auth/**/*.ts', 'apps/api/src/modules/system/users/**/*.ts',
+      'apps/api/src/modules/system/departments/**/*.ts'],
     rules: { '@typescript-eslint/no-explicit-any': 'error', '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }] },
   },
 );
