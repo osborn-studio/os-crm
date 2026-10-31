@@ -2,10 +2,14 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { validateProduction } from './policy.mjs';
+import { initializeProduction } from './initialize-production.mjs';
 process.chdir(fileURLToPath(new URL('../', import.meta.url)));
-if (process.env.DEMO_MODE !== 'true') throw new Error('Demo container requires DEMO_MODE=true');
+const demo = process.env.DEMO_MODE === 'true';
+if (!demo) validateProduction(process.env);
 const target = new URL(process.env.DATABASE_URL);
-if (target.pathname !== '/tb_crm_demo') throw new Error('Container only initializes tb_crm_demo');
+if (demo && target.pathname !== '/tb_crm_demo') throw new Error('Demo container only initializes tb_crm_demo');
+if (!demo && !/^\/tb_crm(?:_restore_[a-z0-9_]{1,40})?$/.test(target.pathname)) throw new Error('Invalid production database name');
 function run(args) {
   const r = spawnSync('pnpm', args, { stdio: 'inherit' });
   if (r.status !== 0) throw new Error(`Setup failed: ${args.join(' ')}`);
@@ -15,8 +19,10 @@ const require = createRequire(new URL('../packages/database/package.json', impor
 const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
 // Seed exactly once. Restarting an edited demo must preserve its data and users.
-const tenant = await db.tenant.findUnique({ where: { code: 'TINGMENG' } });
-if (!tenant?.config?.demoInitializationComplete) {
+const tenant = demo ? await db.tenant.findUnique({ where: { code: 'TINGMENG' } }) : null;
+if (!demo) {
+  console.log(JSON.stringify(await initializeProduction(db, process.env)));
+} else if (!tenant?.config?.demoInitializationComplete) {
   run(['demo:seed']);
   const initialized = await db.tenant.findUniqueOrThrow({ where: { code: 'TINGMENG' } });
   await db.tenant.update({ where: { id: initialized.id }, data: { config: { ...initialized.config, demoInitializationComplete: true } } });

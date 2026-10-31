@@ -1,0 +1,43 @@
+name: Production installation and recovery candidate
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**']
+    paths: ['deploy/**', 'Dockerfile', '.dockerignore', 'packages/database/**', '.github/workflows/production.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install-backup-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TENANT_CODE: CIINSTALL
+      TENANT_NAME: Synthetic CI Company
+      SEED_ADMIN_PASSWORD: CI-Only-Installation-2026
+      DEPLOYMENT_FIXTURE: ci-persistence-${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test deploy/installation.test.mjs
+      - run: node deploy/configure-production.mjs
+      - run: docker compose --env-file deploy/production.env -f deploy/compose.production.yml up -d --build --wait --wait-timeout 900
+      - name: Verify empty installation and create synthetic persistence fixture
+        run: node --env-file=deploy/production.env deploy/verify-production.mjs --expect-empty --create-fixture
+      - name: Verify restart preserves fixture
+        run: |
+          docker compose --env-file deploy/production.env -f deploy/compose.production.yml restart app
+          docker compose --env-file deploy/production.env -f deploy/compose.production.yml up -d --wait --wait-timeout 120
+          node --env-file=deploy/production.env deploy/verify-production.mjs
+      - name: Encrypted backup and fresh clone recovery
+        run: |
+          node --env-file=deploy/production.env deploy/data.mjs backup backups/ci.crmbackup
+          node --env-file=deploy/production.env deploy/data.mjs restore backups/ci.crmbackup tb_crm_restore_ci
+          cp backups/ci.crmbackup.tb_crm_restore_ci.env deploy/recovered.env
+          docker compose --env-file deploy/recovered.env -f deploy/compose.production.yml up -d --wait --wait-timeout 180
+          node --env-file=deploy/recovered.env deploy/verify-production.mjs
+      - if: failure()
+        run: docker compose --env-file deploy/production.env -f deploy/compose.production.yml logs --tail=80
+      - if: always()
+        run: docker compose --env-file deploy/production.env -f deploy/compose.production.yml down

@@ -14,7 +14,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "eslint apps packages --max-warnings 0",
-    "test": "pnpm --filter @partneros/api test",
+    "test": "pnpm --filter @partneros/api test && node --test deploy/installation.test.mjs",
     "db:migrate": "pnpm --filter @partneros/database migrate",
     "db:seed": "pnpm --filter @partneros/database seed",
     "db:studio": "pnpm --filter @partneros/database studio",
@@ -25,7 +25,10 @@
     "demo:seed": "pnpm db:seed && pnpm --filter @partneros/database seed:demo",
     "demo:reset": "node --env-file=.env scripts/new-demo.mjs",
     "demo:test": "node --env-file=.env scripts/new-demo.mjs --test --verify",
-    "demo:start": "node --env-file=.env scripts/start-demo.mjs"
+    "demo:start": "node --env-file=.env scripts/start-demo.mjs",
+    "install:production": "node deploy/configure-production.mjs",
+    "backup": "node --env-file=deploy/production.env deploy/data.mjs backup",
+    "restore": "node --env-file=deploy/production.env deploy/data.mjs restore"
   },
   "devDependencies": {
     "eslint": "^9.39.5",

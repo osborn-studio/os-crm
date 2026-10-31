@@ -1,6 +1,7 @@
 import request from './request';
 
 export interface LoginParams {
+  tenantCode?: string;
   username: string;
   password: string;
 }

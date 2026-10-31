@@ -9,5 +9,7 @@
 .artifacts
 docs/reference
 deploy/.env
+deploy/*.env
+backups
 *.zip
 *.log

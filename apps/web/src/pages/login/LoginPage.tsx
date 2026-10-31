@@ -13,7 +13,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const onFinish = async (values: { tenantCode: string; username: string; password: string }) => {
     setLoading(true);
     try {
       const res = await authApi.login(values);
@@ -38,12 +38,16 @@ export default function LoginPage() {
           <Title level={4} style={{ marginBottom: 4 }}>伴圆 CRM</Title>
           <Text type="secondary">AI 原生 · 客户经营与销售协同</Text>
         </div>
-        <Segmented block style={{ marginBottom: 24 }} options={[{label:"admin",value:"admin"},{label:"销售主管",value:"manager"},{label:"销售",value:"sales"},{label:"老板",value:"boss"}]} onChange={username => form.setFieldsValue({username})}/><Form form={form} initialValues={{username:"admin"}} name="login" onFinish={onFinish} size="large" autoComplete="off">
+        <Text type="secondary">演示账号快捷填入</Text>
+        <Segmented block style={{ marginBottom: 24 }} options={[{label:"admin",value:"admin"},{label:"销售主管",value:"manager"},{label:"销售",value:"sales"},{label:"老板",value:"boss"}]} onChange={username => form.setFieldsValue({username})}/><Form form={form} initialValues={{tenantCode:"TINGMENG",username:"admin"}} name="login" onFinish={onFinish} size="large" autoComplete="on">
+          <Form.Item name="tenantCode" rules={[{ required: true, message: '请输入企业编码' }, { pattern: /^[A-Z][A-Z0-9_-]{1,29}$/, message: '企业编码为2至30位大写字母、数字、下划线或短横线' }]}>
+            <Input placeholder="企业编码（安装时设置）" aria-label="企业编码" autoComplete="organization" />
+          </Form.Item>
           <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+            <Input prefix={<UserOutlined />} placeholder="用户名" autoComplete="username" />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password prefix={<LockOutlined />} placeholder="密码" autoComplete="current-password" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>
@@ -53,7 +57,7 @@ export default function LoginPage() {
         </Form>
         <div style={{ textAlign: 'center' }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            上海町萌网络科技有限公司 · 演示版 v0.2
+            伴圆 CRM · 本地安装与企业协同
           </Text>
         </div>
       </Card>
