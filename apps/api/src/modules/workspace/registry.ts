@@ -113,7 +113,7 @@ export const resources: Record<string, Resource> = {
       f('budgetAmount', '项目预算', 'money'),
       f('remark', '备注', 'textarea'),
     ],
-    actions: ['submit', 'start', 'advance', 'request_acceptance', 'reject_acceptance', 'accept'],
+    actions: ['submit', 'start', 'advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'],
   },
   tasks: {
     model: 'projectTask',
@@ -126,7 +126,7 @@ export const resources: Record<string, Resource> = {
       f('dueDate', '截止日期', 'date'),
       f('description', '任务说明', 'textarea'),
     ],
-    actions: ['start_task', 'complete', 'reopen_task'],
+    actions: ['start_task', 'complete', 'reopen_task', 'assign_task'],
   },
   actions: {
     model: 'actionPlan',
