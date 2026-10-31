@@ -10,6 +10,7 @@ const Approval = lazy(() => import('./pages/approval/ApprovalCenterPage'));
 const Designer = lazy(() => import('./pages/approval/FlowDesignerPage'));
 const Integration = lazy(() => import('./pages/workspace/IntegrationPage'));
 const System = lazy(() => import('./pages/workspace/SystemPage'));
+const Account = lazy(() => import('./pages/workspace/AccountPage'));
 const Ai = lazy(() => import('./pages/workspace/AiPage'));
 const Notifications = lazy(() => import('./pages/notification/NotificationCenterPage'));
 const Finance = lazy(() => import('./pages/workspace/FinancePage'));
@@ -95,6 +96,7 @@ export default function App() {
               }
             />
             <Route path="ai" element={<Ai />} />
+            <Route path="account" element={<Account />} />
             <Route path="finance/aging" element={<Finance />} />
             <Route path="*" element={<Result status="404" title="页面不存在" />} />
           </Route>

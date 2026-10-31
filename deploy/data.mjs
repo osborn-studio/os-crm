@@ -59,6 +59,7 @@ if (command === 'backup') {
   // CREATE without IF NOT EXISTS refuses any existing target, even one left by an interrupted restore.
   query(`CREATE DATABASE \`${restoreDatabase}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`, undefined, true);
   run('mysql', [restoreDatabase], snapshot.sql, true);
+  query('UPDATE auth_sessions SET revoked_at = NOW(3) WHERE revoked_at IS NULL', restoreDatabase, true);
   const restoredCounts = counts(restoreDatabase, true);
   if (!native) query(`GRANT ALL PRIVILEGES ON \`${restoreDatabase}\`.* TO 'crm'@'%'`, undefined, true);
   const recovered = { ...snapshot.configuration,
