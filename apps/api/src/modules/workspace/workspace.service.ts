@@ -1025,11 +1025,15 @@ export class WorkspaceService {
             const done = await tx.projectMilestone.count({
               where: { tenantId: a.tenantId, projectId: p.id, status: 'completed' },
             });
+            const nextMilestone = await tx.projectMilestone.findFirst({
+              where: { tenantId: a.tenantId, projectId: p.id, status: { not: 'completed' } },
+              orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+            });
             await tx.project.update({
               where: { id: p.id },
               data: {
                 progress: total ? Math.round((done / total) * 100) : 0,
-                stage: (milestone?.stage ?? 'initiation') as 'initiation',
+                stage: (nextMilestone?.stage ?? 'initiation') as 'initiation',
               },
             });
           }

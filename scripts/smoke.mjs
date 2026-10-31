@@ -547,6 +547,7 @@ try {
   openTask = await detail(staffToken, 'tasks', openTask);
   await dcmd(staffToken, 'tasks', openTask, 'assign_task', { userId: employee.id, note: 'PM takes remediation task' });
   staffProject = await detail(staffToken, 'projects', staffProject);
+  eq(staffProject.stage, 'initiation', 'Remediation returns to first unfinished milestone rather than jumping stages');
   await dcmd(admin, 'projects', staffProject, 'handover_pm', {
     userId: sourceStaff.id,
     note: 'Complete offboarding handover',

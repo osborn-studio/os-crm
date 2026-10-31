@@ -701,6 +701,14 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               ))}
             </>
           )}
+          {command?.action === 'handover_pm' && (
+            <Alert
+              style={{ marginBottom: 16 }}
+              type="info"
+              showIcon
+              message="同时交接原项目经理名下未完成任务及其负责的未完成里程碑，保留已完成记录和其他执行人的工作。"
+            />
+          )}
           {command && ['assign', 'assign_task', 'handover_pm'].includes(command.action) && (
             <Form.Item
               name="userId"
@@ -721,7 +729,15 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                 command.action,
               )) ||
               kind === 'tasks') && (
-              <Form.Item name="note" label="交付结果、验收依据或整改要求" rules={[{ required: true }]}>
+              <Form.Item
+                name="note"
+                label={
+                  ['handover_pm', 'assign_task'].includes(command.action)
+                    ? '交接原因及待办说明'
+                    : '交付结果、验收依据或整改要求'
+                }
+                rules={[{ required: true }]}
+              >
                 <Input.TextArea rows={3} maxLength={3000} />
               </Form.Item>
             )}
