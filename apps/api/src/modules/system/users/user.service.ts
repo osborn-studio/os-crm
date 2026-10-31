@@ -222,6 +222,44 @@ export class UserService {
         }))
       )
         throw new ConflictException('该用户仍有待处理审批，请先完成或撤回审批；紧急撤销访问可先重置密码');
+      const nextRoles = await tx.role.findMany({ where: { tenantId: actor.tenantId, id: { in: roleIds } } });
+      const nextPermissions = nextRoles.flatMap((r) =>
+        Array.isArray(r.permissions) ? r.permissions.filter((v): v is string => typeof v === 'string') : [],
+      );
+      const canDeliver =
+        nextRoles.some((r) => r.code === 'super_admin') ||
+        (nextRoles.some((r) => ['sales', 'sales_manager'].includes(r.code)) &&
+          ['project:read', 'project:update'].every((v) =>
+            nextPermissions.some((p) => [v, '*', 'project:*'].includes(p)),
+          ));
+      if (
+        securityChange &&
+        (status !== 'active' || (refs.deptId !== undefined && refs.deptId !== user.deptId) || !canDeliver)
+      ) {
+        const [projects, tasks] = await Promise.all([
+          tx.project.count({
+            where: {
+              tenantId: actor.tenantId,
+              pmId: target,
+              deletedAt: null,
+              status: { notIn: ['completed', 'cancelled'] },
+            },
+          }),
+          tx.projectTask.count({
+            where: {
+              tenantId: actor.tenantId,
+              assigneeId: target,
+              deletedAt: null,
+              status: { notIn: ['done', 'cancelled'] },
+              project: { tenantId: actor.tenantId, deletedAt: null, status: { notIn: ['completed', 'cancelled'] } },
+            },
+          }),
+        ]);
+        if (projects || tasks)
+          throw new ConflictException(
+            '该用户仍有未交接的项目经理职责或交付任务，请先完成交接；紧急撤销访问可先重置密码',
+          );
+      }
       await tx.user.update({
         where: { id: target },
         data: {

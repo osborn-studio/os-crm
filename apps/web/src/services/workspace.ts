@@ -96,5 +96,7 @@ export const actionNames: Record<string, string> = {
   accept: '确认验收',
   start_task: '开始任务',
   reopen_task: '发起整改',
+  assign_task: '转派任务',
+  handover_pm: '交接项目经理',
   complete: '完成',
 };

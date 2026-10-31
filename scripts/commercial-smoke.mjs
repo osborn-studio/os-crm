@@ -131,6 +131,11 @@ try {
   admin = await login('admin', env.SEED_ADMIN_PASSWORD);
   const roles = (await call('/system/roles', 'GET', undefined, admin)).data;
   const role = (code) => roles.find((r) => r.code === code).id;
+  const formalSalesRole = roles.find((r) => r.code === 'sales');
+  ok(
+    formalSalesRole.permissions.includes('project:update') && formalSalesRole.permissions.includes('order:update'),
+    'Formal sales can execute their authorized project and order paths',
+  );
   const tid = (await db.tenant.findUniqueOrThrow({ where: { code: env.TENANT_CODE } })).id;
   const dept = (await call('/system/departments', 'POST', req({ name: '销售一部' }), admin, 201)).data;
   const otherDept = (await call('/system/departments', 'POST', req({ name: '销售二部' }), admin, 201)).data;
@@ -687,7 +692,16 @@ try {
   // An inactive former member can still be handed over by their department supervisor.
   const dormant = await create('customers', { name: '离职销售待交接客户' });
   const su = (await call('/system/users/' + users.sales.id, 'GET', undefined, admin)).data;
-  await call('/system/users/' + users.sales.id, 'PUT', req({ status: 'inactive' }, su), admin);
+  await call('/system/users/' + users.sales.id, 'PUT', req({ status: 'inactive' }, su), admin, 409);
+  await command(
+    'projects',
+    await detail('projects', proj, admin),
+    'handover_pm',
+    { userId: users.peer.id, note: '先交接交付经理，再停用离职人员' },
+    admin,
+  );
+  const handedOverUser = (await call('/system/users/' + users.sales.id, 'GET', undefined, admin)).data;
+  await call('/system/users/' + users.sales.id, 'PUT', req({ status: 'inactive' }, handedOverUser), admin);
   const opts = (await call('/commercial/customers/handover/options', 'GET', undefined, manager)).data;
   ok(
     opts.customers.some((r) => r.id === dormant.id),
