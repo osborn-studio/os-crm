@@ -15,9 +15,9 @@ test('production refuses weak/demo passwords, unsafe company code, reused keys a
   assert.equal(validateProduction(valid), valid);
   for (const change of [
     { DEMO_MODE: 'true' }, { SEED_ADMIN_PASSWORD: '12345' }, { SEED_ADMIN_PASSWORD: 'abcdefghijkl' },
-    { TENANT_CODE: 'bad\nINJECTED=value' }, { TENANT_NAME: 'name\nvalue' },
+    { TENANT_CODE: 'bad\nINJECTED=value' }, { TENANT_NAME: 'name\nvalue' }, { TENANT_NAME: 'name\0value' },
     { ENCRYPTION_KEY: valid.JWT_SECRET }, { JWT_SECRET: '0'.repeat(64) }, { APP_URL: 'http://crm.example.com' },
-    { APP_URL: 'https://user:secret@crm.example.com' }, { APP_URL: 'https://crm.example.com/path' }, { WEB_PORT: 'NaN' },
+    { APP_URL: 'https://user:secret@crm.example.com' }, { APP_URL: 'https://crm.example.com/path' }, { APP_URL: 'http://local\nhost:3000' }, { WEB_PORT: 'NaN' },
   ]) assert.throws(() => validateProduction({ ...valid, ...change }));
   assert.doesNotThrow(() => validateProduction({ ...valid, APP_URL: 'https://crm.example.com' }));
 });

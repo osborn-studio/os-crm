@@ -11,7 +11,9 @@ export function encodeBackup(snapshot, backupKey) {
   const iv = randomBytes(12);
   const cipher = createCipheriv('aes-256-gcm', key(backupKey), iv);
   cipher.setAAD(MAGIC);
-  const payload = gzipSync(JSON.stringify(snapshot));
+  const json = JSON.stringify(snapshot);
+  if (Buffer.byteLength(json) > MAX_ARCHIVE_BYTES) throw new Error('Backup payload exceeds supported size');
+  const payload = gzipSync(json);
   return Buffer.concat([MAGIC, iv, cipher.update(payload), cipher.final(), cipher.getAuthTag()]);
 }
 export function decodeBackup(bytes, backupKey) {
