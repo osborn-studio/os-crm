@@ -510,6 +510,8 @@ export default function AgentControlPanel() {
               : '补偿取消未完成行动'
         }
         open={!!review}
+        width={760}
+        style={{ top: 24 }}
         onCancel={() => !busy && setReview(undefined)}
         onOk={() => void decide()}
         confirmLoading={busy}
@@ -530,6 +532,7 @@ export default function AgentControlPanel() {
         <Descriptions
           column={1}
           bordered
+          labelStyle={{ width: 110, whiteSpace: 'nowrap' }}
           items={[
             { key: 'customer', label: '客户', children: review?.proposal.customerName },
             ...Object.entries(review?.proposal.input ?? {}).map(([k, v]) => ({
