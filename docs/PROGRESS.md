@@ -20,6 +20,8 @@
 
 首版实现`afd9e42`的[工程/依赖审计及七组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41278058142)、[Linux Docker正式安装/运行树/重启/恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278058084)和[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278058103)通过。[PR #11](https://github.com/osborn-studio/os-crm/pull/11)基于PR #9，未合并或部署客户生产；待办/版本及非空升级修正后的最终云端结果完成后补记。更多对象/真实模型、附件售后、复杂审批/外发及整体验收仍未完成。
 
+修正提交`e04c018`的[工程/依赖审计及八组MySQL（含227项代理和25项非空代理升级）](https://github.com/osborn-studio/os-crm/actions/runs/41278931308)、[Linux Docker正式安装/运行树/重启/新库恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278931272)、[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278931279)均通过。其后仅加宽人工核对表单，避免长内容和确认框被挤出视窗，本地147项API+4项安装、类型/lint/build再次通过，已实际核对中文表单和未选中的确认框，未在浏览器提交授权或展示凭证。
+
 ## C9 依赖安全与集成失败关闭候选
 
 生产依赖审计从30项（14高/14中/2低）降至0项；全工作区高危/严重0项，仍有构建链2项中危及1项低危告警，未忽略或声称全量清零。Nest11及配套包升级，4个精确锁定的传递依赖覆盖及兼容性说明见DEPENDENCY_SECURITY。CI阻断生产依赖所有已知级别漏洞及构建链高危/严重，Docker工作流新增应用/依赖/锁文件触发，避免依赖变化漏测容器安装。
