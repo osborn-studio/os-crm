@@ -130,12 +130,12 @@ export default function FlowDesignerPage() {
       ),
       onOk: async () => {
         try {
-          const r = await post<{ matches: boolean; nodes: { name: string; approverId: number }[] }>(
-            `/approvals/flows/${f.id}/preview`,
-            { amount },
-          );
+          const r = await post<{
+            matches: boolean;
+            nodes: { name: string; approverId: number; order: number; mode: string }[];
+          }>(`/approvals/flows/${f.id}/preview`, { amount });
           setPreview(
-            `${r.matches ? '流程匹配' : '流程未匹配'}；节点：${r.nodes.map((n) => `${n.name}（${people.users.find((u) => u.id === n.approverId)?.name ?? n.approverId}）`).join(' → ')}`,
+            `${r.matches ? '流程匹配' : '流程未匹配'}；${r.nodes.map((n) => `第${n.order}步 ${n.mode === 'all' ? '会签须全员同意：' : ''}${n.name}（${people.users.find((u) => u.id === n.approverId)?.name ?? n.approverId}）`).join('；')}`,
           );
         } catch (e) {
           message.error(errorText(e));
@@ -186,7 +186,7 @@ export default function FlowDesignerPage() {
                 <Steps
                   size="small"
                   items={f.nodes.map((n) => ({
-                    title: n.nodeName,
+                    title: `${n.nodeName}${n.approverType === 'users_all' ? '（全员会签）' : ''}`,
                     description: n.conditionExpr === 'always' ? '' : n.conditionExpr,
                   }))}
                 />
@@ -343,9 +343,11 @@ export default function FlowDesignerPage() {
                       </Form.Item>
                       <Form.Item name={[f.name, 'approverType']}>
                         <Select
-                          style={{ width: 140 }}
+                          style={{ width: 200 }}
+                          onChange={() => form.setFieldValue(['nodes', f.name, 'approverValue'], undefined)}
                           options={[
                             { value: 'user', label: '指定审批人' },
+                            { value: 'users_all', label: '多人会签（全同意）' },
                             { value: 'role', label: '按角色' },
                             { value: 'dept_leader', label: '部门负责人' },
                           ]}
@@ -356,10 +358,26 @@ export default function FlowDesignerPage() {
                           const type = form.getFieldValue(['nodes', f.name, 'approverType']);
                           return (
                             type !== 'dept_leader' && (
-                              <Form.Item name={[f.name, 'approverValue']} rules={[{ required: true }]}>
+                              <Form.Item
+                                name={[f.name, 'approverValue']}
+                                rules={[{ required: true }]}
+                                getValueProps={(value: unknown) => ({
+                                  value:
+                                    type === 'users_all'
+                                      ? typeof value === 'string'
+                                        ? value.split(',').filter(Boolean)
+                                        : []
+                                      : value,
+                                })}
+                                getValueFromEvent={(value: unknown) =>
+                                  Array.isArray(value) ? value.map(String).join(',') : value
+                                }
+                              >
                                 <Select
-                                  style={{ width: 180 }}
-                                  placeholder="选择审批人"
+                                  style={{ width: type === 'users_all' ? 300 : 180 }}
+                                  mode={type === 'users_all' ? 'multiple' : undefined}
+                                  maxCount={type === 'users_all' ? 8 : undefined}
+                                  placeholder={type === 'users_all' ? '指定2—8位会签人，全员同意后流转' : '选择审批人'}
                                   options={(type === 'role' ? people.roles : people.users).map((p) => ({
                                     value: String(type === 'role' ? p.code : p.id),
                                     label: String(p.name),

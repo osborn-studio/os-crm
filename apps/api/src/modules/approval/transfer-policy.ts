@@ -10,15 +10,16 @@ export function transferInput(body: Record<string, unknown>) {
 }
 export function requireTransfer(
   actor: Actor,
-  approval: { status: string; currentNodeId: number | null; applicantId: number },
-  node: { id: number; action: string; approverId: number },
+  approval: { status: string; currentNodeId: number | null; applicantId: number; activeOrder?: number },
+  node: { id: number; action: string; approverId: number; nodeOrder?: number },
 ) {
   if (approval.status !== 'pending' || node.action !== 'pending')
     throw new BadRequestException('只能转交待处理的审批节点');
   if (
     !admin(actor) &&
     (node.approverId !== actor.userId ||
-      approval.currentNodeId !== node.id ||
+      (approval.currentNodeId !== node.id &&
+        (approval.activeOrder === undefined || approval.activeOrder !== node.nodeOrder)) ||
       !hasPermission(actor, 'approval:approve') ||
       !hasPermission(actor, 'approval:reject'))
   )
