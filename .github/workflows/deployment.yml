@@ -19,6 +19,7 @@ jobs:
           node-version: '24'
       - run: node deploy/configure.mjs
       - run: docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build --wait --wait-timeout 900
+      - run: docker compose --env-file deploy/.env -f deploy/compose.yml exec -T app node deploy/verify-runtime.mjs
       - name: Check UI, roles and restart persistence
         run: |
           node deploy/verify.mjs --create-fixture
