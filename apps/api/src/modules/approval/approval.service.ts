@@ -11,7 +11,7 @@ import { PrismaService } from '../../database/prisma.service';
 import type { Actor } from '../../common/types/actor';
 import { admin } from '../workspace/access';
 import { checkVersion, id, json, object, runCommand, text, type Tx } from '../workspace/command-runner';
-import { condition, flowInput, type FlowField } from './flow-rules';
+import { allApprovers, condition, flowInput, type FlowField } from './flow-rules';
 import { applyContractChange } from '../workspace/contract-change-policy';
 import { pageCursor, requireTransfer, transferInput } from './transfer-policy';
 
@@ -91,6 +91,7 @@ export class ApprovalService {
     });
     return {
       ...approval,
+      activeOrder: approval.nodes.find((n) => n.id === approval.currentNodeId)?.nodeOrder,
       nodes: approval.nodes.map((n) => ({
         ...n,
         approverName: people.find((u) => u.id === n.approverId)?.name ?? '历史人员',
@@ -98,7 +99,7 @@ export class ApprovalService {
           approval.status === 'pending' &&
           n.action === 'pending' &&
           (admin(a) ||
-            (approval.currentNodeId === n.id &&
+            (approval.nodes.find((v) => v.id === approval.currentNodeId)?.nodeOrder === n.nodeOrder &&
               n.approverId === a.userId &&
               a.userId !== approval.applicantId &&
               ['approval:approve', 'approval:reject'].every((p) =>
@@ -138,7 +139,17 @@ export class ApprovalService {
     return {
       items: users
         .slice(0, 100)
-        .filter((u) => canDecide(u.roles))
+        .filter(
+          (u) =>
+            canDecide(u.roles) &&
+            !approval.nodes.some(
+              (n) =>
+                n.id !== nodeId &&
+                n.nodeOrder === node.nodeOrder &&
+                ['pending', 'approved'].includes(n.action) &&
+                n.approverId === u.id,
+            ),
+        )
         .map((u) => ({ id: u.id, name: u.name })),
       nextCursor: users.length > 100 ? users[99].id : null,
     };
@@ -149,10 +160,26 @@ export class ApprovalService {
       const approval = await tx.approval.findFirst({ where: { tenantId: a.tenantId, id: approvalId } });
       const node = await tx.approvalNode.findFirst({ where: { tenantId: a.tenantId, approvalId, id: nodeId } });
       if (!approval || !node) throw new NotFoundException('审批或节点不存在');
-      requireTransfer(a, approval, node);
+      const anchor = approval.currentNodeId
+        ? await tx.approvalNode.findFirst({ where: { tenantId: a.tenantId, approvalId, id: approval.currentNodeId } })
+        : null;
+      requireTransfer(a, { ...approval, activeOrder: anchor?.nodeOrder }, node);
       checkVersion(approval, body.expectedUpdatedAt);
       if (targetUserId === node.approverId || targetUserId === approval.applicantId)
         throw new BadRequestException('不能转给原审批人或申请人');
+      if (
+        await tx.approvalNode.findFirst({
+          where: {
+            tenantId: a.tenantId,
+            approvalId,
+            nodeOrder: node.nodeOrder,
+            id: { not: node.id },
+            action: { in: ['pending', 'approved'] },
+            approverId: targetUserId,
+          },
+        })
+      )
+        throw new BadRequestException('同一会签节点不能由同一人重复承担意见');
       const target = await tx.user.findFirst({
         where: {
           id: targetUserId,
@@ -181,11 +208,11 @@ export class ApprovalService {
         where: { id: node.id },
         data: { action: 'transferred', comment: reason, actedAt: new Date() },
       });
-      const current = approval.currentNodeId === node.id;
+      const current = anchor?.nodeOrder === node.nodeOrder;
       const updated = await tx.approval.update({
         where: { id: approvalId },
         data: {
-          ...(current ? { currentNodeId: successor.id } : {}),
+          ...(approval.currentNodeId === node.id ? { currentNodeId: successor.id } : {}),
           updatedAt: new Date(Math.max(Date.now(), approval.updatedAt.getTime() + 1)),
         },
       });
@@ -276,7 +303,7 @@ export class ApprovalService {
         },
       });
       for (const [index, node] of input.nodes.entries()) {
-        await this.resolve(tx, a.tenantId, node.approverType, node.approverValue, a.userId, false);
+        await this.resolveMany(tx, a.tenantId, node.approverType, node.approverValue, a.userId, false);
         await tx.approvalFlowNode.create({
           data: {
             tenantId: a.tenantId,
@@ -319,11 +346,22 @@ export class ApprovalService {
     if (!flow) throw new NotFoundException('流程不存在');
     const amount = this.amount(body.amount);
     const matches = condition(flow.conditionExpr ?? 'always', amount);
-    const nodes = [];
+    const nodes: { name: string; approverId: number; order: number; mode: 'all' | 'single' }[] = [];
     for (const n of flow.nodes) {
       if (!condition(n.conditionExpr ?? 'always', amount)) continue;
-      const approverId = await this.resolve(this.prisma.system, a.tenantId, n.approverType, n.approverValue, a.userId);
-      nodes.push({ name: n.nodeName, approverId });
+      for (const approverId of await this.resolveMany(
+        this.prisma.system,
+        a.tenantId,
+        n.approverType,
+        n.approverValue,
+        a.userId,
+      ))
+        nodes.push({
+          name: n.nodeName,
+          approverId,
+          order: n.nodeOrder,
+          mode: n.approverType === 'users_all' ? 'all' : 'single',
+        });
     }
     return { matches, nodes, version: flow.version };
   }
@@ -331,6 +369,20 @@ export class ApprovalService {
     const v = String(value ?? '0');
     if (!/^\d{1,12}(\.\d{1,2})?$/.test(v)) throw new BadRequestException('金额无效');
     return new Prisma.Decimal(v);
+  }
+  private async resolveMany(
+    tx: Tx,
+    tenantId: number,
+    type: string,
+    value: string | null,
+    applicantId: number,
+    requireLeader = true,
+  ) {
+    if (type !== 'users_all') return [await this.resolve(tx, tenantId, type, value, applicantId, requireLeader)];
+    const result: number[] = [];
+    for (const userId of allApprovers(value))
+      result.push(await this.resolve(tx, tenantId, 'user', String(userId), applicantId, requireLeader));
+    return result;
   }
   async matchFlow(tx: Tx, a: Actor, bizType: string, amount: Prisma.Decimal, flowId?: number) {
     const flows = await tx.approvalFlow.findMany({
@@ -381,12 +433,13 @@ export class ApprovalService {
           throw new BadRequestException(`${f.label}必须为有效日期`);
       }
     }
-    const nodes = [];
+    const nodes: ((typeof flow.nodes)[number] & { approverId: number })[] = [];
     for (const n of flow.nodes) {
       if (!condition(n.conditionExpr ?? 'always', data.amount)) continue;
-      const approverId = await this.resolve(tx, a.tenantId, n.approverType, n.approverValue, a.userId);
-      if (approverId === a.userId) throw new BadRequestException(`节点“${n.nodeName}”不能由申请人审批，请调整流程`);
-      nodes.push({ ...n, approverId });
+      for (const approverId of await this.resolveMany(tx, a.tenantId, n.approverType, n.approverValue, a.userId)) {
+        if (approverId === a.userId) throw new BadRequestException(`节点“${n.nodeName}”不能由申请人审批，请调整流程`);
+        nodes.push({ ...n, approverId });
+      }
     }
     if (!nodes.length) throw new BadRequestException('没有匹配的审批节点，不允许自动通过');
     const approval = await tx.approval.create({
@@ -407,7 +460,12 @@ export class ApprovalService {
             name: flow.name,
             version: flow.version,
             fields,
-            nodes: nodes.map((n) => ({ name: n.nodeName, approverId: n.approverId, order: n.nodeOrder })),
+            nodes: nodes.map((n) => ({
+              name: n.nodeName,
+              approverId: n.approverId,
+              order: n.nodeOrder,
+              mode: n.approverType === 'users_all' ? 'all' : 'single',
+            })),
           },
         }),
       },
@@ -425,16 +483,18 @@ export class ApprovalService {
       });
       firstId ||= created.id;
     }
-    await tx.notification.create({
-      data: {
-        tenantId: a.tenantId,
-        userId: nodes[0].approverId,
-        type: 'approval.created',
-        title: data.title,
-        content: '有新的审批等待处理',
-        bizType: data.bizType,
-        bizId: approval.id,
-      },
+    await tx.notification.createMany({
+      data: nodes
+        .filter((n) => n.nodeOrder === nodes[0].nodeOrder)
+        .map((n) => ({
+          tenantId: a.tenantId,
+          userId: n.approverId,
+          type: 'approval.created',
+          title: data.title,
+          content: '有新的审批等待处理',
+          bizType: data.bizType,
+          bizId: approval.id,
+        })),
     });
     await this.event(tx, a, approval.id, 'created', '提交审批', {
       flowId: flow.id,
@@ -472,37 +532,61 @@ export class ApprovalService {
       action === 'rejected' ? text(body.comment, '驳回原因', 1000) : String(body.comment ?? '同意').slice(0, 1000);
     return runCommand(this.prisma, a, `approval.${action}`, { ...body, approvalId, nodeId }, async (tx) => {
       const approval = await tx.approval.findFirst({
-        where: { tenantId: a.tenantId, id: approvalId, status: 'pending', currentNodeId: nodeId },
+        where: { tenantId: a.tenantId, id: approvalId, status: 'pending' },
       });
       const node = await tx.approvalNode.findFirst({
         where: { tenantId: a.tenantId, id: nodeId, approvalId, approverId: a.userId, action: 'pending' },
       });
-      if (!approval || !node || approval.applicantId === a.userId)
+      const anchor = approval?.currentNodeId
+        ? await tx.approvalNode.findFirst({ where: { tenantId: a.tenantId, approvalId, id: approval.currentNodeId } })
+        : null;
+      if (
+        !approval ||
+        !node ||
+        !anchor ||
+        anchor.action !== 'pending' ||
+        anchor.nodeOrder !== node.nodeOrder ||
+        approval.applicantId === a.userId
+      )
         throw new ForbiddenException('不是当前节点审批人，或审批已处理');
       await tx.approvalNode.update({ where: { id: node.id }, data: { action, comment, actedAt: new Date() } });
       const next =
         action === 'approved'
           ? await tx.approvalNode.findFirst({
-              where: { tenantId: a.tenantId, approvalId, action: 'pending', nodeOrder: { gt: node.nodeOrder } },
-              orderBy: { nodeOrder: 'asc' },
+              where: { tenantId: a.tenantId, approvalId, action: 'pending', nodeOrder: { gte: node.nodeOrder } },
+              orderBy: [{ nodeOrder: 'asc' }, { id: 'asc' }],
             })
           : null;
       const status = next ? 'pending' : action;
       await tx.approval.update({
         where: { id: approvalId },
-        data: { status, currentNodeId: next?.id ?? null, completedAt: next ? null : new Date() },
-      });
-      await tx.notification.create({
         data: {
-          tenantId: a.tenantId,
-          userId: next?.approverId ?? approval.applicantId,
-          type: next ? 'approval.created' : 'approval.completed',
-          title: approval.title,
-          content: next ? '审批已流转至你' : action === 'approved' ? '申请已通过' : '申请已驳回',
-          bizType: approval.bizType,
-          bizId: approval.id,
+          status,
+          currentNodeId: next?.id ?? null,
+          completedAt: next ? null : new Date(),
+          updatedAt: new Date(Math.max(Date.now(), approval.updatedAt.getTime() + 1)),
         },
       });
+      const recipients =
+        next && next.nodeOrder > node.nodeOrder
+          ? await tx.approvalNode.findMany({
+              where: { tenantId: a.tenantId, approvalId, action: 'pending', nodeOrder: next.nodeOrder },
+              select: { approverId: true },
+            })
+          : [];
+      if (!next) recipients.push({ approverId: approval.applicantId });
+      if (recipients.length)
+        await tx.notification.createMany({
+          data: recipients.map((r) => ({
+            tenantId: a.tenantId,
+            userId: r.approverId,
+            type: next ? 'approval.created' : 'approval.completed',
+            title: approval.title,
+            content: next ? '审批已流转至你' : action === 'approved' ? '申请已通过' : '申请已驳回',
+            bizType: approval.bizType,
+            bizId: approval.id,
+          })),
+        });
       if (!next) await this.callback(tx, a.tenantId, approval.bizType, approval.bizId, approval.id, action, a.userId);
       await this.event(
         tx,
@@ -510,10 +594,21 @@ export class ApprovalService {
         approvalId,
         action,
         comment,
-        { nodeName: node.nodeName, nodeOrder: node.nodeOrder, status, nextNodeId: next?.id ?? null },
+        {
+          nodeName: node.nodeName,
+          nodeOrder: node.nodeOrder,
+          status,
+          nextNodeId: next?.id ?? null,
+          waitingForCountersign: next?.nodeOrder === node.nodeOrder,
+        },
         node.id,
       );
-      return { id: approvalId, status, nextNode: next?.nodeName };
+      return {
+        id: approvalId,
+        status,
+        nextNode: next?.nodeName,
+        waitingForCountersign: next?.nodeOrder === node.nodeOrder,
+      };
     });
   }
   async withdraw(a: Actor, approvalId: number, body: Record<string, unknown>) {
@@ -542,8 +637,16 @@ export class ApprovalService {
       include: { approval: true },
       orderBy: { createdAt: 'asc' },
     });
+    const anchors = await this.prisma.system.approvalNode.findMany({
+      where: {
+        tenantId: a.tenantId,
+        id: { in: nodes.map((n) => n.approval.currentNodeId).filter((v): v is number => v !== null) },
+      },
+      select: { id: true, nodeOrder: true },
+    });
+    const orders = new Map(anchors.map((n) => [n.id, n.nodeOrder]));
     return nodes
-      .filter((n) => n.approval.currentNodeId === n.id)
+      .filter((n) => n.approval.currentNodeId !== null && orders.get(n.approval.currentNodeId) === n.nodeOrder)
       .map((n) => ({ nodeId: n.id, nodeName: n.nodeName, approval: n.approval }));
   }
   async initiated(a: Actor) {

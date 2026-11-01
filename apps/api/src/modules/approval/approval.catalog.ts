@@ -9,8 +9,11 @@ const node = {
   additionalProperties: false,
   properties: {
     name: { type: 'string', maxLength: 50 },
-    approverType: { enum: ['user', 'role', 'dept_leader'] },
-    approverValue: { type: 'string' },
+    approverType: { enum: ['user', 'users_all', 'role', 'dept_leader'] },
+    approverValue: {
+      type: 'string',
+      description: 'users_all:2..8 distinct user IDs separated by commas; every member must approve',
+    },
     condition: { type: 'string', description: 'always or anchored amount comparison' },
   },
 };
@@ -27,7 +30,7 @@ const field = {
 };
 interface Operation {
   id: string;
-  version: '1.0';
+  version: '1.0' | '2.0';
   effect: 'read' | 'write';
   method: string;
   path: string;
@@ -49,7 +52,17 @@ const definition = (
   role?: string,
 ): Operation => ({
   id,
-  version: '1.0',
+  version: [
+    'approval.flow.save',
+    'approval.flow.preview',
+    'approval.transfer',
+    'approval.pending',
+    'approval.detail',
+    'approval.approve',
+    'approval.reject',
+  ].includes(id)
+    ? '2.0'
+    : '1.0',
   effect,
   method,
   path,
@@ -262,7 +275,14 @@ export const APPROVAL_OPERATIONS: readonly Operation[] = [
       `approval:${action}`,
       keyed({ comment: { type: 'string', maxLength: 1000 } }, action === 'reject' ? ['comment'] : []),
       objectResult,
-      [...writeGuards, 'current assigned node', 'pending status', 'no self approval', 'atomic business callback'],
+      [
+        ...writeGuards,
+        'assigned participant in current stage',
+        'pending status',
+        'no self approval',
+        'all distinct stage participants approve before advancing; any rejection terminates',
+        'final-stage atomic business callback',
+      ],
     ),
   ),
   definition(

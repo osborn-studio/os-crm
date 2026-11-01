@@ -9,7 +9,7 @@ export interface FlowField {
 }
 export interface FlowNodeInput {
   name: string;
-  approverType: 'user' | 'role' | 'dept_leader';
+  approverType: 'user' | 'users_all' | 'role' | 'dept_leader';
   approverValue: string;
   condition: string;
 }
@@ -20,6 +20,19 @@ export interface FlowInput {
   priority: number;
   nodes: FlowNodeInput[];
   fields: FlowField[];
+}
+export function allApprovers(value: unknown): number[] {
+  const parts = text(value, '会签人员', 100)
+    .split(',')
+    .map((v) => v.trim());
+  if (
+    parts.length < 2 ||
+    parts.length > 8 ||
+    parts.some((v) => !/^[1-9]\d{0,9}$/.test(v) || Number(v) > 2147483647) ||
+    new Set(parts).size !== parts.length
+  )
+    throw new BadRequestException('会签需要2—8位不重复的指定人员');
+  return parts.map(Number);
 }
 export function condition(expression: string, amount: Prisma.Decimal | string | number): boolean {
   if (expression === 'always' || expression === '') return true;
@@ -58,8 +71,14 @@ export function flowInput(value: unknown): FlowInput {
   const nodes = body.nodes.map((value): FlowNodeInput => {
     const node = object(value),
       type = node.approverType;
-    if (!['user', 'role', 'dept_leader'].includes(String(type))) throw new BadRequestException('审批人类型无效');
-    const approverValue = type === 'dept_leader' ? '' : text(node.approverValue, '审批人', 100);
+    if (!['user', 'users_all', 'role', 'dept_leader'].includes(String(type)))
+      throw new BadRequestException('审批人类型无效');
+    const approverValue =
+      type === 'dept_leader'
+        ? ''
+        : type === 'users_all'
+          ? allApprovers(node.approverValue).join(',')
+          : text(node.approverValue, '审批人', 100);
     const expression = typeof node.condition === 'string' ? node.condition.trim() : 'always';
     condition(expression, 0);
     return {
