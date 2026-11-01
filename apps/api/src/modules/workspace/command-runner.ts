@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import type { Actor } from '../../common/types/actor';
+import { type SystemPrincipal, validateSystemPrincipal } from './system-principal';
 export type Tx = Prisma.TransactionClient;
 export type Row = Record<string, unknown> & { id: number; updatedAt?: Date; status?: string };
 export function json(value: unknown): Prisma.InputJsonValue {
@@ -96,42 +97,46 @@ export async function runCommand(
   const payloadHash = createHash('sha256')
     .update(JSON.stringify(canonical({ command, body })))
     .digest('hex');
+  return serializableCommand(prisma, async (tx) => {
+    // Close the race between the HTTP guard and the write transaction. Role/department
+    // changes revoke sessions atomically; an already-loaded actor must not bypass that.
+    await validateActor(tx, actor);
+    // Trusted application hook; delegated execution must revalidate even a cached receipt.
+    if (beforeReplay) await beforeReplay(tx);
+    const prior = await tx.commandExecution.findUnique({
+      where: {
+        tenantId_actorId_requestKey: { tenantId: actor.tenantId, actorId: actor.userId, requestKey: key },
+      },
+    });
+    if (prior) {
+      if (prior.command !== command || prior.payloadHash !== payloadHash)
+        throw new ConflictException('请求标识已用于其他操作');
+      return prior.result;
+    }
+    const result = json(await work(tx));
+    await tx.commandExecution.create({
+      data: { tenantId: actor.tenantId, actorId: actor.userId, requestKey: key, command, payloadHash, result },
+    });
+    await tx.auditLog.create({
+      data: {
+        tenantId: actor.tenantId,
+        userId: actor.userId,
+        action: command,
+        objectType: command.split('.')[0],
+        afterData: result,
+      },
+    });
+    return result;
+  });
+}
+
+async function serializableCommand<T>(prisma: PrismaService, work: (tx: Tx) => Promise<T>): Promise<T> {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      return await prisma.system.$transaction(
-        async (tx) => {
-          // Close the race between the HTTP guard and the write transaction. Role/department
-          // changes revoke sessions atomically; an already-loaded actor must not bypass that.
-          await validateActor(tx, actor);
-          // Trusted application hook; delegated execution must revalidate even a cached receipt.
-          if (beforeReplay) await beforeReplay(tx);
-          const prior = await tx.commandExecution.findUnique({
-            where: {
-              tenantId_actorId_requestKey: { tenantId: actor.tenantId, actorId: actor.userId, requestKey: key },
-            },
-          });
-          if (prior) {
-            if (prior.command !== command || prior.payloadHash !== payloadHash)
-              throw new ConflictException('请求标识已用于其他操作');
-            return prior.result;
-          }
-          const result = json(await work(tx));
-          await tx.commandExecution.create({
-            data: { tenantId: actor.tenantId, actorId: actor.userId, requestKey: key, command, payloadHash, result },
-          });
-          await tx.auditLog.create({
-            data: {
-              tenantId: actor.tenantId,
-              userId: actor.userId,
-              action: command,
-              objectType: command.split('.')[0],
-              afterData: result,
-            },
-          });
-          return result;
-        },
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 },
-      );
+      return await prisma.system.$transaction(work, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        timeout: 15000,
+      });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -143,4 +148,75 @@ export async function runCommand(
     }
   }
   throw new ConflictException('操作冲突，请重试');
+}
+
+/** Internal only. The trusted work callback must apply tenant, state and version guards
+ * using this principal and tx; it must not perform external effects in a retried transaction.
+ * jobRunId is evidence, not the receipt identity: another run must replay the same key.
+ */
+export async function runSystemCommand(
+  prisma: PrismaService,
+  principal: SystemPrincipal,
+  capability: string,
+  body: Record<string, unknown>,
+  work: (tx: Tx) => Promise<unknown>,
+) {
+  validateSystemPrincipal(principal, capability);
+  for (const field of [
+    'tenantId',
+    'actorId',
+    'userId',
+    'system',
+    'principal',
+    'jobName',
+    'capability',
+    'allowedCapabilities',
+    'policyVersion',
+    'jobRunId',
+  ]) {
+    if (Object.hasOwn(body, field)) throw new BadRequestException('系统身份不能来自命令参数');
+  }
+  const key = text(body.requestKey, '请求标识', 80);
+  const payloadHash = createHash('sha256')
+    .update(JSON.stringify(canonical({ capability, policyVersion: principal.policyVersion, body })))
+    .digest('hex');
+  return serializableCommand(prisma, async (tx) => {
+    validateSystemPrincipal(principal, capability);
+    const tenant = await tx.tenant.findFirst({
+      where: { id: principal.tenantId, status: { in: ['active', 'trial'] } },
+    });
+    if (!tenant) throw new ForbiddenException('系统任务所属企业不可用');
+    const identity = { tenantId: principal.tenantId, jobName: principal.jobName, requestKey: key };
+    const prior = await tx.systemCommandExecution.findUnique({
+      where: { tenantId_jobName_requestKey: identity },
+    });
+    if (prior) {
+      if (prior.command !== capability || prior.payloadHash !== payloadHash)
+        throw new ConflictException('请求标识已用于其他操作');
+      return prior.result;
+    }
+    const result = json(await work(tx));
+    await tx.systemCommandExecution.create({
+      data: {
+        ...identity,
+        command: capability,
+        payloadHash,
+        result,
+        policyVersion: principal.policyVersion,
+        jobRunId: principal.jobRunId,
+      },
+    });
+    await tx.auditLog.create({
+      data: {
+        tenantId: principal.tenantId,
+        source: 'system',
+        principalLabel: `system:${principal.jobName}`,
+        action: capability,
+        objectType: capability.split('.')[0],
+        afterData: result,
+        beforeData: { policyVersion: principal.policyVersion, jobRunId: principal.jobRunId, requestKey: key },
+      },
+    });
+    return result;
+  });
 }

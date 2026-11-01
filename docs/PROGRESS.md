@@ -1,5 +1,17 @@
 # 当前进度 · 2026-11-01
 
+## B3 / design §4.0：受信系统命令原语（未验收）
+
+新增 `runSystemCommand` 与不可由 JSON/复制对象伪造的服务端 `SystemPrincipal`；固定任务策略绑定单租户、jobName、能力白名单、policyVersion、jobRunId。只预留 renewal/forecast 策略，不实现业务任务、Worker、cron 或 HTTP/MCP 入口。两类命令共享原有 Serializable、15秒超时及 P2034/P2002 最多三次尝试；人工 validateActor、beforeReplay、哈希与回执行为保留。系统事务重检企业状态，按规范化 payload hash 拒绝换参重用 requestKey；跨 jobRunId 重放返回原结果。
+
+新增独立迁移 `202611010013_system_commands`，未修改既有迁移。系统回执以 `(tenantId, jobName, requestKey)` 保存在独立表，人工/系统查询不能互读；成功审计 `source=system`、`principalLabel=system:<jobName>`、userId=NULL，包含策略版本、原始运行编号和请求编号。AuditSource 包含 human/agent/system/import；旧行默认 human，不猜测历史 agent/import 来源，也不在本批重分类既有写入器。原语契约、业务回调责任及后续边界见 [SYSTEM_COMMANDS.md](SYSTEM_COMMANDS.md)。
+
+新增单元反例：伪造/复制主体、冻结策略、白名单拒绝、body 身份注入、幂等/换参冲突、企业失效重检、重试上限、全生产 API 源码无系统入口调用方。扩展现有 `scripts/identity-smoke.mjs`（现有 CI MySQL 8 身份作业执行，未修改 .github workflows）：持久化重放只执行一次、换参拒绝、能力拒绝、双向人工/系统回执隔离、并发相同请求仅一条回执、事务失败回滚、source/系统标签审计、无生产调用方及 HTTP 系统路径 404。
+
+验证：由 osstack 循环生成（Codex 编写、只读 Codex 按验收条件复核），随后人工复核。Codex 沙箱无网络，未能自行安装依赖；循环验证器与人工复核后均在宿主 Node 26.5.0（项目要求 Node 24）上运行 `pnpm check` 通过。`node --check scripts/identity-smoke.mjs` 通过。本机无 MySQL；迁移与真实 MySQL 反例以 CI MySQL 8 身份作业结果为准。人工 `runCommand` 写入的审计来源暂默认 human，智能体委托执行尚未标为 agent。
+
+下一有界里程碑：依赖可用的 Node 24 环境运行 `pnpm check`，由既有 CI MySQL 8 身份作业执行新增反例并记录真实结果，再由产品负责人验收 B3。未 merge 或 deploy。
+
 ## C10 私有证据附件第一批
 
 审查修正版1c4ce79已同步回本机，修复跨部门项目协作者从其他任务完成事件看到附件名称/Hash的问题；按任务读取范围隐藏该部分元数据，仅保留隐藏数量。上传/撤回新增必填expectedParentUpdatedAt，写契约升级2.0、读取仍1.0，阻断审核/重办前准备的延迟请求；响应加nosniff。售后关闭后重开会重新核对旧处理人资格，不合格则回到待指派，避免将工单交回停用人员。

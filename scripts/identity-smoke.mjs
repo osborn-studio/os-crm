@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { spawn } from 'node:child_process';
@@ -239,9 +240,116 @@ try {
   const apiRequire = createRequire(new URL('../apps/api/package.json', import.meta.url));
   apiRequire('reflect-metadata');
   const { PrismaService } = apiRequire('./dist/database/prisma.service.js');
-  const { runCommand } = apiRequire('./dist/modules/workspace/command-runner.js');
+  const { runCommand, runSystemCommand } = apiRequire('./dist/modules/workspace/command-runner.js');
+  const { createSystemPrincipal } = apiRequire('./dist/modules/workspace/system-principal.js');
   const commandDb = new PrismaService();
   try {
+    // Direct server composition only; no HTTP endpoint may construct this principal.
+    const claims = JSON.parse(Buffer.from(admin.split('.')[1], 'base64url'));
+    const user = await db.user.findUniqueOrThrow({
+      where: { id: claims.sub },
+      include: { roles: { include: { role: true } } },
+    });
+    const definitions = user.roles.map((r) => r.role);
+    const human = {
+      userId: user.id,
+      tenantId: user.tenantId,
+      deptId: user.deptId,
+      sessionId: claims.sid,
+      roles: definitions.map((r) => r.code),
+      permissions: [...new Set(definitions.flatMap((r) => r.permissions))],
+      dataScope:
+        ['all', 'dept', 'team', 'custom', 'self'].find((scope) => definitions.some((r) => r.dataScope === scope)) ??
+        'self',
+    };
+    const system = createSystemPrincipal(user.tenantId, 'renewal', randomUUID());
+    const cap = 'renewal.generate';
+    const systemBody = { requestKey: randomUUID(), value: 'system-proof' };
+    const auditBefore = await db.auditLog.count({ where: { tenantId: user.tenantId, source: 'system' } });
+    let executions = 0;
+    const work = async () => ({ marker: 'system', execution: ++executions });
+    const first = await runSystemCommand(commandDb, system, cap, systemBody, work);
+    const replayed = await runSystemCommand(
+      commandDb,
+      createSystemPrincipal(user.tenantId, 'renewal', randomUUID()),
+      cap,
+      systemBody,
+      work,
+    );
+    assert.deepEqual(replayed, first);
+    ok(executions === 1, 'System receipt replay skips work across runs');
+    await assert.rejects(runSystemCommand(commandDb, system, cap, { ...systemBody, value: 'changed' }, work));
+    await assert.rejects(runSystemCommand(commandDb, system, 'forecast.lock', { requestKey: randomUUID() }, work));
+    await assert.rejects(runSystemCommand(commandDb, JSON.parse(JSON.stringify(system)), cap, systemBody, work));
+    ok(executions === 1, 'Payload conflict, denied capability and forged principal never execute');
+    const auditRows = await db.auditLog.findMany({
+      where: { tenantId: user.tenantId, source: 'system' },
+      orderBy: { id: 'asc' },
+    });
+    ok(
+      auditRows.length === auditBefore + 1 &&
+        auditRows.at(-1).principalLabel === 'system:renewal' &&
+        auditRows.at(-1).userId === null,
+      'One system audit with non-human actor label',
+    );
+    // Identical command/body/key in each namespace must run its own callback, in both orders.
+    const humanResult = await runCommand(commandDb, human, cap, systemBody, async () => ({ marker: 'human' }));
+    ok(humanResult.marker === 'human', 'Human cannot replay a system receipt');
+    const humanBody = { requestKey: randomUUID() };
+    await runCommand(commandDb, human, cap, humanBody, async () => ({ marker: 'human-first' }));
+    const systemResult = await runSystemCommand(commandDb, system, cap, humanBody, async () => ({
+      marker: 'system-second',
+    }));
+    ok(systemResult.marker === 'system-second', 'System cannot replay a human receipt');
+    const parallelBody = { requestKey: randomUUID() };
+    const concurrent = await Promise.all(
+      [1, 2].map(() => runSystemCommand(commandDb, system, cap, parallelBody, async () => ({ nonce: randomUUID() }))),
+    );
+    assert.deepEqual(concurrent[0], concurrent[1]);
+    ok(
+      (await db.systemCommandExecution.count({
+        where: { tenantId: user.tenantId, requestKey: parallelBody.requestKey },
+      })) === 1,
+      'Real MySQL concurrent requests commit one durable receipt',
+    );
+    const rollbackBody = { requestKey: randomUUID() };
+    await assert.rejects(
+      runSystemCommand(commandDb, system, cap, rollbackBody, async (tx) => {
+        await tx.tenant.update({ where: { id: user.tenantId }, data: { name: 'must roll back' } });
+        throw new Error('late failure');
+      }),
+    );
+    ok(
+      (await db.tenant.findUniqueOrThrow({ where: { id: user.tenantId } })).name === env.TENANT_NAME &&
+        (await db.systemCommandExecution.count({ where: { requestKey: rollbackBody.requestKey } })) === 0,
+      'System failure rolls back writes and receipt',
+    );
+    function assertNoSystemCallers(dir) {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const path = new URL(entry.name + (entry.isDirectory() ? '/' : ''), dir);
+        if (entry.isDirectory()) assertNoSystemCallers(path);
+        else if (
+          entry.name.endsWith('.ts') &&
+          !entry.name.endsWith('.spec.ts') &&
+          !['command-runner.ts', 'system-principal.ts'].includes(entry.name)
+        ) {
+          assert.doesNotMatch(
+            readFileSync(path, 'utf8'),
+            /\b(runSystemCommand|createSystemPrincipal|validateSystemPrincipal)\b/,
+          );
+        }
+      }
+    }
+    assertNoSystemCallers(new URL('../apps/api/src/', import.meta.url));
+    checks++;
+    await call(
+      '/system/commands',
+      'POST',
+      { ...systemBody, tenantId: user.tenantId, jobName: 'renewal', system: true },
+      admin,
+      404,
+    );
+
     for (const [token, roles] of [
       [one.accessToken, ['sales']],
       [two.accessToken, ['super_admin']],
