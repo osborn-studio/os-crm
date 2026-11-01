@@ -1,0 +1,85 @@
+[
+ {
+  "login": "sales"
+ },
+ {
+  "waitText": "经营工作台"
+ },
+ {
+  "shot": "01-dashboard"
+ },
+ {
+  "click": "客户经营",
+  "within": ".ant-layout-sider"
+ },
+ {
+  "click": "客户档案",
+  "within": ".ant-layout-sider"
+ },
+ {
+  "expectUrl": "/customers"
+ },
+ {
+  "waitText": "共 "
+ },
+ {
+  "shot": "02-customer-list"
+ },
+ {
+  "click": "新建客户"
+ },
+ {
+  "waitText": "客户名称",
+  "within": ".ant-modal"
+ },
+ {
+  "fill": "客户名称",
+  "value": "验证客户-${RUN_ID}",
+  "within": ".ant-modal"
+ },
+ {
+  "fill": "行业",
+  "value": "智能制造",
+  "within": ".ant-modal"
+ },
+ {
+  "fill": "备注",
+  "value": "verify-os-crm synthetic fixture",
+  "within": ".ant-modal"
+ },
+ {
+  "shot": "03-create-form"
+ },
+ {
+  "click": "确定",
+  "within": ".ant-modal-footer"
+ },
+ {
+  "waitText": "已保存"
+ },
+ {
+  "fill": "搜索客户",
+  "value": "验证客户-${RUN_ID}"
+ },
+ {
+  "press": "Enter"
+ },
+ {
+  "waitText": "共 1 条"
+ },
+ {
+  "shot": "04-search-result"
+ },
+ {
+  "click": "验证客户-${RUN_ID}"
+ },
+ {
+  "waitText": "客户详情"
+ },
+ {
+  "waitText": "verify-os-crm synthetic fixture"
+ },
+ {
+  "shot": "05-detail-drawer"
+ }
+]
