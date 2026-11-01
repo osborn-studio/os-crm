@@ -684,6 +684,309 @@ try {
     !JSON.stringify(events).includes('password') && !JSON.stringify(events).includes('accessToken'),
     'No credentials in events',
   );
+  // Correcting a receipt preserves its bank reference and creates an independently reviewed successor.
+  const correctionBody = (row, extra = {}) => ({
+    requestKey: randomUUID(),
+    expectedUpdatedAt: row.updatedAt,
+    customerId: row.customerId,
+    contractId: row.contractId ?? null,
+    amount: row.amount,
+    receiptDate: new Date(row.receiptDate).toISOString().slice(0, 10),
+    note: '合成凭据更正说明',
+    ...extra,
+  });
+  const correct = (row, body, t = admin, expected = 201) =>
+    call(`/finance-ledger/receipts/${row.id}/correct`, 'POST', body, t, expected);
+  let original = await ledger(await register(regBody('CORR-ROOT', '3.25', customer.id, c2.id)));
+  const noChange = correctionBody(original);
+  await correct(original, noChange, admin, 400);
+  for (const t of [sales, manager, boss]) await correct(original, correctionBody(original, { amount: '4.25' }), t, 403);
+  await correct(
+    original,
+    { ...correctionBody(original, { amount: '4.25' }), reference: 'CANNOT-CHANGE-BANK-REFERENCE' },
+    admin,
+    400,
+  );
+  const noContract = correctionBody(original, { amount: '4.25' });
+  delete noContract.contractId;
+  await correct(original, noContract, admin, 400);
+  await correct(original, correctionBody(original, { amount: '-1.00' }), admin, 400);
+  await correct(original, correctionBody(original, { receiptDate: '2026-02-30' }), admin, 400);
+  await correct(original, correctionBody(original, { customerId: foreignCustomer.id, contractId: null }), admin, 404);
+  await correct(original, correctionBody(original, { contractId: foreignCustomerContract.id }), admin, 400);
+  await action(original, 'confirm', {}, admin2);
+  original = await ledger(original);
+  let originalPlan = await getPlan(c2);
+  await action(original, 'allocate', {
+    paymentPlanId: originalPlan.id,
+    expectedPlanUpdatedAt: originalPlan.updatedAt.toISOString(),
+    amount: '1.00',
+  });
+  original = await ledger(original);
+  await correct(original, correctionBody(original, { amount: '4.25' }), admin, 409);
+  originalPlan = await getPlan(c2);
+  await action(original, 'reverse', {
+    allocationId: original.allocations.find((a) => a.active).id,
+    expectedPlanUpdatedAt: originalPlan.updatedAt.toISOString(),
+  });
+  original = await ledger(original);
+  const correction = correctionBody(original, {
+    customerId: hidden.id,
+    contractId: null,
+    amount: '4.25',
+    receiptDate: '2026-10-30',
+    note: '合成更正，目标 ' + hidden.name,
+  });
+  const changed = await correct(original, correction, admin2);
+  const repeated = await correct(original, correction, admin2);
+  ok(changed.data.id === repeated.data.id, 'Correction replay returns the same successor');
+  await correct(original, { ...correction, amount: '4.26' }, admin2, 409);
+  await correct(original, { ...correction, requestKey: randomUUID() }, admin2, 409);
+  const old = await ledger(original);
+  let successor = await ledger(changed.data);
+  ok(
+    old.status === 'voided' && old.amount === '3.25' && old.allocatedAmount === '0' && old.unallocatedAmount === '0',
+    'Original amount and reversed history retained while original becomes unavailable',
+  );
+  ok(old.allocations.length === 1 && !old.allocations[0].active, 'Correction does not delete reversed allocation');
+  ok(
+    successor.status === 'draft' &&
+      successor.amount === '4.25' &&
+      successor.confirmedBy === null &&
+      successor.createdBy === users.admin2.id,
+    'Successor starts with fresh independent review',
+  );
+  ok(
+    successor.serialNo === original.serialNo &&
+      successor.previous.id === original.id &&
+      old.replacement.id === successor.id,
+    'Same bank reference and linked predecessor/successor',
+  );
+  const voucher = await db.receiptVoucher.findFirstOrThrow({
+    where: { tenantId: tid, originalReceiptId: original.id },
+  });
+  ok(voucher.currentReceiptId === successor.id, 'Voucher points to the sole current receipt');
+  ok(
+    (await db.receipt.findUniqueOrThrow({ where: { id: original.id } })).referenceKey === voucher.referenceKey &&
+      (await db.receipt.findUniqueOrThrow({ where: { id: successor.id } })).referenceKey === null,
+    'Original unique reference is never released',
+  );
+  await register(regBody('CORR-ROOT', '3.25', customer.id, c2.id), admin, 409);
+  await correct(old, correctionBody(old, { amount: '5.00' }), admin, 409);
+  await action(successor, 'confirm', {}, admin2, 403);
+  await action(successor, 'confirm', {}, admin);
+  successor = await ledger(successor);
+  await call('/finance-ledger/receipts/' + successor.id, 'GET', undefined, sales, 404);
+  const peerView = await ledger(successor, peer),
+    salesView = await ledger(original, sales);
+  ok(
+    peerView.previous === null && salesView.replacement === null,
+    'Sales readers cannot follow cross-customer correction links',
+  );
+  ok(
+    !JSON.stringify(peerView).includes(customer.name) &&
+      !JSON.stringify(salesView).includes(hidden.name) &&
+      !JSON.stringify(salesView).includes('4.25'),
+    'Projected correction evidence cannot disclose the other customer',
+  );
+  const peerRaw = (await call('/workspace/receipts/' + successor.id, 'GET', undefined, peer)).data;
+  const salesRaw = (await call('/workspace/receipts/' + original.id, 'GET', undefined, sales)).data;
+  ok(
+    !JSON.stringify(peerRaw).includes(customer.name) &&
+      !JSON.stringify(salesRaw).includes(hidden.name) &&
+      !Object.hasOwn(peerRaw, 'replacesId'),
+    'Shared workspace also redacts correction pointers and raw remarks/void reasons',
+  );
+  const bossView = await ledger(original, boss);
+  ok(
+    bossView.replacement.id === successor.id &&
+      bossView.events.some((e) => e.kind === 'correction.replaced' && e.evidence.after.customerId === hidden.id),
+    'Boss retains enterprise-wide read-only audit evidence',
+  );
+  const privacyMcp = await fetch('http://127.0.0.1:4116/api/v1/mcp', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + sales,
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'tools/call',
+      params: { name: 'workspace.get', arguments: { kind: 'receipts', recordId: original.id } },
+    }),
+  });
+  ok(privacyMcp.status === 200, 'MCP correction read responds');
+  const privacyResult = await privacyMcp.json();
+  ok(
+    !privacyResult.result.isError && !JSON.stringify(privacyResult.result.content).includes(hidden.name),
+    'MCP does not reveal cross-customer correction details',
+  );
+  // A voided current receipt can be reopened with the same reference and unchanged financial fields.
+  let reopen = await ledger(await register(regBody('VOID-REOPEN', '2.00')));
+  await action(reopen, 'void');
+  reopen = await ledger(reopen);
+  const reopened = (await correct(reopen, correctionBody(reopen))).data;
+  let reopenedRow = await ledger(reopened);
+  ok(
+    (await db.receipt.findUniqueOrThrow({ where: { id: reopen.id } })).voidReason === '合成台账处理',
+    'Reopening preserves the original void reason',
+  );
+  ok(
+    reopenedRow.status === 'draft' && reopenedRow.amount === '2' && reopenedRow.serialNo === 'VOID-REOPEN',
+    'Explicit same-reference reopening works without inventing a new bank reference',
+  );
+  await register(regBody('VOID-REOPEN', '2.00'), admin, 409);
+  // Competing corrections cannot fork one receipt into two current successors.
+  let competing = await ledger(await register(regBody('CORR-RACE', '1.00')));
+  const correctionRace = await Promise.all([
+    correct(competing, correctionBody(competing, { amount: '1.10' }), admin, null),
+    correct(competing, correctionBody(competing, { amount: '1.20' }), admin2, null),
+  ]);
+  ok(
+    correctionRace
+      .map((x) => x.status)
+      .sort()
+      .join(',') === '201,409',
+    'Only one concurrent correction succeeds',
+  );
+  ok(
+    (await db.receipt.count({ where: { tenantId: tid, replacesId: competing.id } })) === 1,
+    'A receipt cannot acquire two successors',
+  );
+  const firstWinner = correctionRace.find((x) => x.status === 201).data;
+  let chain = await ledger(firstWinner);
+  const nextChain = (await correct(chain, correctionBody(chain, { amount: '1.30' }))).data;
+  const rootChain = await db.receiptVoucher.findFirstOrThrow({
+    where: { tenantId: tid, originalReceiptId: competing.id },
+  });
+  ok(
+    rootChain.currentReceiptId === nextChain.id && (await ledger(nextChain)).previous.id === chain.id,
+    'Repeated corrections form a chain under one immutable root',
+  );
+  // An event failure after original/child/pointer writes rolls back the whole correction.
+  let failed = await ledger(await register(regBody('CORR-ROLLBACK', '5.00')));
+  const failedBody = correctionBody(failed, { amount: '5.50' });
+  fixtureSql(
+    `CREATE TRIGGER fixture_correction_rollback BEFORE INSERT ON finance_events FOR EACH ROW BEGIN IF NEW.kind = 'correction.replaced' AND NEW.receipt_id = ${failed.id} THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'synthetic correction rollback'; END IF; END`,
+  );
+  try {
+    await correct(failed, failedBody, admin, 500);
+  } finally {
+    fixtureSql('DROP TRIGGER fixture_correction_rollback');
+  }
+  const unchanged = await ledger(failed);
+  ok(
+    unchanged.status === 'draft' && unchanged.amount === '5' && unchanged.updatedAt === failed.updatedAt,
+    'Late correction failure preserves original status, amount and version',
+  );
+  ok(
+    (await db.receipt.count({ where: { tenantId: tid, replacesId: failed.id } })) === 0 &&
+      (await db.receiptVoucher.findFirstOrThrow({ where: { tenantId: tid, originalReceiptId: failed.id } }))
+        .currentReceiptId === failed.id,
+    'Failed correction leaves no child or pointer movement',
+  );
+  ok(
+    (await db.commandExecution.count({ where: { tenantId: tid, requestKey: failedBody.requestKey } })) === 0,
+    'Failed correction leaves no successful command receipt',
+  );
+  await correct(failed, failedBody);
+  await correct(legacy, correctionBody(legacy, { amount: '2.00' }), admin, 409);
+  await correct(foreignReceipt, correctionBody(foreignReceipt, { amount: '2.00' }), admin, 404);
+  ok(
+    (await call('/finance-ledger/schema', 'GET', undefined, admin)).data.some(
+      (x) => x.id === 'finance.receipt.correct' && x.agentExposed === false,
+    ),
+    'Correction has a stable non-agent write contract',
+  );
+  const frozenContract = await sign(
+    await create('contracts', {
+      name: '更正绑定审批冻结',
+      customerId: customer.id,
+      contractType: 'implementation',
+      amount: '2.00',
+    }),
+  );
+  let frozenReceipt = await ledger(await register(regBody('CORR-FROZEN', '1.00', customer.id, frozenContract.id)));
+  const frozenPreview = (
+    await call(
+      `/commercial/contracts/${frozenContract.id}/changes/preview`,
+      'POST',
+      { changeType: 'terms', data: { paymentTerms: '冻结更正的合成条款' } },
+      sales,
+      201,
+    )
+  ).data;
+  const frozenChange = (
+    await call(
+      `/commercial/contracts/${frozenContract.id}/changes`,
+      'POST',
+      {
+        requestKey: randomUUID(),
+        expectedUpdatedAt: frozenPreview.expectedUpdatedAt,
+        changeType: 'terms',
+        data: { paymentTerms: '冻结更正的合成条款' },
+        reason: '合成冻结校验',
+        form: {},
+      },
+      sales,
+      201,
+    )
+  ).data;
+  await correct(frozenReceipt, correctionBody(frozenReceipt, { contractId: null, amount: '1.10' }), admin, 409);
+  let targetFrozen = await ledger(await register(regBody('CORR-FROZEN-TARGET', '1.00')));
+  await correct(
+    targetFrozen,
+    correctionBody(targetFrozen, { contractId: frozenContract.id, amount: '1.10' }),
+    admin,
+    409,
+  );
+  await call('/approvals/' + frozenChange.approvalId + '/withdraw', 'POST', { requestKey: randomUUID() }, sales, 201);
+  await correct(frozenReceipt, correctionBody(frozenReceipt, { contractId: null, amount: '1.10' }));
+  const terminatedContract = await sign(
+    await create('contracts', {
+      name: '终止合同解绑更正',
+      customerId: customer.id,
+      contractType: 'implementation',
+      amount: '2.00',
+    }),
+  );
+  let terminatedReceipt = await ledger(
+    await register(regBody('CORR-TERMINATED', '1.00', customer.id, terminatedContract.id)),
+  );
+  const terminatedPreview = (
+    await call(
+      `/commercial/contracts/${terminatedContract.id}/changes/preview`,
+      'POST',
+      { changeType: 'terminate', data: {} },
+      sales,
+      201,
+    )
+  ).data;
+  const terminateRequest = (
+    await call(
+      `/commercial/contracts/${terminatedContract.id}/changes`,
+      'POST',
+      {
+        requestKey: randomUUID(),
+        expectedUpdatedAt: terminatedPreview.expectedUpdatedAt,
+        changeType: 'terminate',
+        data: {},
+        reason: '合成合同终止',
+        form: {},
+      },
+      sales,
+      201,
+    )
+  ).data;
+  await approve(terminateRequest.approvalId);
+  const recoveredUnbound = (await correct(terminatedReceipt, correctionBody(terminatedReceipt, { contractId: null })))
+    .data;
+  ok(
+    (await ledger(recoveredUnbound)).contractId === null,
+    'Explicit correction can release an unusable terminated-contract binding without changing original history',
+  );
   console.log(
     JSON.stringify({
       checks,
@@ -695,6 +998,9 @@ try {
       concurrency: true,
       tenantScopes: true,
       immutableHistory: true,
+      receiptCorrection: true,
+      immutableVoucher: true,
+      correctionPrivacy: true,
     }),
   );
 } catch (e) {
