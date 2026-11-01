@@ -1519,6 +1519,8 @@ model Project {
   priority         ProjectPriority @default(medium)
   approvalId       Int?           @map("approval_id")
   acceptanceDate   DateTime?      @map("acceptance_date") @db.Date
+  acceptanceState  String         @default("not_requested") @map("acceptance_state") @db.VarChar(20)
+  acceptanceSubmittedBy Int?      @map("acceptance_submitted_by")
   acceptanceDocId  Int?           @map("acceptance_doc_id")
   satisfactionScore Int?          @map("satisfaction_score")
   closureNote      String?        @map("closure_note") @db.Text
@@ -1642,6 +1644,21 @@ model ProjectTask {
   @@index([tenantId, status])
   @@index([milestoneId])
   @@map("project_tasks")
+}
+
+model DeliveryEvent {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  projectId Int      @map("project_id")
+  taskId    Int?     @map("task_id")
+  actorId   Int      @map("actor_id")
+  kind      String   @db.VarChar(40)
+  note      String   @db.Text
+  evidence  Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, projectId, id])
+  @@map("delivery_events")
 }
 
 enum TaskStatus {

@@ -113,7 +113,7 @@ export const resources: Record<string, Resource> = {
       f('budgetAmount', '项目预算', 'money'),
       f('remark', '备注', 'textarea'),
     ],
-    actions: ['submit', 'start', 'advance', 'accept'],
+    actions: ['submit', 'start', 'advance', 'request_acceptance', 'reject_acceptance', 'accept'],
   },
   tasks: {
     model: 'projectTask',
@@ -122,10 +122,11 @@ export const resources: Record<string, Resource> = {
     fields: [
       f('title', '任务名称', 'text', true),
       f('projectId', '项目', 'reference', true, { reference: 'projects' }),
+      f('milestoneId', '关联里程碑（可选）', 'number'),
       f('dueDate', '截止日期', 'date'),
       f('description', '任务说明', 'textarea'),
     ],
-    actions: ['complete'],
+    actions: ['start_task', 'complete', 'reopen_task'],
   },
   actions: {
     model: 'actionPlan',
@@ -214,6 +215,11 @@ export function cleanInput(kind: string, value: unknown, partial = false): Recor
     }
     if (field.type === 'number') {
       const n = Number(v);
+      if (field.key === 'milestoneId') {
+        if (!Number.isSafeInteger(n) || n < 1) throw new BadRequestException('里程碑编号无效');
+        result[field.key] = n;
+        continue;
+      }
       if (!Number.isFinite(n) || n < 0 || n > 100) throw new BadRequestException(`${field.label}范围0—100`);
       result[field.key] = n;
     }

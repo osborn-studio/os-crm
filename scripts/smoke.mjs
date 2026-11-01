@@ -244,15 +244,158 @@ try {
   const generatedProject = await command(sales, 'contracts', await detail(sales, 'contracts', signed), 'project');
   let project = await detail(sales, 'projects', generatedProject.id);
   await approveBusiness('projects', project);
-  const task = await create(sales, 'tasks', { title: '测试交付任务', projectId: project.id });
-  await command(sales, 'tasks', task, 'complete');
+  project = await detail(sales, 'projects', project);
+  const dcmd = async (token, kind, row, action, extra = {}, expected = 201) =>
+    call(
+      `/workspace/${kind}/${row.id}/${action}`,
+      'POST',
+      { requestKey: newKey(), expectedUpdatedAt: row.updatedAt, ...extra },
+      token,
+      expected,
+    );
+  await dcmd(sales, 'projects', project, 'advance', { note: 'Cannot progress unstarted' }, 400);
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Unstarted blocked', projectId: project.id } },
+    sales,
+    400,
+  );
+  await command(sales, 'projects', project, 'start');
+  project = await detail(sales, 'projects', project);
+  await dcmd(sales, 'projects', project, 'request_acceptance', { note: 'Premature acceptance' }, 409);
+  const milestoneId = project.related.milestones[0].id;
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Invalid milestone', projectId: project.id, milestoneId: 9999999 } },
+    sales,
+    400,
+  );
+  let task = await create(sales, 'tasks', { title: 'Delivery task', projectId: project.id, milestoneId });
+  project = await detail(sales, 'projects', project);
+  await dcmd(sales, 'projects', project, 'advance', { note: 'Unfinished task blocks milestone' }, 409);
+  await dcmd(sales, 'tasks', task, 'complete', { note: 'Cannot complete before starting', actualHours: '1.0' }, 409);
+  await dcmd(sales, 'tasks', task, 'start_task', {}, 400);
+  await dcmd(boss, 'tasks', task, 'start_task', { note: 'Boss read only' }, 403);
+  await dcmd(peer, 'tasks', task, 'start_task', { note: 'Other sales cannot see task' }, 404);
+  await command(sales, 'tasks', task, 'start_task', { note: 'Started delivery' });
+  task = await detail(sales, 'tasks', task);
+  await dcmd(sales, 'tasks', task, 'complete', { note: 'Invalid exact hours', actualHours: '1.25' }, 400);
+  const taskBody = {
+    requestKey: newKey(),
+    expectedUpdatedAt: task.updatedAt,
+    note: 'Evidence: fixture test report',
+    actualHours: '2.5',
+  };
+  const beforeEvents = await db.deliveryEvent.count({ where: { projectId: project.id } });
+  const taskResult = await call(`/workspace/tasks/${task.id}/complete`, 'POST', taskBody, sales, 201);
+  const retryResult = await call(`/workspace/tasks/${task.id}/complete`, 'POST', taskBody, sales, 201);
+  eq(retryResult.data, taskResult.data, 'Task completion durable replay');
+  await call(
+    `/workspace/tasks/${task.id}/complete`,
+    'POST',
+    { ...taskBody, note: 'Changed replay payload' },
+    sales,
+    409,
+  );
+  await call(`/workspace/tasks/${task.id}/complete`, 'POST', { ...taskBody, requestKey: newKey() }, sales, 409);
+  eq(
+    await db.deliveryEvent.count({ where: { projectId: project.id } }),
+    beforeEvents + 1,
+    'Exactly one task evidence event',
+  );
+  task = await detail(sales, 'tasks', task);
+  eq(task.actualHours, '2.5');
+  await call(
+    `/workspace/tasks/${task.id}`,
+    'PUT',
+    { requestKey: newKey(), expectedUpdatedAt: task.updatedAt, data: { title: 'Cannot rewrite done task' } },
+    sales,
+    409,
+  );
   for (let i = 0; i < 4; i++) {
     project = await detail(sales, 'projects', project);
-    await command(sales, 'projects', project, 'advance');
+    await command(sales, 'projects', project, 'advance', { note: 'Milestone evidence ' + i });
   }
   project = await detail(sales, 'projects', project);
   eq(project.progress, 100);
-  await command(sales, 'projects', project, 'accept', { note: '验收主线测试完成' });
+  await dcmd(sales, 'projects', project, 'accept', { note: 'Self acceptance blocked' }, 403);
+  await dcmd(admin, 'projects', project, 'accept', { note: 'Request required' }, 409);
+  await command(sales, 'projects', project, 'request_acceptance', { note: 'All deliverables submitted' });
+  project = await detail(sales, 'projects', project);
+  eq(project.acceptanceState, 'pending');
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Frozen task creation', projectId: project.id } },
+    sales,
+    409,
+  );
+  await dcmd(sales, 'tasks', task, 'reopen_task', { note: 'Cannot mutate pending acceptance' }, 409);
+  await dcmd(sales, 'projects', project, 'accept', { note: 'Self acceptance blocked' }, 403);
+  await dcmd(boss, 'projects', project, 'accept', { note: 'Boss business writes blocked' }, 403);
+  const rejectBody = {
+    requestKey: newKey(),
+    expectedUpdatedAt: project.updatedAt,
+    note: 'Rejected: add delivery evidence',
+  };
+  const decisions = await Promise.all([
+    call(`/workspace/projects/${project.id}/reject_acceptance`, 'POST', rejectBody, admin, null),
+    call(
+      `/workspace/projects/${project.id}/reject_acceptance`,
+      'POST',
+      { requestKey: newKey(), expectedUpdatedAt: project.updatedAt, note: 'Concurrent rejection' },
+      manager,
+      null,
+    ),
+  ]);
+  eq(decisions.map((r) => r.status).sort(), [201, 409], 'Only one concurrent acceptance decision');
+  project = await detail(sales, 'projects', project);
+  eq(project.acceptanceState, 'rejected');
+  await command(sales, 'tasks', task, 'reopen_task', { note: 'Remediation: revise implementation' });
+  project = await detail(sales, 'projects', project);
+  eq(project.progress, 0, 'Reopened first-stage task resets dependent milestones');
+  eq(
+    project.related.milestones.every((m) => m.status === 'pending'),
+    true,
+  );
+  await dcmd(sales, 'projects', project, 'request_acceptance', { note: 'Still not remediated' }, 409);
+  task = await detail(sales, 'tasks', task);
+  await command(sales, 'tasks', task, 'start_task', { note: 'Begin remediation' });
+  task = await detail(sales, 'tasks', task);
+  await command(sales, 'tasks', task, 'complete', { note: 'Revised test report', actualHours: '3.5' });
+  for (let i = 0; i < 4; i++) {
+    project = await detail(sales, 'projects', project);
+    await command(sales, 'projects', project, 'advance', { note: 'Revalidated milestone ' + i });
+  }
+  project = await detail(sales, 'projects', project);
+  await command(sales, 'projects', project, 'request_acceptance', { note: 'Resubmit revised evidence' });
+  project = await detail(sales, 'projects', project);
+  await dcmd(admin, 'projects', project, 'accept', { note: 'Reviewed revised deliverables' });
+  project = await detail(sales, 'projects', project);
+  eq(project.status, 'completed');
+  eq(project.acceptanceState, 'accepted');
+  eq(project.stage, 'closed');
+  eq(
+    project.related.deliveryEvents.some((e) => e.kind === 'acceptance.rejected'),
+    true,
+    'Rejected history retained',
+  );
+  eq(
+    project.related.deliveryEvents.filter((e) => e.kind === 'task.complete').length,
+    2,
+    'Both delivery evidence versions retained',
+  );
+  task = await detail(sales, 'tasks', task);
+  await dcmd(sales, 'tasks', task, 'reopen_task', { note: 'Cannot rewrite closed delivery' }, 400);
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Closed project blocked', projectId: project.id } },
+    sales,
+    400,
+  );
   const publicCustomer = (await call('/workspace/customers?poolType=public', 'GET', undefined, sales)).data.items[0];
   assert(publicCustomer, 'Public fixture');
   const racing = await Promise.all(
@@ -382,6 +525,42 @@ try {
     data: { tenantId: foreignTenant.id, code: newKey().slice(0, 20), name: '不可跨租户读取' },
   });
   await call(`/workspace/customers/${cross.id}`, 'GET', undefined, admin, 404);
+  const foreignProject = await db.project.create({
+    data: {
+      tenantId: foreignTenant.id,
+      customerId: cross.id,
+      projectNo: 'FOREIGN-DELIVERY',
+      name: 'Foreign private delivery',
+      pmId: salesUser.id,
+      salesOwnerId: salesUser.id,
+      status: 'active',
+      actualStartDate: new Date(),
+      plannedStartDate: new Date(),
+      plannedEndDate: new Date(),
+    },
+  });
+  const foreignTask = await db.projectTask.create({
+    data: {
+      tenantId: foreignTenant.id,
+      projectId: foreignProject.id,
+      title: 'Foreign private task',
+      assigneeId: salesUser.id,
+    },
+  });
+  await db.deliveryEvent.create({
+    data: {
+      tenantId: foreignTenant.id,
+      projectId: foreignProject.id,
+      actorId: salesUser.id,
+      kind: 'fixture.private',
+      note: 'Must stay isolated',
+      evidence: {},
+    },
+  });
+  await call(`/workspace/projects/${foreignProject.id}`, 'GET', undefined, admin, 404);
+  await call(`/workspace/tasks/${foreignTask.id}`, 'GET', undefined, admin, 404);
+  await dcmd(admin, 'projects', foreignProject, 'advance', { note: 'Cross tenant forbidden' }, 404);
+  await dcmd(admin, 'tasks', foreignTask, 'start_task', { note: 'Cross tenant forbidden' }, 404);
   const mcp = async (method, params, rpcId) => {
     const r = await fetch(base + '/mcp', {
       method: 'POST',
