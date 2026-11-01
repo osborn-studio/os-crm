@@ -98,7 +98,10 @@ try {
     attachmentCatalog.length === 4 &&
       attachmentCatalog.every(
         (c) =>
-          c.version === '1.0' && c.agentEnabled === false && c.inputSchema.type === 'object' && c.outputSchema.type,
+          c.version === (['attachment.upload', 'attachment.withdraw'].includes(c.id) ? '2.0' : '1.0') &&
+          c.agentEnabled === false &&
+          c.inputSchema.type === 'object' &&
+          c.outputSchema.type,
       ),
     'Versioned attachment schemas remain explicit and unavailable to agents',
   );
@@ -190,17 +193,32 @@ try {
     acknowledged: true,
     ...extra,
   });
-  const upload = (input = body(), token = tokens.sales, expected = 201) =>
-    call('/evidence-attachments', 'POST', input, token, expected);
+  const parentVersion = async (kind, subjectId) => {
+    const model = { projects: db.project, tasks: db.projectTask, 'service-tickets': db.serviceTicket }[kind];
+    const row = model && Number.isInteger(subjectId) ? await model.findUnique({ where: { id: subjectId } }) : null;
+    return (row?.updatedAt ?? new Date(0)).toISOString();
+  };
+  // Fill the reviewed parent version once per body, so deliberate replays resend identical input.
+  const upload = async (input = body(), token = tokens.sales, expected = 201) => {
+    if (!('expectedParentUpdatedAt' in input))
+      input.expectedParentUpdatedAt = await parentVersion(input.subjectKind, input.subjectId);
+    return call('/evidence-attachments', 'POST', input, token, expected);
+  };
   const content = (row, token = tokens.sales, expected = 200, port = 4140) =>
     call('/evidence-attachments/' + row.id + '/content', 'GET', undefined, token, expected, port);
   const listing = (kind = 'projects', subjectId = active.id, token = tokens.sales) =>
     call('/evidence-attachments?subjectKind=' + kind + '&subjectId=' + subjectId, 'GET', undefined, token);
-  const withdraw = (row, token = tokens.sales, extra = {}, expected = 201) =>
+  const withdraw = async (row, token = tokens.sales, extra = {}, expected = 201) =>
     call(
       '/evidence-attachments/' + row.id + '/withdraw',
       'POST',
-      { requestKey: randomUUID(), expectedUpdatedAt: row.updatedAt, reason: '合成：原文件上传有误', ...extra },
+      {
+        requestKey: randomUUID(),
+        expectedUpdatedAt: row.updatedAt,
+        expectedParentUpdatedAt: await parentVersion(row.subjectKind, row.subjectId),
+        reason: '合成：原文件上传有误',
+        ...extra,
+      },
       token,
       expected,
     );
@@ -237,6 +255,13 @@ try {
   ok(
     Buffer.from(downloaded.contentBase64, 'base64').equals(pdf) && downloaded.sha256 === uploadRow.sha256,
     'Exact original bytes and SHA256 preserved',
+  );
+  const raw = await fetch('http://127.0.0.1:4140/api/v1/evidence-attachments/' + uploadRow.id + '/content', {
+    headers: { Authorization: 'Bearer ' + tokens.sales },
+  });
+  ok(
+    raw.headers.get('x-content-type-options') === 'nosniff' && raw.headers.get('cache-control') === 'no-store',
+    'Download responses forbid content sniffing and caching',
   );
   await content(uploadRow, null, 401);
   await content(uploadRow, tokens.outsider, 404);
@@ -304,6 +329,34 @@ try {
     taskEvent.evidence.attachments.some((a) => a.id === taskFile.id && a.sha256 === taskFile.sha256),
     'Task completion seals attachment ID/hash in immutable event',
   );
+  // A cross-department executor of another task gains project read, but not this task or its evidence.
+  const sideTask = await db.projectTask.create({
+    data: {
+      tenantId: tid,
+      projectId: active.id,
+      title: '合成跨部门任务',
+      assigneeId: users.outsider.id,
+      status: 'in_progress',
+    },
+  });
+  await call('/workspace/tasks/' + task.id, 'GET', undefined, tokens.outsider, 404);
+  const sealed = (detail) =>
+    detail.related.deliveryEvents.find((e) => e.taskId === task.id && e.kind === 'task.complete');
+  const outsiderView = sealed(await call('/workspace/projects/' + active.id, 'GET', undefined, tokens.outsider));
+  ok(
+    outsiderView.evidence.attachments.length === 0 &&
+      outsiderView.evidence.attachmentsWithheld === 1 &&
+      !JSON.stringify(outsiderView).includes(taskFile.sha256) &&
+      !JSON.stringify(outsiderView).includes('合成验收证据'),
+    'Project history withholds attachment metadata of tasks the reader cannot open',
+  );
+  ok(
+    sealed(await call('/workspace/projects/' + active.id, 'GET', undefined, tokens.sales)).evidence.attachments.some(
+      (a) => a.id === taskFile.id,
+    ),
+    'Task owner still sees sealed attachment metadata in project history',
+  );
+  await db.projectTask.update({ where: { id: sideTask.id }, data: { deletedAt: new Date() } });
   await upload(body({ subjectKind: 'tasks', subjectId: task.id }), tokens.sales, 409);
   await db.projectMilestone.create({
     data: {
@@ -318,6 +371,7 @@ try {
     },
   });
   const activeNow = await db.project.findUnique({ where: { id: active.id } });
+  const reviewedRound = activeNow.updatedAt.toISOString();
   await call(
     '/workspace/projects/' + active.id + '/request_acceptance',
     'POST',
@@ -340,6 +394,13 @@ try {
     { requestKey: randomUUID(), expectedUpdatedAt: pending.updatedAt.toISOString(), note: '合成拒收整改' },
     tokens.manager,
     201,
+  );
+  // Requests prepared before submission must not land in the rework round after rejection.
+  await upload(body({ expectedParentUpdatedAt: reviewedRound }), tokens.sales, 409);
+  await withdraw(uploadRow, tokens.sales, { expectedParentUpdatedAt: reviewedRound }, 409);
+  ok(
+    (await db.evidenceAttachment.findUnique({ where: { id: uploadRow.id } })).withdrawnAt === null,
+    'Stale parent version rejects delayed upload and withdrawal after a review round',
   );
   const withdrawn = await withdraw(uploadRow);
   ok(
@@ -479,12 +540,36 @@ try {
     });
   const medium = Buffer.alloc(600 * 1024, 32);
   medium.write('%PDF-1.7\n');
+  // Separate parents, so only the shared enterprise quota (not the parent version) can reject one.
+  const sibling = await db.project.create({
+    data: {
+      tenantId: tid,
+      projectNo: 'SYNTHETIC-QUOTA-SIBLING',
+      name: '合成配额并发项目',
+      customerId: customer.id,
+      pmId: users.sales.id,
+      salesOwnerId: users.sales.id,
+      status: 'active',
+      actualStartDate: new Date(),
+      plannedStartDate: new Date('2026-01-01'),
+      plannedEndDate: new Date('2026-01-02'),
+    },
+  });
+  const concurrentBodies = [];
+  for (const [i, subjectId] of [
+    [1, active.id],
+    [2, sibling.id],
+  ])
+    concurrentBodies.push({
+      ...body({ subjectId, filename: 'concurrent-' + i + '.pdf', contentBase64: medium.toString('base64') }),
+      expectedParentUpdatedAt: await parentVersion('projects', subjectId),
+    });
   const concurrent = await Promise.all(
-    [1, 2].map(async (i) => {
+    concurrentBodies.map(async (input) => {
       const r = await fetch('http://127.0.0.1:4140/api/v1/evidence-attachments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tokens.sales },
-        body: JSON.stringify(body({ filename: 'concurrent-' + i + '.pdf', contentBase64: medium.toString('base64') })),
+        body: JSON.stringify(input),
       });
       return r.status;
     }),

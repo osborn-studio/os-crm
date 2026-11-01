@@ -16,11 +16,13 @@ type Attachment = {
 export default function AttachmentPanel({
   subjectKind,
   subjectId,
+  parentUpdatedAt,
   writable = true,
   onChanged,
 }: {
   subjectKind: string;
   subjectId: number;
+  parentUpdatedAt: string;
   writable?: boolean;
   onChanged?: () => Promise<void>;
 }) {
@@ -59,6 +61,7 @@ export default function AttachmentPanel({
         requestKey: requestKey.current,
         subjectKind,
         subjectId,
+        expectedParentUpdatedAt: parentUpdatedAt,
         filename: file.name,
         contentBase64,
         acknowledged: true,
@@ -97,6 +100,7 @@ export default function AttachmentPanel({
       await post(`/evidence-attachments/${withdraw.id}/withdraw`, {
         requestKey: requestKey.current,
         expectedUpdatedAt: withdraw.updatedAt,
+        expectedParentUpdatedAt: parentUpdatedAt,
         ...values,
       });
       setWithdraw(null);
