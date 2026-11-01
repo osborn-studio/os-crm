@@ -69,6 +69,10 @@
 
 同步修正旧演示/交付入口中“全部财务只展示”“无独立委托”“无附件”等已过时说明。钉钉飞书继续等待真实测试企业凭证；用户“继续”不视为提供凭证或真实企业联调授权。完整商用验收、可靠外发、复杂冲销、性能容量、模型质量费用等仍未完成；下一有界批次优先可靠通知任务和运维可观测性，不把本包标为商用正式版。
 
+最终完整包源码0b3149c已公开发布为[工程候选预发布](https://github.com/osborn-studio/os-crm/releases/tag/c11-candidate-20261101)，[PR #17](https://github.com/osborn-studio/os-crm/pull/17)保留审阅，未合并。ZIP为6,971,460字节，SHA256为61df6de63fe4d9a82606436a18db2342c251f445b47e1021ee61bf075aec3638，GitHub已上传资产摘要与本地一致。解压后610个逐文件Hash、15迁移、24截图、相对材料链接及网页绝对静态资源全部核对通过。再从解压源码冻结安装依赖、生成Prisma、迁移全新独立MySQL测试库，41项空企业安装、重启保留、加密备份、防篡改、新库恢复和恢复后登录读取通过，原演示未写入。0b3149c的[Linux Docker演示检查](https://github.com/osborn-studio/os-crm/actions/runs/41298896522)亦通过；正式Docker沿用同API基准证据，不冒充本分支新运行。本段仅记录交付证据，不改变该ZIP固定的源码提交。
+
+最终完整包源码0b3149c已公开发布为[工程候选预发布](https://github.com/osborn-studio/os-crm/releases/tag/c11-candidate-20261101)，[PR #17](https://github.com/osborn-studio/os-crm/pull/17)保留审阅，未合并。ZIP为6,971,460字节，SHA256为61df6de63fe4d9a82606436a18db2342c251f445b47e1021ee61bf075aec3638，GitHub已上传资产摘要与本地一致。解压后610个逐文件Hash、15迁移、24截图、相对材料链接及网页绝对静态资源全部核对通过。再从解压源码冻结安装依赖、生成Prisma、迁移全新独立MySQL测试库，41项空企业安装、重启保留、加密备份、防篡改、新库恢复和恢复后登录读取通过，原演示未写入。0b3149c的[Linux Docker演示检查](https://github.com/osborn-studio/os-crm/actions/runs/41298896522)亦通过；正式Docker沿用同API基准证据，不冒充本分支新运行。本段仅记录交付证据，不改变该ZIP固定的源码提交。
+
 ## C9 依赖安全与集成失败关闭候选
 
 生产依赖审计从30项（14高/14中/2低）降至0项；全工作区高危/严重0项，仍有构建链2项中危及1项低危告警，未忽略或声称全量清零。Nest11及配套包升级，4个精确锁定的传递依赖覆盖及兼容性说明见DEPENDENCY_SECURITY。CI阻断生产依赖所有已知级别漏洞及构建链高危/严重，Docker工作流新增应用/依赖/锁文件触发，避免依赖变化漏测容器安装。

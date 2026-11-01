@@ -2,6 +2,10 @@
 
 2026-11-01，基准源码0908c6b636b8e240a38ef7365b0a5c344d3a970c。交付分支只修订说明、制作材料及新增候选打包入口，不将文档变更当成新业务测试结果。
 
+最终交付源码0b3149cba681b665cc04609896d741cfcf7232a9另补齐原前端引用缺失的favicon.svg。完整包及不含凭证的复核结果已上传[候选预发布](https://github.com/osborn-studio/os-crm/releases/tag/c11-candidate-20261101)，资产SHA256为61df6de63fe4d9a82606436a18db2342c251f445b47e1021ee61bf075aec3638。本记录的后续补记不修改已固定的ZIP源码。
+
+完整ZIP实际解压并核对610项逐文件Hash、15迁移、24截图、手册相对链接及网页静态资源。解压源码重新冻结安装依赖、生成Prisma、应用全部迁移到新建独立测试库，41项原生MySQL安装/重启保留/加密备份/防篡改/新库恢复及恢复后登录读取通过，未修改原演示。0b3149c的[Linux演示Docker 41298896522](https://github.com/osborn-studio/os-crm/actions/runs/41298896522)成功；正式Docker仍引用下面的同API基准检查，不声称本分支重新运行正式Docker。
+
 ## 代码证据
 
 - 基准提交[CRM checks 41296357132](https://github.com/osborn-studio/os-crm/actions/runs/41296357132)的工程检查与11组真实MySQL任务均成功。
