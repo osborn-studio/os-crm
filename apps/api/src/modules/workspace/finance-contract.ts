@@ -110,7 +110,7 @@ export const financeCapabilities = [
             'current receipt of an immutable voucher reference',
             'original reference never released',
             'replacement starts unconfirmed',
-            'cross-customer correction evidence redacted for non-admin readers',
+            'cross-customer correction evidence restricted to enterprise audit readers (admin/boss)',
           ]
         : []),
     ],
