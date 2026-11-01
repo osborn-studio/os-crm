@@ -76,7 +76,7 @@ let ready = false;
 for (let i = 0; i < 60; i++) {
   if (api.exitCode !== null) throw new Error(log.slice(-3000));
   try {
-    ready = (await fetch(`http://127.0.0.1:${process.env.PORT || 4000}/api/v1/health`)).ok;
+    ready = (await fetch(`http://127.0.0.1:${process.env.PORT || 4000}/api/v1/health/ready`)).ok;
   } catch {}
   if (ready) break;
   await delay(250);

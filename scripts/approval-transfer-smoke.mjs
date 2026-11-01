@@ -152,6 +152,8 @@ try {
     await delay(200);
   }
   ok(ready, 'API ready');
+  const readiness = (await call('/health/ready')).data;
+  ok(readiness.status === 'ready' && readiness.database === 'reachable', 'Unauthenticated readiness reaches the real database without business records');
   admin = await login('admin', env.SEED_ADMIN_PASSWORD);
   const tid = (await db.tenant.findUniqueOrThrow({ where: { code: env.TENANT_CODE } })).id;
   const roles = (await call('/system/roles', 'GET', undefined, admin)).data;
