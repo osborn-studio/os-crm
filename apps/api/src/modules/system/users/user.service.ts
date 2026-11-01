@@ -236,7 +236,7 @@ export class UserService {
         securityChange &&
         (status !== 'active' || (refs.deptId !== undefined && refs.deptId !== user.deptId) || !canDeliver)
       ) {
-        const [projects, tasks] = await Promise.all([
+        const [projects, tasks, tickets] = await Promise.all([
           tx.project.count({
             where: {
               tenantId: actor.tenantId,
@@ -254,10 +254,13 @@ export class UserService {
               project: { tenantId: actor.tenantId, deletedAt: null, status: { notIn: ['completed', 'cancelled'] } },
             },
           }),
+          tx.serviceTicket.count({
+            where: { tenantId: actor.tenantId, assigneeId: target, status: { notIn: ['closed', 'cancelled'] } },
+          }),
         ]);
-        if (projects || tasks)
+        if (projects || tasks || tickets)
           throw new ConflictException(
-            '该用户仍有未交接的项目经理职责或交付任务，请先完成交接；紧急撤销访问可先重置密码',
+            '该用户仍有未交接的项目经理职责、交付任务或售后工单，请先完成交接；紧急撤销访问可先重置密码',
           );
       }
       await tx.user.update({

@@ -76,6 +76,7 @@ export default function BasicLayout() {
       children: [
         { key: '/projects', label: '项目总览' },
         { key: '/tasks', label: '项目任务' },
+        { key: '/service-tickets', label: '售后服务工单' },
       ],
     },
     {
