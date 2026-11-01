@@ -22,6 +22,10 @@
 
 ## C11 通用审批会签第一批
 
+最终UI及契约修正版经GitHub历史重排后为fd3d2e4：[工程/审计与十一组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41295810913)、[正式Docker安装/运行树/恢复](https://github.com/osborn-studio/os-crm/actions/runs/41295811011)、[演示Docker](https://github.com/osborn-studio/os-crm/actions/runs/41295811016)全部通过。与本地已验94f8d13相比，仅调整两个非空升级脚本的旧提交引用；相应旧schema/migration逐字比较一致，运行代码不变。当前代码已从远端同步，未覆盖协作历史。
+
+原演示再次私有备份后升级到15个迁移，71张既有表行数全部保留；旧审批实例、节点、流程定义及事件五类数据SHA256逐项一致。四角色12345登录和审批流程/契约、财务、代理、售后、附件契约读取通过；其后69张非会话/审计表行数不变，只新增4条会话与4条登录审计，未补造审批/代理/售后/附件记录，原启动器继续从标准目录运行。最终pnpm check为186项API+4项安装/加密、类型/lint/build通过，页面与两张功能截图均已核对；候选仍未合并或生产验收。
+
 首版539bf97的[工程/审计与十一组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41295117348)、[Linux Docker正式安装恢复](https://github.com/osborn-studio/os-crm/actions/runs/41295117320)、[Docker演示](https://github.com/osborn-studio/os-crm/actions/runs/41295117332)全部通过；[PR #16](https://github.com/osborn-studio/os-crm/pull/16)基于PR #13，未合并。
 
 网页在独立3020合成环境核对了会签类型、多选姓名、混合后续步骤和一个已同意/两个待处理的同组详情。修正原设计器“会签未开放”的旧说明；详情按逻辑步骤说明全员规则，同意回执区分等待组内成员、下一步和最终通过。设计表单改为内部滚动，确认/取消固定可见，避免多节点将按钮挤出视窗；浏览器仅打开已有资料、复制编辑表单和读取详情，未提交发布/转审/审批。两张功能图随手册保存。原演示升级与最终UI提交的云端结果待实际完成后补记。
