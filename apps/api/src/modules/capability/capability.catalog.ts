@@ -73,7 +73,7 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     outputDescription: '客户基本信息、合同金额及业务统计；不包含手机、银行账号和完整附件。',
     outputSchema: {
       type: 'object',
-      required: ['id', 'code', 'name', 'status', 'statistics'],
+      required: ['id', 'code', 'name', 'status'],
       properties: {
         id: { type: 'integer' },
         code: { type: 'string' },

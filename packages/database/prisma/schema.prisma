@@ -2176,3 +2176,72 @@ model CommandExecution {
   @@unique([tenantId, actorId, requestKey])
   @@map("command_executions")
 }
+
+model AgentGrant {
+  id             String   @id @db.Char(36)
+  tenantId       Int      @map("tenant_id")
+  ownerId        Int      @map("owner_id")
+  ownerSessionId String   @map("owner_session_id") @db.Char(36)
+  name           String   @db.VarChar(100)
+  purpose        String   @db.VarChar(1000)
+  tokenHash      String   @unique @map("token_hash") @db.Char(64)
+  contextHash    String   @map("context_hash") @db.Char(64)
+  capabilities   Json
+  maxCalls       Int      @map("max_calls")
+  usedCalls      Int      @default(0) @map("used_calls")
+  expiresAt      DateTime @map("expires_at")
+  revokedAt      DateTime? @map("revoked_at")
+  revokeReason   String?  @map("revoke_reason") @db.VarChar(1000)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId, ownerId, createdAt])
+  @@map("agent_grants")
+}
+
+model AgentProposal {
+  id             String   @id @db.Char(36)
+  tenantId       Int      @map("tenant_id")
+  grantId        String   @map("grant_id") @db.Char(36)
+  ownerId        Int      @map("owner_id")
+  requestKey     String   @map("request_key") @db.Char(36)
+  inputHash      String   @map("input_hash") @db.Char(64)
+  input          Json
+  customerId     Int      @map("customer_id")
+  customerVersion DateTime @map("customer_version")
+  customerName   String   @map("customer_name") @db.VarChar(200)
+  status         String   @default("pending") @db.VarChar(20)
+  decisionNote   String?  @map("decision_note") @db.VarChar(1000)
+  decidedBy      Int?     @map("decided_by")
+  decidedAt      DateTime? @map("decided_at")
+  actionId       Int?     @map("action_id")
+  compensation   Json?
+  expiresAt      DateTime @map("expires_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([grantId, requestKey])
+  @@index([tenantId, ownerId, createdAt])
+  @@map("agent_proposals")
+}
+
+model AgentExecution {
+  id           String   @id @db.Char(36)
+  tenantId     Int      @map("tenant_id")
+  grantId      String   @map("grant_id") @db.Char(36)
+  ownerId      Int      @map("owner_id")
+  capabilityId String   @map("capability_id") @db.VarChar(60)
+  capabilityVersion String @default("1.0") @map("capability_version") @db.VarChar(10)
+  requestKey   String   @map("request_key") @db.Char(36)
+  inputHash    String   @map("input_hash") @db.Char(64)
+  status       String   @db.VarChar(20)
+  result       Json?
+  errorCode    Int?     @map("error_code")
+  durationMs   Int?     @map("duration_ms")
+  createdAt    DateTime @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  @@unique([grantId, requestKey])
+  @@index([tenantId, ownerId, createdAt])
+  @@map("agent_executions")
+}
