@@ -1523,6 +1523,40 @@ enum CollectionResult {
 
 // ============ 9. 项目域 ============
 
+model ServiceTicket {
+  id Int @id @default(autoincrement())
+  tenantId Int @map("tenant_id")
+  projectId Int @map("project_id")
+  customerId Int @map("customer_id")
+  title String @db.VarChar(200)
+  description String @db.Text
+  priority String @db.VarChar(10)
+  status String @default("open") @db.VarChar(20)
+  createdBy Int @map("created_by")
+  assigneeId Int? @map("assignee_id")
+  resolvedBy Int? @map("resolved_by")
+  resolution String? @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@index([tenantId, projectId, id])
+  @@index([tenantId, assigneeId, status])
+  @@map("service_tickets")
+}
+
+model ServiceTicketEvent {
+  id Int @id @default(autoincrement())
+  tenantId Int @map("tenant_id")
+  ticketId Int @map("ticket_id")
+  actorId Int @map("actor_id")
+  actorName String @map("actor_name") @db.VarChar(100)
+  kind String @db.VarChar(30)
+  note String @db.Text
+  evidence Json
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([tenantId, ticketId, id])
+  @@map("service_ticket_events")
+}
+
 model Project {
   id               Int            @id @default(autoincrement())
   tenantId         Int            @map("tenant_id")

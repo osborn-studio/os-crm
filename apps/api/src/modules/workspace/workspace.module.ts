@@ -6,10 +6,12 @@ import { CommercialController } from './commercial.controller';
 import { CommercialService } from './commercial.service';
 import { FinanceController } from './finance.controller';
 import { FinanceService } from './finance.service';
+import { ServiceTicketController } from './service-ticket.controller';
+import { ServiceTicketService } from './service-ticket.service';
 @Module({
   imports: [ApprovalModule],
-  controllers: [WorkspaceController, CommercialController, FinanceController],
-  providers: [WorkspaceService, CommercialService, FinanceService],
+  controllers: [WorkspaceController, CommercialController, FinanceController, ServiceTicketController],
+  providers: [WorkspaceService, CommercialService, FinanceService, ServiceTicketService],
   exports: [WorkspaceService],
 })
 export class WorkspaceModule {}

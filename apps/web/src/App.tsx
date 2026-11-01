@@ -16,6 +16,7 @@ const Ai = lazy(() => import('./pages/workspace/AiPage'));
 const Notifications = lazy(() => import('./pages/notification/NotificationCenterPage'));
 const Finance = lazy(() => import('./pages/workspace/FinancePage'));
 const FinanceLedger = lazy(() => import('./pages/workspace/FinanceLedgerPage'));
+const ServiceTickets = lazy(() => import('./pages/workspace/ServiceTicketsPage'));
 const Board = lazy(() => import('./pages/workspace/BoardPage'));
 function Private({ children }: { children: React.ReactNode }) {
   return useAuthStore((s) => s.accessToken) ? <>{children}</> : <Navigate to="/login" replace />;
@@ -72,6 +73,7 @@ export default function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="service-tickets" element={<ServiceTickets />} />
             {Object.entries(routes).map(([path, kind]) => (
               <Route key={path} path={path} element={<Workspace key={kind} kind={kind} />} />
             ))}
