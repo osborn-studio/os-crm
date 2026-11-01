@@ -44,7 +44,7 @@ node --env-file=deploy/production.env deploy/data.mjs backup backups/company-202
 
 备份通过 MySQL 事务一致性导出，包含表结构、数据、迁移历史和应用恢复所需配置，再压缩并以独立 `BACKUP_KEY` 用 AES-256-GCM 加密认证。不会覆盖已有备份。文件与目录以仅当前用户访问权限创建；第一版 SQL 导出上限为 128 MiB。此方案需要保持备份时不运行数据库迁移等 DDL。
 
-单独离线保管 `BACKUP_KEY` 和配置文件，至少将加密备份复制到另一台设备。备份文件本身不包含备份密钥。遗失密钥无法解密恢复。未实现的附件存储不在数据库备份范围，后续附件功能上线时需一起扩展备份。
+单独离线保管 `BACKUP_KEY` 和配置文件，至少将加密备份复制到另一台设备。备份文件本身不包含备份密钥。遗失密钥无法解密恢复。C10私有证据文件以二进制保存在数据库，随本备份包含元数据及原件；旧原型文档路径不等于实际文件，不会据此虚构原件。
 
 ## 恢复演练
 
@@ -63,4 +63,4 @@ node --env-file=deploy/production.env deploy/data.mjs restore backups/company-20
 # docker compose --env-file backups/company-20261101.crmbackup.tb_crm_restore_drill.env -f deploy/compose.production.yml up -d --wait
 ```
 
-schema 指纹不一致时先用备份对应的源码版本恢复并验收，再运行经过测试的升级迁移。不要用旧数据库覆盖已升级中的正式库。未实现自动调度备份、附件备份、跨版本回滚或高可用；这些属于后续商用验收范围。
+schema 指纹不一致时先用备份对应的源码版本恢复并验收，再运行经过测试的升级迁移。不要用旧数据库覆盖已升级中的正式库。当前未实现自动调度备份、跨版本自动回滚或高可用；这些属于后续商用验收范围。会签定义需要支持users_all的同版API；不可将旧API直接连接已配置会签的新库。

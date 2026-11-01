@@ -57,6 +57,16 @@
 
 修正提交`e04c018`的[工程/依赖审计及八组MySQL（含227项代理和25项非空代理升级）](https://github.com/osborn-studio/os-crm/actions/runs/41278931308)、[Linux Docker正式安装/运行树/重启/新库恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278931272)、[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278931279)均通过。最终UI提交`619eb2b`的[全部工程/八组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41279327144)、[正式Docker安装恢复](https://github.com/osborn-studio/os-crm/actions/runs/41279327121)、[演示Docker](https://github.com/osborn-studio/os-crm/actions/runs/41279327030)亦均通过。最终UI中加宽人工核对表单，避免长内容和确认框被挤出视窗，本地147项API+4项安装、类型/lint/build再次通过，已实际核对中文表单和未选中的确认框，未在浏览器提交授权或展示凭证。
 
+## C11 演示材料与完整本地交付候选
+
+更新24页可编辑介绍PPT（原生文字、5张表格及13张实际演示/合成截图），4份DOCX手册与对应HTML/Markdown：逐项操作22页、演示2页、AI接入4页、部署4页。覆盖14类基础资源字段、销售交接、交付/整改、独立收款复核和更正、会签转审、售后、私有附件及受控AI行动。保留原九张总体图并加入15张专题图；早期截图不冒充当前功能边界。
+
+最终PPT经过结构、画布、字体、原生表格与Artifact Tool导入检查，全部幻灯片渲染核对；Word通过捆绑LibreOffice及显式中文字体目录渲染，逐页修复字体缺失和表格拆行。材料源文件、生成脚本与静态资源快照一并公开，不含本机配置。其他Office客户端可能重新分页，未据此宣称桌面PowerPoint兼容验收。
+
+本分支再次pnpm check通过：186项API+4项安装/加密、类型/lint/build；无业务代码或迁移修改。基准0908c6b的工程和11组MySQL云端检查均成功，Docker同运行代码fd3d2e4的成功证据见releases/C11/VALIDATION。新增package-candidate.py从干净提交制作完整总包，保留源码提交、预构建Hash、迁移清单和内外SHA256；明确productionAccepted=false、首次需联网。打包/解压核对和公开预发布结果以随后实际记录为准。
+
+同步修正旧演示/交付入口中“全部财务只展示”“无独立委托”“无附件”等已过时说明。钉钉飞书继续等待真实测试企业凭证；用户“继续”不视为提供凭证或真实企业联调授权。完整商用验收、可靠外发、复杂冲销、性能容量、模型质量费用等仍未完成；下一有界批次优先可靠通知任务和运维可观测性，不把本包标为商用正式版。
+
 ## C9 依赖安全与集成失败关闭候选
 
 生产依赖审计从30项（14高/14中/2低）降至0项；全工作区高危/严重0项，仍有构建链2项中危及1项低危告警，未忽略或声称全量清零。Nest11及配套包升级，4个精确锁定的传递依赖覆盖及兼容性说明见DEPENDENCY_SECURITY。CI阻断生产依赖所有已知级别漏洞及构建链高危/严重，Docker工作流新增应用/依赖/锁文件触发，避免依赖变化漏测容器安装。
