@@ -83,6 +83,7 @@ export default function BasicLayout() {
       icon: <AccountBookOutlined />,
       label: '财务中心',
       children: [
+        { key: '/finance/ledger', label: '收款登记与核销' },
         { key: '/finance/payment-plans', label: '回款计划 · 演示' },
         { key: '/invoices', label: '发票记录 · 演示' },
         { key: '/receipts', label: '收款记录 · 演示' },

@@ -306,18 +306,22 @@ async function main() {
       where: { tenantId: t, contractId: receipt.contractId!, receivedAmount: { gt: 0 } },
     });
     for (const plan of plans)
-      await p.receiptAllocation.upsert({
-        where: { receiptId_paymentPlanId: { receiptId: receipt.id, paymentPlanId: plan.id } },
-        update: { amount: plan.receivedAmount },
-        create: {
-          tenantId: t,
-          receiptId: receipt.id,
-          paymentPlanId: plan.id,
-          amount: plan.receivedAmount,
-          allocatedBy: 1,
-          remark: '合成演示核销关联',
-        },
-      });
+      if (
+        !receipt.ledgerManaged &&
+        !(await p.receiptAllocation.findFirst({
+          where: { tenantId: t, receiptId: receipt.id, paymentPlanId: plan.id },
+        }))
+      )
+        await p.receiptAllocation.create({
+          data: {
+            tenantId: t,
+            receiptId: receipt.id,
+            paymentPlanId: plan.id,
+            amount: plan.receivedAmount,
+            allocatedBy: 1,
+            remark: '合成演示核销关联',
+          },
+        });
   }
   for (const owner of owners) {
     const customer = await p.customer.findFirstOrThrow({ where: { tenantId: t, ownerId: owner.id } });

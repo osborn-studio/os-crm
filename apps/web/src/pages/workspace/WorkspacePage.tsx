@@ -463,7 +463,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           </h1>
           <Typography.Text type="secondary">
             {spec?.readonly
-              ? '合成数据用于展示业务结构，财务处理暂未开放。'
+              ? '此列表按权限只读查询；收款登记与核销请使用独立本地台账。'
               : '按当前账号权限展示与操作，所有变更保存到当前企业数据库。'}
           </Typography.Text>
         </div>
@@ -486,9 +486,9 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           style={{ marginBottom: 16 }}
           type="warning"
           showIcon
-          message="演示系统，暂无财务处理功能"
-          description="本页仅展示合成数据及查询结果，不执行真实开票、收款、核销或记账。"
-          action={<Button disabled>业务处理暂未开放</Button>}
+          message={kind === 'invoices' ? '演示系统，暂无税务开票功能' : '当前页面为只读查询'}
+          description="本页不执行业务处理；独立收款台账支持登记及核销，银行、税务与会计接口仍未开放。"
+          action={<Button href="/finance/ledger">收款登记与核销</Button>}
         />
       )}
       {error && (

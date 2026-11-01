@@ -513,6 +513,18 @@ export class WorkspaceService {
         orderBy: { id: 'desc' },
         take: 100,
       });
+    if (kind === 'receipts') {
+      related.allocations = await tx.receiptAllocation.findMany({
+        where: { tenantId: a.tenantId, receiptId: recordId },
+        orderBy: { id: 'desc' },
+        take: 100,
+      });
+      related.financeEvents = await tx.financeEvent.findMany({
+        where: { tenantId: a.tenantId, receiptId: recordId },
+        orderBy: { id: 'desc' },
+        take: 100,
+      });
+    }
     return { ...row, related };
   }
   async approvalForm(a: Actor, kind: string, recordId: number) {
