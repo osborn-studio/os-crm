@@ -1,0 +1,9 @@
+# 交付材料源文件
+
+Markdown是四份手册的可检索正文，DOCX与HTML是交付格式。resources.json从基准源码的Workspace registry导出，供基础字段表生成；变更表单后应重新导出，不能把静态快照当成在线Schema。
+
+build-materials.py使用python-docx，在仓库根目录生成四份手册；正文素材来自同版docs专题说明。中文字体Arial Unicode MS须在渲染环境可用。捆绑LibreOffice渲染需明确FONTCONFIG_FILE包含实际中文字体目录；字体文件不随开源仓库分发。
+
+build-deck.mjs使用Codex捆绑的@oai/artifact-tool。它不是应用运行依赖；接收方运行CRM不需要安装此演示文稿工具。运行前设置CRM_PRESENTATION_SKILL为对应演示文稿技能目录、CRM_AUTHORING_PYTHON为已配置Python，并按技能要求设置RUNTIME_NODE_MODULES。从仓库根执行；再次生成时使用新的candidate、final及receipt名称，保留历史产物。图片读取overview-screenshots及docs/screenshots，文字和表格保持可编辑。
+
+重新生成后必须再次渲染检查每页，更新materials.json与VALIDATION.md，不能因为脚本执行完成就沿用旧页数或旧检查结论。完整总包使用scripts/package-candidate.py，需先完成工程检查并提交干净源码。首次安装依赖与生产配置不属于这些材料生成脚本。

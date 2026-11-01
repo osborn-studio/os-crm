@@ -12,7 +12,7 @@
 
 第三批新增[客户导入、销售整体交接、报价版本与合同变更审批](docs/CUSTOMER_CONTRACT_OPERATIONS.md)。首批只处理尚无下游执行的合同变更，复杂补偿仍在建设。
 
-第四批新增[交付任务、里程碑、双人验收与拒收整改](docs/DELIVERY_ACCEPTANCE_OPERATIONS.md)。结果说明、累计工时及历次决定保留记录；附件、售后及复杂取消补偿仍在建设。
+第四批新增[交付任务、里程碑、双人验收与拒收整改](docs/DELIVERY_ACCEPTANCE_OPERATIONS.md)。结果说明、累计工时及历次决定保留记录；附件和售后见后续增量，复杂取消补偿仍在建设。
 
 交付增量支持项目经理与未完成工作整体交接、任务转派、停用/调岗前交接检查，并补齐正式销售的订单/项目执行权限。
 
@@ -37,7 +37,7 @@
 
 [演示操作手册](docs/DEMO_GUIDE.md) · [验证与限制](docs/PROGRESS.md) · [钉钉/飞书配置](docs/INTEGRATIONS.md)
 
-接收方部署优先阅读[交付与Docker启动说明](docs/DELIVERY.md)。总包提供9张功能截图、Demo PPT和完整操作/演示/AI接入/部署手册。首次安装需要联网，不是通用离线首装包。
+接收方部署优先阅读[交付与Docker启动说明](docs/DELIVERY.md)。[C11新版材料](docs/releases/C11/README.md)提供24页可编辑PPT和四套操作/演示/AI接入/部署手册；总包包含原九张总体截图及15张专题截图。首次安装需要联网，不是通用离线首装包。
 
 ## 本地开发
 

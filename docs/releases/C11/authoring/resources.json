@@ -1,0 +1,534 @@
+{
+  "customers": {
+    "model": "customer",
+    "title": "客户",
+    "name": "name",
+    "fields": [
+      {
+        "key": "name",
+        "label": "客户名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "industry",
+        "label": "行业",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "level",
+        "label": "级别",
+        "type": "select",
+        "required": false,
+        "options": [
+          "重点客户",
+          "普通客户",
+          "潜在客户"
+        ]
+      },
+      {
+        "key": "region",
+        "label": "地区",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "address",
+        "label": "地址",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "website",
+        "label": "官网",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "remark",
+        "label": "备注",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "claim",
+      "return",
+      "assign",
+      "follow"
+    ]
+  },
+  "contacts": {
+    "model": "contact",
+    "title": "联系人",
+    "name": "name",
+    "fields": [
+      {
+        "key": "customerId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "name",
+        "label": "姓名",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "title",
+        "label": "职务",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "phone",
+        "label": "电话",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "email",
+        "label": "邮箱",
+        "type": "text",
+        "required": false
+      }
+    ],
+    "actions": []
+  },
+  "leads": {
+    "model": "lead",
+    "title": "线索",
+    "name": "companyName",
+    "fields": [
+      {
+        "key": "companyName",
+        "label": "企业名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "contactName",
+        "label": "联系人",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "source",
+        "label": "来源",
+        "type": "select",
+        "required": true,
+        "options": [
+          "website",
+          "referral",
+          "exhibition",
+          "partner",
+          "import"
+        ]
+      },
+      {
+        "key": "industry",
+        "label": "行业",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "demand",
+        "label": "需求",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "convert"
+    ]
+  },
+  "opportunities": {
+    "model": "opportunity",
+    "title": "商机与报价",
+    "name": "name",
+    "fields": [
+      {
+        "key": "name",
+        "label": "商机名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "customerId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "amount",
+        "label": "预计金额",
+        "type": "money",
+        "required": true
+      },
+      {
+        "key": "expectedCloseDate",
+        "label": "预计成交日期",
+        "type": "date",
+        "required": false
+      },
+      {
+        "key": "demandSummary",
+        "label": "需求摘要",
+        "type": "textarea",
+        "required": false
+      },
+      {
+        "key": "nextAction",
+        "label": "下一步行动",
+        "type": "text",
+        "required": false
+      }
+    ],
+    "actions": [
+      "advance",
+      "quote",
+      "lose"
+    ]
+  },
+  "contracts": {
+    "model": "contract",
+    "title": "合同",
+    "name": "name",
+    "fields": [
+      {
+        "key": "name",
+        "label": "合同名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "customerId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "opportunityId",
+        "label": "关联商机",
+        "type": "reference",
+        "required": false,
+        "reference": "opportunities"
+      },
+      {
+        "key": "contractType",
+        "label": "合同类型",
+        "type": "select",
+        "required": true,
+        "options": [
+          "software_sale",
+          "implementation",
+          "maintenance",
+          "outsource",
+          "ai_fde",
+          "saas_sub",
+          "channel"
+        ]
+      },
+      {
+        "key": "amount",
+        "label": "含税合同金额",
+        "type": "money",
+        "required": true
+      },
+      {
+        "key": "taxRate",
+        "label": "税率%",
+        "type": "number",
+        "required": false
+      },
+      {
+        "key": "paymentTerms",
+        "label": "付款约定",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "remark",
+        "label": "备注",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "submit",
+      "sign",
+      "order",
+      "project"
+    ]
+  },
+  "orders": {
+    "model": "order",
+    "title": "订单",
+    "name": "orderNo",
+    "fields": [
+      {
+        "key": "contractId",
+        "label": "合同",
+        "type": "reference",
+        "required": true,
+        "reference": "contracts"
+      },
+      {
+        "key": "remark",
+        "label": "备注",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "submit",
+      "confirm",
+      "deliver"
+    ]
+  },
+  "projects": {
+    "model": "project",
+    "title": "项目",
+    "name": "name",
+    "fields": [
+      {
+        "key": "name",
+        "label": "项目名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "customerId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "contractId",
+        "label": "关联合同",
+        "type": "reference",
+        "required": false,
+        "reference": "contracts"
+      },
+      {
+        "key": "plannedStartDate",
+        "label": "计划开始",
+        "type": "date",
+        "required": true
+      },
+      {
+        "key": "plannedEndDate",
+        "label": "计划结束",
+        "type": "date",
+        "required": true
+      },
+      {
+        "key": "budgetAmount",
+        "label": "项目预算",
+        "type": "money",
+        "required": false
+      },
+      {
+        "key": "remark",
+        "label": "备注",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "submit",
+      "start",
+      "advance",
+      "request_acceptance",
+      "reject_acceptance",
+      "accept",
+      "handover_pm"
+    ]
+  },
+  "tasks": {
+    "model": "projectTask",
+    "title": "项目任务",
+    "name": "title",
+    "fields": [
+      {
+        "key": "title",
+        "label": "任务名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "projectId",
+        "label": "项目",
+        "type": "reference",
+        "required": true,
+        "reference": "projects"
+      },
+      {
+        "key": "milestoneId",
+        "label": "关联里程碑（可选）",
+        "type": "number",
+        "required": false
+      },
+      {
+        "key": "dueDate",
+        "label": "截止日期",
+        "type": "date",
+        "required": false
+      },
+      {
+        "key": "description",
+        "label": "任务说明",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "start_task",
+      "complete",
+      "reopen_task",
+      "assign_task"
+    ]
+  },
+  "actions": {
+    "model": "actionPlan",
+    "title": "行动计划",
+    "name": "title",
+    "fields": [
+      {
+        "key": "title",
+        "label": "行动名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "targetId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "dueDate",
+        "label": "计划日期",
+        "type": "date",
+        "required": false
+      },
+      {
+        "key": "content",
+        "label": "内容",
+        "type": "textarea",
+        "required": false
+      }
+    ],
+    "actions": [
+      "complete"
+    ]
+  },
+  "followups": {
+    "model": "followUp",
+    "title": "跟进记录",
+    "name": "content",
+    "fields": [
+      {
+        "key": "customerId",
+        "label": "客户",
+        "type": "reference",
+        "required": true,
+        "reference": "customers"
+      },
+      {
+        "key": "content",
+        "label": "跟进内容",
+        "type": "textarea",
+        "required": true
+      },
+      {
+        "key": "nextAction",
+        "label": "下一步",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "nextFollowAt",
+        "label": "下次跟进",
+        "type": "date",
+        "required": false
+      }
+    ],
+    "actions": []
+  },
+  "products": {
+    "model": "product",
+    "title": "产品目录",
+    "name": "name",
+    "fields": [
+      {
+        "key": "name",
+        "label": "产品名称",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "code",
+        "label": "编码",
+        "type": "text",
+        "required": true
+      },
+      {
+        "key": "category",
+        "label": "分类",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "unit",
+        "label": "单位",
+        "type": "text",
+        "required": false
+      },
+      {
+        "key": "listPrice",
+        "label": "目录单价",
+        "type": "money",
+        "required": false
+      },
+      {
+        "key": "taxRate",
+        "label": "税率%",
+        "type": "number",
+        "required": false
+      }
+    ],
+    "actions": []
+  },
+  "payment-plans": {
+    "model": "paymentPlan",
+    "title": "回款计划",
+    "name": "planNo",
+    "fields": [],
+    "actions": [],
+    "readonly": true
+  },
+  "invoices": {
+    "model": "invoice",
+    "title": "发票",
+    "name": "invoiceNo",
+    "fields": [],
+    "actions": [],
+    "readonly": true
+  },
+  "receipts": {
+    "model": "receipt",
+    "title": "收款记录",
+    "name": "receiptNo",
+    "fields": [],
+    "actions": [],
+    "readonly": true
+  }
+}

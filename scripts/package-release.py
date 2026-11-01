@@ -1,4 +1,6 @@
-"""Create a UTF-8 local demo handoff from clean tracked source and approved delivery assets.
+"""Historical v0.2 demo.2 packager; use package-candidate.py for C11 materials.
+
+Create a UTF-8 local demo handoff from clean tracked source and approved delivery assets.
 
 Usage: SEED_ADMIN_PASSWORD=... python3 scripts/package-release.py ASSETS_DIR OUTPUT_DIR
 ASSETS_DIR contains output/*.docx, output/*.html, output/*.pptx, screenshots/*.jpg
