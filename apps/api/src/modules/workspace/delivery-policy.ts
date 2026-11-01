@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
-import { Prisma, type Project } from '@prisma/client';
+import { Prisma, type DeliveryEvent, type Project } from '@prisma/client';
 import type { Actor } from '../../common/types/actor';
 import { admin, manager } from './access';
 import { id, json, text, type Tx } from './command-runner';
@@ -123,6 +123,11 @@ export async function projectDeliveryCommand(
     await deliveryEvent(tx, a, p.id, 'acceptance.requested', note, {
       milestones: totalMilestones,
       progress: p.progress,
+      attachments: await tx.evidenceAttachment.findMany({
+        where: { tenantId: a.tenantId, subjectKind: 'projects', subjectId: p.id, withdrawnAt: null },
+        select: { id: true, filename: true, sha256: true, size: true },
+        orderBy: { id: 'asc' },
+      }),
     });
     return;
   }
@@ -156,4 +161,17 @@ export async function projectDeliveryCommand(
     });
     await deliveryEvent(tx, a, p.id, 'acceptance.accepted', note, { submittedBy: p.acceptanceSubmittedBy });
   }
+}
+// Task completion events snapshot private task attachments. Project collaborators may read the
+// project history without reading every task, so withhold that metadata unless the task is visible.
+export function redactTaskEvidence<E extends Pick<DeliveryEvent, 'taskId' | 'evidence'>>(
+  events: E[],
+  visibleTaskIds: ReadonlySet<number>,
+): E[] {
+  return events.map((e) => {
+    const evidence = e.evidence;
+    if (e.taskId === null || visibleTaskIds.has(e.taskId) || !evidence || typeof evidence !== 'object') return e;
+    if (Array.isArray(evidence) || !Array.isArray(evidence.attachments)) return e;
+    return { ...e, evidence: { ...evidence, attachments: [], attachmentsWithheld: evidence.attachments.length } };
+  });
 }

@@ -17,6 +17,7 @@ import {
 import { get, post, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useSearchParams } from 'react-router-dom';
+import AttachmentPanel from './AttachmentPanel';
 type Event = { id: number; kind: string; note: string; actorName: string; createdAt: string; evidence: unknown };
 type Ticket = {
   id: number;
@@ -195,6 +196,16 @@ export default function ServiceTicketsPage() {
                   children: <div style={{ whiteSpace: 'pre-wrap' }}>{selected.resolution ?? '尚未提交'}</div>,
                 },
               ]}
+            />
+            <AttachmentPanel
+              subjectKind="service-tickets"
+              subjectId={selected.id}
+              parentUpdatedAt={selected.updatedAt}
+              onChanged={() => detail(selected.id)}
+              writable={
+                ['open', 'assigned', 'in_progress'].includes(selected.status) &&
+                !!selected.allowedActions?.some((v) => ['assign', 'start', 'note'].includes(v))
+              }
             />
             <Space wrap>
               {selected.allowedActions?.map((action) => (

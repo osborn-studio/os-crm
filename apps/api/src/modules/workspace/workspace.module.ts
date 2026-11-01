@@ -8,10 +8,12 @@ import { FinanceController } from './finance.controller';
 import { FinanceService } from './finance.service';
 import { ServiceTicketController } from './service-ticket.controller';
 import { ServiceTicketService } from './service-ticket.service';
+import { AttachmentController } from './attachment.controller';
+import { AttachmentService } from './attachment.service';
 @Module({
   imports: [ApprovalModule],
-  controllers: [WorkspaceController, CommercialController, FinanceController, ServiceTicketController],
-  providers: [WorkspaceService, CommercialService, FinanceService, ServiceTicketService],
+  controllers: [WorkspaceController, CommercialController, FinanceController, ServiceTicketController, AttachmentController],
+  providers: [WorkspaceService, CommercialService, FinanceService, ServiceTicketService, AttachmentService],
   exports: [WorkspaceService],
 })
 export class WorkspaceModule {}
