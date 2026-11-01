@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Input, Select, Space, Typography, message } from 'antd';
 import { get, post, errorText, type RecordRow } from '../../services/workspace';
+import AgentControlPanel from './AgentControlPanel';
 export default function AiPage() {
   const [rows, setRows] = useState<RecordRow[]>([]),
     [selected, setSelected] = useState<number>(),
@@ -52,7 +53,7 @@ export default function AiPage() {
         type="info"
         showIcon
         message="当前摘要为规则生成，未调用大模型"
-        description="真实业务能力可由智能体调用；自主写入与外部委托授权尚未开放。"
+        description="可创建独立限时委托，智能体提出行动建议，人工核对后才能执行；查询和执行均保留回执。规则摘要仍未接大模型。"
         style={{ marginBottom: 20 }}
       />
       <Card title="客户摘要与跟进建议">
@@ -90,6 +91,7 @@ export default function AiPage() {
           </pre>
         )}
       </Card>
+      <AgentControlPanel />
     </div>
   );
 }
