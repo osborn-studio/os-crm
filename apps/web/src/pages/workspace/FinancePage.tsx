@@ -1,7 +1,6 @@
 import { Alert, Button, Card, Space, Table, Tabs, Tag, Typography } from 'antd';
 export default function FinancePage() {
   const features = [
-    { name: '收款核销', description: '回款认领、分配核销、预收款、冲销处理' },
     { name: '税务开票', description: '开票申请、电子发票、红字与作废、税务平台联动' },
     { name: '会计凭证', description: '凭证生成、科目映射、总账接口' },
     { name: '财务对账', description: '银行流水、往来对账、余额差异核查' },
@@ -16,6 +15,14 @@ export default function FinancePage() {
           <Typography.Text type="secondary">展示规划中的财务模块结构。</Typography.Text>
         </div>
       </div>
+      <Alert
+        type="info"
+        showIcon
+        message="收款登记与核销已有独立本地台账入口"
+        description="支持登记、另一管理员复核、核销及撤销；不连接银行、不退款。以下税务、会计等仍为功能展示。"
+        action={<Button href="/finance/ledger">进入收款台账</Button>}
+        style={{ marginBottom: 20 }}
+      />
       <Alert
         type="warning"
         showIcon

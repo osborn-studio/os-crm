@@ -1383,6 +1383,8 @@ model Receipt {
   id                Int            @id @default(autoincrement())
   tenantId          Int            @map("tenant_id")
   receiptNo         String         @map("receipt_no") @db.VarChar(30)
+  ledgerManaged     Boolean        @default(false) @map("ledger_managed")
+  referenceKey      String?        @map("reference_key") @db.Char(64)
   customerId        Int            @map("customer_id")
   contractId        Int?           @map("contract_id")
   amount            Decimal        @db.Decimal(15, 2)
@@ -1411,6 +1413,7 @@ model Receipt {
   allocations       ReceiptAllocation[]
 
   @@unique([tenantId, receiptNo])
+  @@unique([tenantId, referenceKey])
   @@index([tenantId, customerId])
   @@index([contractId])
   @@index([tenantId, status])
@@ -1440,13 +1443,32 @@ model ReceiptAllocation {
   allocatedAt   DateTime @default(now()) @map("allocated_at")
   allocatedBy   Int      @map("allocated_by")
   remark        String?  @db.VarChar(200)
+  active        Boolean  @default(true)
+  reversedAt    DateTime? @map("reversed_at")
+  reversedBy    Int?      @map("reversed_by")
+  reverseReason String?   @map("reverse_reason") @db.VarChar(1000)
 
   receipt       Receipt  @relation(fields: [receiptId], references: [id])
   paymentPlan   PaymentPlan @relation(fields: [paymentPlanId], references: [id])
 
-  @@unique([receiptId, paymentPlanId])
+  @@index([tenantId, receiptId, paymentPlanId, active], map: "receipt_allocations_ledger_active_idx")
+  @@index([receiptId, paymentPlanId])
   @@index([paymentPlanId])
   @@map("receipt_allocations")
+}
+
+model FinanceEvent {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  receiptId Int      @map("receipt_id")
+  actorId   Int      @map("actor_id")
+  kind      String   @db.VarChar(40)
+  note      String   @db.VarChar(1000)
+  evidence  Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, receiptId, id])
+  @@map("finance_events")
 }
 
 model CollectionLog {
