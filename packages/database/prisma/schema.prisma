@@ -1523,6 +1523,25 @@ enum CollectionResult {
 
 // ============ 9. 项目域 ============
 
+model EvidenceAttachment {
+  id String @id @default(uuid()) @db.Char(36)
+  tenantId Int @map("tenant_id")
+  subjectKind String @map("subject_kind") @db.VarChar(20)
+  subjectId Int @map("subject_id")
+  filename String @db.VarChar(160)
+  mediaType String @map("media_type") @db.VarChar(40)
+  size Int
+  sha256 String @db.Char(64)
+  contentBytes Bytes @map("content_bytes") @db.LongBlob
+  createdBy Int @map("created_by")
+  withdrawnAt DateTime? @map("withdrawn_at")
+  withdrawalReason String? @map("withdrawal_reason") @db.VarChar(1000)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@index([tenantId, subjectKind, subjectId, createdAt], map: "evidence_attachments_subject_idx")
+  @@map("evidence_attachments")
+}
+
 model ServiceTicket {
   id Int @id @default(autoincrement())
   tenantId Int @map("tenant_id")
