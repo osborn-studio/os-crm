@@ -1988,6 +1988,13 @@ enum NotifyChannel {
   sms
 }
 
+enum AuditSource {
+  human
+  agent
+  system
+  import
+}
+
 model AuditLog {
   id         Int      @id @default(autoincrement())
   tenantId   Int      @map("tenant_id")
@@ -2000,6 +2007,8 @@ model AuditLog {
   afterData  Json?    @map("after_data")
   ipAddress  String?  @map("ip_address") @db.VarChar(50)
   userAgent  String?  @map("user_agent") @db.VarChar(300)
+  source         AuditSource @default(human)
+  principalLabel String?     @map("principal_label") @db.VarChar(100)
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@index([tenantId, createdAt])
@@ -2299,4 +2308,21 @@ model AgentExecution {
   @@unique([grantId, requestKey])
   @@index([tenantId, ownerId, createdAt])
   @@map("agent_executions")
+}
+
+// Separate namespace: a system receipt can never be selected by runCommand.
+model SystemCommandExecution {
+  id            Int      @id @default(autoincrement())
+  tenantId      Int      @map("tenant_id")
+  jobName       String   @map("job_name") @db.VarChar(50)
+  policyVersion String   @map("policy_version") @db.VarChar(40)
+  jobRunId      String   @map("job_run_id") @db.VarChar(80)
+  requestKey    String   @map("request_key") @db.VarChar(80)
+  command       String   @db.VarChar(100)
+  payloadHash   String   @map("payload_hash") @db.VarChar(64)
+  result        Json
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([tenantId, jobName, requestKey], map: "system_command_identity_key")
+  @@map("system_command_executions")
 }
