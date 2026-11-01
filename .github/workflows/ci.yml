@@ -56,6 +56,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - name: Block known vulnerabilities in production dependencies
+        run: pnpm audit --prod --audit-level=low
+      - name: Block high and critical vulnerabilities in build tooling
+        run: pnpm audit --audit-level=high
   mysql-smoke:
     runs-on: ubuntu-latest
     needs: verify
