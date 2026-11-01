@@ -36,10 +36,13 @@ export class AuthService {
     private jwtService: JwtService,
     private config: ConfigService,
   ) {}
-  private async transaction<T>(work: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+  private async transaction<T>(
+    work: (tx: Prisma.TransactionClient) => Promise<T>,
+    isolationLevel: Prisma.TransactionIsolationLevel = 'Serializable',
+  ): Promise<T> {
     for (let i = 0; i < 3; i++) {
       try {
-        return await this.prisma.system.$transaction(work, { isolationLevel: 'Serializable', timeout: 15000 });
+        return await this.prisma.system.$transaction(work, { isolationLevel, timeout: 15000 });
       } catch (e) {
         if (e instanceof Prisma.PrismaClientKnownRequestError && ['P2034', 'P2002'].includes(e.code) && i < 2) continue;
         throw e;
@@ -80,7 +83,7 @@ export class AuthService {
     const sid = randomUUID();
     return this.transaction(async (tx) => {
       // Recheck after password verification: concurrent reset/disable must not create a valid session.
-      const current = await tx.user.findFirst({
+      const locked = await tx.user.updateMany({
         where: {
           id: user.id,
           tenantId: user.tenantId,
@@ -89,11 +92,11 @@ export class AuthService {
           passwordHash: user.passwordHash,
           tenant: { status: { in: ['active', 'trial'] } },
         },
-        include,
+        data: { lastLoginAt: now },
       });
-      if (!current) throw new UnauthorizedException('账号已变更，请重新登录');
+      if (locked.count !== 1) throw new UnauthorizedException('账号已变更，请重新登录');
+      const current = await tx.user.findUniqueOrThrow({ where: { id: user.id }, include });
       const tokens = this.generateTokens(current, sid);
-      await tx.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
       await tx.authAttempt.deleteMany({ where: { key } });
       await tx.authSession.create({
         data: {
@@ -119,7 +122,7 @@ export class AuthService {
         data: { tenantId: user.tenantId, userId: user.id, action: 'auth.login', objectType: 'session', objectNo: sid },
       });
       return tokens;
-    });
+    }, 'ReadCommitted');
   }
   async dingtalkLogin(_authCode: string) {
     throw new UnauthorizedException({ code: 1008, message: '钉钉免登尚未完成企业联调' });

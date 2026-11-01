@@ -19,6 +19,27 @@ import {
   message,
 } from 'antd';
 import { get, post, key, errorText, statusNames, type RecordRow } from '../../services/workspace';
+import { ChangeComparison } from '../workspace/ContractChanges';
+function BusinessChangeEvidence({ value }: { value: unknown }) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const snapshot = value as Record<string, unknown>;
+  if (
+    !snapshot.before ||
+    !snapshot.proposed ||
+    typeof snapshot.before !== 'object' ||
+    typeof snapshot.proposed !== 'object'
+  )
+    return null;
+  return (
+    <Card title="合同变更前后对照" style={{ marginBottom: 20 }}>
+      <Typography.Paragraph>{String(snapshot.reason ?? '')}</Typography.Paragraph>
+      <ChangeComparison
+        before={snapshot.before as Record<string, unknown>}
+        after={snapshot.proposed as Record<string, unknown>}
+      />
+    </Card>
+  );
+}
 interface Approval extends RecordRow {
   title: string;
   status: string;
@@ -252,11 +273,14 @@ export default function ApprovalCenterPage() {
         </Form>
       </Modal>
       <Drawer title={detail?.title} open={!!detail} onClose={() => setDetail(undefined)} width={640}>
+        {detail?.bizType === 'contract_change' && <BusinessChangeEvidence value={detail.formData.businessSnapshot} />}
         <Descriptions
           bordered
           column={1}
           items={Object.entries(detail?.formData ?? {})
-            .filter(([k]) => k !== 'flowSnapshot')
+            .filter(
+              ([k]) => k !== 'flowSnapshot' && !(detail?.bizType === 'contract_change' && k === 'businessSnapshot'),
+            )
             .map(([k, v]) => ({ key: k, label: k, children: typeof v === 'object' ? JSON.stringify(v) : String(v) }))}
         />
         <Card title="流程版本快照" style={{ marginTop: 20 }}>

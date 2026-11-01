@@ -112,6 +112,7 @@ async function main() {
         'opportunity:*',
         'contract:read',
         'contract:create',
+        'contract:update',
         'order:read',
         'order:create',
         'finance:read',

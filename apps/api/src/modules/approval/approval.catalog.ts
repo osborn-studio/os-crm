@@ -87,7 +87,17 @@ export const APPROVAL_OPERATIONS: readonly Operation[] = [
       {
         name: { type: 'string', maxLength: 100 },
         bizType: {
-          enum: ['general', 'contract', 'order', 'project_initiation', 'discount', 'expense', 'leave', 'purchase'],
+          enum: [
+            'general',
+            'contract',
+            'contract_change',
+            'order',
+            'project_initiation',
+            'discount',
+            'expense',
+            'leave',
+            'purchase',
+          ],
         },
         priority: { type: 'integer', minimum: 0, maximum: 1000 },
         condition: { type: 'string' },

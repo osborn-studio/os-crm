@@ -234,6 +234,7 @@ export default function FlowDesignerPage() {
                 options={[
                   'general',
                   'contract',
+                  'contract_change',
                   'order',
                   'expense',
                   'leave',
@@ -246,6 +247,7 @@ export default function FlowDesignerPage() {
                     {
                       general: '通用事项',
                       contract: '合同',
+                      contract_change: '合同变更 / 终止',
                       order: '订单',
                       expense: '费用申请',
                       leave: '请假',

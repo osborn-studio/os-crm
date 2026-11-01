@@ -183,6 +183,7 @@ model Customer {
   tenantId          Int          @map("tenant_id")
   code              String       @db.VarChar(20)
   name              String       @db.VarChar(200)
+  nameFingerprint   String?      @map("name_fingerprint") @db.Char(64)
   shortName         String?      @map("short_name") @db.VarChar(100)
   groupId           Int?         @map("group_id")
   industry          String?      @db.VarChar(50)
@@ -234,6 +235,7 @@ model Customer {
   leads             Lead[]
 
   @@unique([tenantId, code])
+  @@unique([tenantId, nameFingerprint])
   @@index([tenantId, ownerId])
   @@index([tenantId, poolType])
   @@index([tenantId, industry])
@@ -875,6 +877,7 @@ model Contract {
   name              String         @db.VarChar(200)
   customerId        Int            @map("customer_id")
   opportunityId     Int?           @map("opportunity_id")
+  quoteSnapshot     Json?          @map("quote_snapshot")
   partnerId         Int?           @map("partner_id")
   contractType      ContractType   @map("contract_type")
   templateId        Int?           @map("template_id")
@@ -1070,6 +1073,34 @@ enum ChangeStatus {
   pending
   approved
   rejected
+  withdrawn
+}
+
+model CustomerImport {
+  id         String   @id @db.Char(36)
+  tenantId   Int      @map("tenant_id")
+  actorId    Int      @map("actor_id")
+  sourceHash String   @map("source_hash") @db.Char(64)
+  digest     String   @db.Char(64)
+  preview    Json
+  status     String   @default("preview") @db.VarChar(20)
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  @@index([tenantId, actorId, createdAt])
+  @@map("customer_imports")
+}
+
+model OpportunityQuote {
+  id            Int      @id @default(autoincrement())
+  tenantId      Int      @map("tenant_id")
+  opportunityId Int      @map("opportunity_id")
+  version       Int
+  total         Decimal  @db.Decimal(15, 2)
+  items         Json
+  createdBy     Int      @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  @@unique([tenantId, opportunityId, version])
+  @@map("opportunity_quotes")
 }
 
 model Order {
