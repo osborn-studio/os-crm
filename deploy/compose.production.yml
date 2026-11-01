@@ -1,0 +1,49 @@
+name: os-crm-production
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run configure first}
+      MYSQL_DATABASE: ${DB_NAME:-tb_crm}
+      MYSQL_USER: crm
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run configure first}
+    volumes:
+      - crm_mysql:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u crm -D "$$MYSQL_DATABASE" -e "SELECT 1"']
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    restart: unless-stopped
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: mysql://crm:${MYSQL_PASSWORD}@mysql:3306/${DB_NAME:-tb_crm}
+      JWT_SECRET: ${JWT_SECRET:?Run configure first}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Run configure first}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Set administrator password}
+      DEMO_MODE: 'false'
+      TENANT_CODE: ${TENANT_CODE:?Set company code}
+      TENANT_NAME: ${TENANT_NAME:?Set company name}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      BACKUP_KEY: ${BACKUP_KEY:?Generate independent backup key}
+      ENABLE_LEGACY_CRON: 'false'
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      MCP_ALLOWED_HOSTS: localhost,127.0.0.1
+    ports:
+      - '127.0.0.1:${WEB_PORT:-3000}:3000'
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 120s
+    restart: unless-stopped
+volumes:
+  crm_mysql:

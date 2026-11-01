@@ -1,5 +1,13 @@
 # Architecture baseline · 2026-10-31
 
+## 2026-11-01 commercial construction update
+
+The product owner authorized incremental construction toward a locally installable commercial system and GitHub synchronization after significant, verified batches. This is a target, not a production-acceptance claim. See COMMERCIAL_PLAN.md for C1–C9 acceptance gates.
+
+C1 introduces a separate production Compose project/volume, independent generated secrets, empty-organization transactional initialization and company-code login. Initialization creates only an administrator, four roles and reference settings, refuses occupied/demo databases, and does not reset users on restart. Deployment-only installation commands are not agent capabilities and expose no HTTP route.
+
+Encrypted backup uses a MySQL consistent snapshot, compression and Node AES-256-GCM with a separate operator-held backup key. Restore authenticates before writing, checks the schema fingerprint, only creates a new database, preserves the original and never automatically promotes a clone. Recovered application encryption keys are retained; session signing keys are rotated. The initial SQL limit is 128 MiB, with no attachment storage or cross-version restore automation. Native MySQL integration and Linux Docker are distinct checks; platform claims require their actual results.
+
 ## Product contract
 
 The product owner authorized AI-assisted construction of tb-crm, with business information and operations accessible to agents. Keep the existing NestJS/React/MySQL direction. This baseline evolves the Qwen prototype incrementally.
