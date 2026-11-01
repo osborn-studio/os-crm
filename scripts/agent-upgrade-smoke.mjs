@@ -78,6 +78,14 @@ async function call(path, method = 'GET', input, token, expected = 200) {
   ok(r.status === expected, path + ': ' + r.status + ' ' + out.message);
   return out.data;
 }
+// The current client and API write AuditLog.source/principal_label, which the prior release predates.
+// Add them only while seeding through current code, then restore the exact prior shape before migrating.
+const auditColumns = (add) =>
+  db.$executeRawUnsafe(
+    add
+      ? "ALTER TABLE audit_logs ADD COLUMN source ENUM('human','agent','system','import') NOT NULL DEFAULT 'human', ADD COLUMN principal_label VARCHAR(100) NULL"
+      : 'ALTER TABLE audit_logs DROP COLUMN source, DROP COLUMN principal_label',
+  );
 try {
   const archive = run('git', ['archive', prior, 'packages/database/prisma'], { encoding: null }).stdout;
   run('tar', ['-xf', '-', '-C', scratch], { input: archive });
@@ -96,6 +104,7 @@ try {
     !columnsBefore.some((r) => r.Field === 'capability_version'),
     'Actual prior schema has no capability-version column',
   );
+  await auditColumns(true);
   await initializeProduction(db, env);
   const tenant = await db.tenant.findUniqueOrThrow({ where: { code: env.TENANT_CODE } });
   const owner = await db.user.findFirstOrThrow({ where: { tenantId: tenant.id, username: 'admin' } });
@@ -162,6 +171,7 @@ try {
   const sessionsBefore = await db.authSession.findMany({ orderBy: { id: 'asc' } });
   const auditCount = await db.auditLog.count(),
     commandCount = await db.commandExecution.count();
+  await auditColumns(false);
   run('pnpm', ['--filter', '@partneros/database', 'migrate:deploy']);
   assert.deepEqual(
     await db.$queryRaw`SELECT id,tenant_id,grant_id,owner_id,capability_id,request_key,input_hash,status,result,error_code,duration_ms,created_at,completed_at FROM agent_executions ORDER BY id`,

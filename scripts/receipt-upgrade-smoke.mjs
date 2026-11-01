@@ -41,6 +41,14 @@ async function call(path, method = 'GET', body, token, expected = 200) {
   ok(r.status === expected, `${method} ${path}: ${r.status} ${out.message ?? ''}`);
   return out.data;
 }
+// The current client and API write AuditLog.source/principal_label, which the prior release predates.
+// Add them only while seeding through current code, then restore the exact prior shape before migrating.
+const auditColumns = (add) =>
+  db.$executeRawUnsafe(
+    add
+      ? "ALTER TABLE audit_logs ADD COLUMN source ENUM('human','agent','system','import') NOT NULL DEFAULT 'human', ADD COLUMN principal_label VARCHAR(100) NULL"
+      : 'ALTER TABLE audit_logs DROP COLUMN source, DROP COLUMN principal_label',
+  );
 try {
   const archive = run('git', ['archive', prior, 'packages/database/prisma'], { encoding: null }).stdout;
   run('tar', ['-xf', '-', '-C', scratch], { input: archive });
@@ -74,6 +82,7 @@ try {
     ENCRYPTION_KEY: randomBytes(32).toString('hex'),
     BACKUP_KEY: randomBytes(32).toString('hex'),
   };
+  await auditColumns(true);
   await initializeProduction(db, env);
   const tenant = await db.tenant.findUniqueOrThrow({ where: { code: env.TENANT_CODE } });
   const principal = await db.user.findFirstOrThrow({ where: { tenantId: tenant.id, username: 'admin' } });
@@ -86,6 +95,7 @@ try {
   await db.$executeRaw`INSERT INTO receipts (tenant_id,receipt_no,customer_id,amount,allocated_amount,unallocated_amount,receipt_date,status,ledger_managed,serial_no,updated_at) VALUES (${tenant.id},'UPGRADE-LEGACY',${customer.id},1.00,0.00,1.00,'2026-11-01','draft',false,'LEGACY-UPGRADE-ID',CURRENT_TIMESTAMP(3))`;
   const before =
     await db.$queryRaw`SELECT id,receipt_no,amount,status,reference_key,updated_at FROM receipts ORDER BY id`;
+  await auditColumns(false);
   run('pnpm', ['--filter', '@partneros/database', 'migrate:deploy']);
   const receipts = await db.receipt.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } });
   ok(receipts.length === 3, 'Populated old receipts preserved');

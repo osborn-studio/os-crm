@@ -36,7 +36,7 @@ export async function initializeProduction(db, env) {
     const stages = [['new', '初步接洽', 10], ['qualified', '需求确认', 20], ['proposal', '方案报价', 40], ['negotiation', '商务谈判', 60], ['signing', '签约', 80], ['delivery', '交付', 90], ['acceptance', '验收', 95], ['closed', '结项', 100]];
     for (const [index, [code, name, probability]] of stages.entries()) await tx.opportunityStage.create({ data: { tenantId, code, name, probability, sortOrder: index + 1, isWon: code === 'closed' } });
     await tx.poolConfig.create({ data: { tenantId, poolType: 'public', name: '公司公海' } });
-    await tx.auditLog.create({ data: { tenantId, userId: user.id, action: 'installation.initialize', objectType: 'tenant', objectId: tenantId, afterData: { installationVersion: 1, mode: 'production' } }, select: { id: true } });
+    await tx.auditLog.create({ data: { tenantId, userId: user.id, action: 'installation.initialize', objectType: 'tenant', objectId: tenantId, afterData: { installationVersion: 1, mode: 'production' } } });
     return { initialized: true, tenantId };
   }, { isolationLevel: 'Serializable', timeout: 30000 });
 }
