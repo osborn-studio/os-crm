@@ -331,7 +331,12 @@ export default function AgentControlPanel() {
                         title={
                           <Space>
                             <strong>{String(p.input.title ?? '')}</strong>
-                            <Tag>{statusNames[p.status] ?? p.status}</Tag>
+                            <Tag>
+                              {['pending', 'approved'].includes(p.status) &&
+                              new Date(p.expiresAt).getTime() <= Date.now()
+                                ? '已过期'
+                                : (statusNames[p.status] ?? p.status)}
+                            </Tag>
                           </Space>
                         }
                         description={
@@ -529,7 +534,13 @@ export default function AgentControlPanel() {
             { key: 'customer', label: '客户', children: review?.proposal.customerName },
             ...Object.entries(review?.proposal.input ?? {}).map(([k, v]) => ({
               key: k,
-              label: k,
+              label:
+                (
+                  { title: '行动标题', content: '行动内容', dueDate: '计划日期', targetId: '客户编号' } as Record<
+                    string,
+                    string
+                  >
+                )[k] ?? k,
               children: String(v),
             })),
           ]}

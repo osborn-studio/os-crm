@@ -746,17 +746,29 @@ export class WorkspaceService {
     checkVersion(action as { updatedAt: Date }, expected);
     if (action.source !== 'ai_recommend' || !['pending', 'in_progress', 'overdue'].includes(String(action.status)))
       throw new ConflictException('只能补偿取消尚未完成的AI行动');
-    return tx.actionPlan.update({ where: { id: actionId }, data: { status: 'cancelled',
-      updatedAt: new Date(Math.max(Date.now(), (action.updatedAt as Date).getTime() + 1)) } });
+    return tx.actionPlan.update({
+      where: { id: actionId },
+      data: {
+        status: 'cancelled',
+        updatedAt: new Date(Math.max(Date.now(), (action.updatedAt as Date).getTime() + 1)),
+      },
+    });
   }
   async createAction(tx: Tx, a: Actor, input: unknown, source: 'manual' | 'ai_recommend' = 'manual') {
     const { data } = await this.previewAction(tx, a, input);
-    return tx.actionPlan.create({ data: {
-      tenantId: a.tenantId, createdBy: a.userId, assigneeId: a.userId, targetType: 'customer',
-      targetId: id(data.targetId), title: text(data.title, '行动名称'),
-      content: typeof data.content === 'string' ? data.content : null,
-      dueDate: data.dueDate instanceof Date ? data.dueDate : null, source,
-    } });
+    return tx.actionPlan.create({
+      data: {
+        tenantId: a.tenantId,
+        createdBy: a.userId,
+        assigneeId: a.userId,
+        targetType: 'customer',
+        targetId: id(data.targetId),
+        title: text(data.title, '行动名称'),
+        content: typeof data.content === 'string' ? data.content : null,
+        dueDate: data.dueDate instanceof Date ? data.dueDate : null,
+        source,
+      },
+    });
   }
   async command(a: Actor, kind: string, recordId: number, action: string, body: Record<string, unknown>) {
     allowWrite(a);
@@ -1103,7 +1115,8 @@ export class WorkspaceService {
             recordId,
           );
         } else if (kind === 'actions' && action === 'complete') {
-          if (!['pending', 'in_progress', 'overdue'].includes(String(row.status))) throw new ConflictException('行动已完成或取消');
+          if (!['pending', 'in_progress', 'overdue'].includes(String(row.status)))
+            throw new ConflictException('行动已完成或取消');
           await this.db(tx, kind).update({ where, data: { status: 'completed', completedAt: new Date() } });
         }
         return { id: recordId, kind, action };
@@ -1192,7 +1205,7 @@ export class WorkspaceService {
       tx.project.findMany({ where: await this.scope(tx, a, 'projects') }),
       tx.paymentPlan.findMany({ where: await this.scope(tx, a, 'payment-plans') }),
       tx.actionPlan.findMany({
-        where: { ...(await this.scope(tx, a, 'actions')), status: { not: 'completed' } },
+        where: { ...(await this.scope(tx, a, 'actions')), status: { in: ['pending', 'in_progress', 'overdue'] } },
         take: 20,
         orderBy: { dueDate: 'asc' },
       }),

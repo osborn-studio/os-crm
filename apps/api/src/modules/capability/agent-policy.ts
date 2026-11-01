@@ -51,6 +51,7 @@ export function tokenHash(token: string, secret: string) {
 }
 export function grantInput(body: Record<string, unknown>) {
   only(body, ['requestKey', 'name', 'purpose', 'minutes', 'maxCalls', 'capabilities']);
+  uuid(body.requestKey);
   const capabilities = body.capabilities;
   if (
     !Array.isArray(capabilities) ||

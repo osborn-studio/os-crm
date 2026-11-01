@@ -299,6 +299,7 @@ try {
   );
   await invoke(g, queryBody, 409);
   const receipt = (await call('/agent-runtime/receipts/' + query.executionId, 'GET', undefined, g.token)).data;
+  ok(receipt.capabilityVersion === '1.0', 'Execution evidence retains explicit capability contract version');
   ok(
     receipt.result.businessExecutionId === query.result.executionId && !JSON.stringify(receipt).includes(customer.name),
     'Read receipt links business audit without caching customer data',
@@ -398,6 +399,11 @@ try {
     'Historical receipt also exposes current compensation state',
   );
   await command('actions', await detail('actions', action), 'complete', {}, sales, 409);
+  const afterCancelOverview = (await call('/workspace/overview', 'GET', undefined, sales)).data;
+  ok(
+    !afterCancelOverview.actions.some((r) => r.id === action.id),
+    'Compensated action is removed from pending dashboard without deleting history',
+  );
   await call(
     '/workspace/actions/' + action.id,
     'PUT',

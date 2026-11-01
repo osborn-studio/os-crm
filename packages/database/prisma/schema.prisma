@@ -2231,6 +2231,7 @@ model AgentExecution {
   grantId      String   @map("grant_id") @db.Char(36)
   ownerId      Int      @map("owner_id")
   capabilityId String   @map("capability_id") @db.VarChar(60)
+  capabilityVersion String @default("1.0") @map("capability_version") @db.VarChar(10)
   requestKey   String   @map("request_key") @db.Char(36)
   inputHash    String   @map("input_hash") @db.Char(64)
   status       String   @db.VarChar(20)
