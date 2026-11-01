@@ -15,6 +15,7 @@ const CustomerOperations = lazy(() => import('./pages/workspace/CustomerOperatio
 const Ai = lazy(() => import('./pages/workspace/AiPage'));
 const Notifications = lazy(() => import('./pages/notification/NotificationCenterPage'));
 const Finance = lazy(() => import('./pages/workspace/FinancePage'));
+const FinanceLedger = lazy(() => import('./pages/workspace/FinanceLedgerPage'));
 const Board = lazy(() => import('./pages/workspace/BoardPage'));
 function Private({ children }: { children: React.ReactNode }) {
   return useAuthStore((s) => s.accessToken) ? <>{children}</> : <Navigate to="/login" replace />;
@@ -114,6 +115,7 @@ export default function App() {
             <Route path="ai" element={<Ai />} />
             <Route path="account" element={<Account />} />
             <Route path="finance/aging" element={<Finance />} />
+            <Route path="finance/ledger" element={<FinanceLedger />} />
             <Route path="*" element={<Result status="404" title="页面不存在" />} />
           </Route>
         </Routes>
