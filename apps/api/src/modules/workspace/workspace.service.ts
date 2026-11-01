@@ -32,6 +32,7 @@ import {
   deliveryEvent,
   deliveryManager,
   projectDeliveryCommand,
+  redactTaskEvidence,
   taskHours,
   taskProject,
   validateTaskMilestone,
@@ -497,14 +498,18 @@ export class WorkspaceService {
       });
     }
     if (kind === 'projects') {
-      related.deliveryEvents = await tx.deliveryEvent.findMany({
-        where: { tenantId: a.tenantId, projectId: recordId },
-        orderBy: { id: 'desc' },
-        take: 100,
-      });
-      related.tasks = await this.db(tx, 'tasks').findMany({
+      const tasks = await this.db(tx, 'tasks').findMany({
         where: { ...(await this.scope(tx, a, 'tasks')), projectId: recordId },
       });
+      related.deliveryEvents = redactTaskEvidence(
+        await tx.deliveryEvent.findMany({
+          where: { tenantId: a.tenantId, projectId: recordId },
+          orderBy: { id: 'desc' },
+          take: 100,
+        }),
+        new Set(tasks.map((t) => id(t.id))),
+      );
+      related.tasks = tasks;
       related.milestones = await tx.projectMilestone.findMany({
         where: { tenantId: a.tenantId, projectId: recordId },
         orderBy: { sortOrder: 'asc' },

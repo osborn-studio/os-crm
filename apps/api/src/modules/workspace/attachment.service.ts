@@ -87,6 +87,16 @@ export class AttachmentService {
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     });
   }
+  // The parent version the user reviewed; a delayed request must not attach to a later rework round.
+  private async checkParent(tx: Tx, a: Actor, kind: string, subjectId: number, expected: unknown) {
+    const parent =
+      kind === 'service-tickets'
+        ? await tx.serviceTicket.findFirstOrThrow({ where: { tenantId: a.tenantId, id: subjectId } })
+        : kind === 'tasks'
+          ? await tx.projectTask.findFirstOrThrow({ where: { tenantId: a.tenantId, id: subjectId } })
+          : await tx.project.findFirstOrThrow({ where: { tenantId: a.tenantId, id: subjectId } });
+    checkVersion(parent, expected);
+  }
   private async touch(tx: Tx, a: Actor, kind: string, subjectId: number) {
     const next = (v: Date) => new Date(Math.max(Date.now(), v.getTime() + 1));
     if (kind === 'service-tickets') {
@@ -104,7 +114,15 @@ export class AttachmentService {
     }
   }
   async upload(a: Actor, body: Record<string, unknown>) {
-    ticketKeys(body, ['requestKey', 'subjectKind', 'subjectId', 'filename', 'contentBase64', 'acknowledged']);
+    ticketKeys(body, [
+      'requestKey',
+      'subjectKind',
+      'subjectId',
+      'expectedParentUpdatedAt',
+      'filename',
+      'contentBase64',
+      'acknowledged',
+    ]);
     if (body.acknowledged !== true) throw new BadRequestException('需确认文件来源及尚未进行病毒扫描');
     const kind = this.kind(body.subjectKind),
       subjectId = id(body.subjectId),
@@ -113,6 +131,7 @@ export class AttachmentService {
       requestKey: body.requestKey,
       subjectKind: kind,
       subjectId,
+      expectedParentUpdatedAt: body.expectedParentUpdatedAt,
       filename: file.filename,
       size: file.size,
       sha256: file.sha256,
@@ -124,6 +143,7 @@ export class AttachmentService {
       command,
       async (tx) => {
         await this.parent(tx, a, kind, subjectId, true);
+        await this.checkParent(tx, a, kind, subjectId, body.expectedParentUpdatedAt);
         const total = await tx.evidenceAttachment.aggregate({ where: { tenantId: a.tenantId }, _sum: { size: true } });
         if ((total._sum.size ?? 0) + file.size > MAX_TENANT_ATTACHMENT_BYTES)
           throw new ConflictException('企业附件保留容量已达16MiB，撤回不释放历史容量');
@@ -198,7 +218,7 @@ export class AttachmentService {
     );
   }
   async withdraw(a: Actor, attachmentId: string, body: Record<string, unknown>) {
-    ticketKeys(body, ['requestKey', 'expectedUpdatedAt', 'reason']);
+    ticketKeys(body, ['requestKey', 'expectedUpdatedAt', 'expectedParentUpdatedAt', 'reason']);
     return runCommand(
       this.prisma,
       a,
@@ -209,6 +229,7 @@ export class AttachmentService {
         await this.parent(tx, a, row.subjectKind, row.subjectId, true);
         if (row.createdBy !== a.userId && !admin(a)) throw new ForbiddenException('仅上传人或管理员可撤回');
         checkVersion(row, body.expectedUpdatedAt);
+        await this.checkParent(tx, a, row.subjectKind, row.subjectId, body.expectedParentUpdatedAt);
         if (row.withdrawnAt) throw new ConflictException('附件已经撤回');
         const result = await tx.evidenceAttachment.update({
           where: { id: row.id },

@@ -536,6 +536,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               <AttachmentPanel
                 subjectKind={kind}
                 subjectId={detail.id}
+                parentUpdatedAt={detail.updatedAt ?? ''}
                 onChanged={async () => setDetail(await get<RecordRow>(`/workspace/${kind}/${detail.id}`))}
                 writable={
                   !!spec?.canEdit &&

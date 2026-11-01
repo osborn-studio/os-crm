@@ -200,6 +200,7 @@ export default function ServiceTicketsPage() {
             <AttachmentPanel
               subjectKind="service-tickets"
               subjectId={selected.id}
+              parentUpdatedAt={selected.updatedAt}
               onChanged={() => detail(selected.id)}
               writable={
                 ['open', 'assigned', 'in_progress'].includes(selected.status) &&

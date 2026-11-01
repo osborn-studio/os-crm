@@ -10,14 +10,17 @@ export class AttachmentController {
     return attachmentCapabilities;
   }
 
-  @Get() @Header('Cache-Control', 'no-store') list(
+  @Get() @Header('Cache-Control', 'no-store') @Header('X-Content-Type-Options', 'nosniff') list(
     @CurrentUser() a: Actor,
     @Query('subjectKind') kind: string,
     @Query('subjectId', ParseIntPipe) id: number,
   ) {
     return this.service.list(a, kind, id);
   }
-  @Get(':id/content') @Header('Cache-Control', 'no-store') download(@CurrentUser() a: Actor, @Param('id') id: string) {
+  @Get(':id/content') @Header('Cache-Control', 'no-store') @Header('X-Content-Type-Options', 'nosniff') download(
+    @CurrentUser() a: Actor,
+    @Param('id') id: string,
+  ) {
     return this.service.download(a, id);
   }
   @Post() upload(@CurrentUser() a: Actor, @Body() body: Record<string, unknown>) {
