@@ -7,11 +7,11 @@ description: Drive the real 伴圆 CRM (os-crm / tb-crm, PartnerOS) from this ch
 
 B2B CRM demo (v0.2 本地演示版). Surfaces, in order of importance:
 
-1. **Web UI** — `http://127.0.0.1:$WEB_PORT`. `scripts/serve-web.mjs` serves `apps/web/dist` and proxies `/api/*` to the API. Login page `/login`, then a left menu (`.ant-layout-sider`) with 经营工作台、客户经营、销售管理、合同与订单、项目交付、财务中心、站内通知、审批中心、AI与智能体; admin additionally sees 审批设计器、钉钉 / 飞书、系统管理. Routes are in `apps/web/src/App.tsx`.
+1. **Web UI** — `http://127.0.0.1:$WEB_PORT`. `scripts/serve-web.mjs` serves `apps/web/dist` and proxies `/api/*` to the API. Login page `/login`, then a left menu (`.ant-layout-sider`) with 经营工作台、客户经营 (档案/联系人/公海/私海/线索/跟进/行动; supervisor also 客户导入 / 销售交接)、销售管理 (商机与报价/商机看板/产品目录)、合同与订单、项目交付 (项目/任务/售后服务工单)、财务中心 (收款登记与核销 + 演示回款/发票/收款 + 财务功能展示)、站内通知、审批中心、AI与智能体; admin additionally sees 审批设计器、钉钉 / 飞书、系统管理 (人员与部门). Routes are in `apps/web/src/App.tsx`.
 2. **HTTP API** — NestJS, prefix `/api/v1` (`/health`, `/auth/login`, `/workspace/{schema,overview,<kind>,<kind>/<id>,<kind>/<id>/<action>}`, `/approvals/...`). Swagger at `http://127.0.0.1:$API_PORT/api/docs`.
 3. **MCP (agent surface)** — Streamable HTTP `POST /api/v1/mcp` with the user's Bearer token; 7 read-only tools. Driven by the repo's own `examples/mcp-client.mjs`.
 
-Not covered: real DingTalk/Feishu/DashScope/Yonyou/OSS calls (need enterprise credentials that do not exist here — never invent them), `pnpm demo:reset`/`demo:test` (they create extra databases through a root URL), the Docker delivery path `deploy/start.sh` (covered by CI workflow `deployment.yml`; see Gotchas), Windows/macOS launchers (`启动演示.command`, `deploy/start.ps1`), and finance writes (finance is read-only synthetic data by design).
+Not covered here (see `features/README.md` candidates): real DingTalk/Feishu/DashScope/Yonyou/OSS calls (need enterprise credentials that do not exist here — never invent them), `pnpm demo:reset`/`demo:test` (they create extra databases through a root URL), the Docker delivery path `deploy/start.sh` (covered by CI workflow `deployment.yml`; see Gotchas), Windows/macOS launchers (`启动演示.command`, `deploy/start.ps1`), and the newer write surfaces not yet given their own feature files (收款登记与核销 ledger, 售后服务工单, 客户导入/销售交接, private evidence attachments, opportunity board/closure, delivery PM handover, agent delegation grants, system principal commands). Demo rows under 回款计划/发票/收款 · 演示 remain synthetic; the ledger at `/finance/ledger` is a real local write path.
 
 **Hard rules.** Never point this skill at the developer's own demo database or the `.env` instance on :3000/:4000 — every run gets its own MySQL container and random ports, and the helper refuses to reuse a `RUN_ID`. Do not drive an instance you did not launch. Never write the seed password or a token into evidence or a PR.
 
@@ -65,7 +65,8 @@ Per-feature recipes live in [`features/`](features/README.md). Shared mechanics:
 
 - **Browser:** `$V ui <label> <steps.json>` runs `crm-browser.mjs` against this instance; artifacts go to `ui/<label>.<shot>.{png,text.txt,ax.txt}` + `ui/<label>.steps.log`; on failure a `fail-<n>` shot is written and the exit code is 1. Step language is documented at the top of `crm-browser.mjs`. Stable handles from this repo:
   - Login: `{"login":"sales"}` clicks the role tab (`admin`/`销售主管`/`销售`/`老板` in `.ant-segmented`), types the password into placeholder `密码`, clicks `登录`, waits for `/dashboard`.
-  - Menu: always scope menu clicks with `"within": ".ant-layout-sider"` (dashboard cards reuse labels like `客户经营`). Parent groups (`客户经营`, `销售管理`, ...) must be clicked open before their children.
+  - Menu: always scope menu clicks with `"within": ".ant-layout-sider"` (dashboard cards reuse labels like `客户经营`). `defaultOpenKeys` already opens `客户经营` and `销售管理` — clicking those parents toggles them closed; click the leaf instead. Closed groups (`合同与订单`, `项目交付`, `财务中心`, ...) must be clicked open before their children.
+  - Confirm dialogs: antd `Modal.confirm` (审批 `通过`/`驳回`) puts buttons under `.ant-modal-confirm`, not `.ant-modal-footer`.
   - Workspace pages (`WorkspacePage.tsx`): primary button `新建<title>` (e.g. `新建客户`), search placeholder `搜索<title>`, pagination text `共 N 条`, row link = record name, row buttons `详情`/`编辑`/action names (`领取`, `退回公海`, `分配销售`, `提交审批`, `确认签约`, ...). Target one row with `"within": "tr[data-row-key=\"<id>\"]"`.
   - Modals: fields by Form label with `"within": ".ant-modal"`, confirm with `{"click":"确定","within":".ant-modal-footer"}` (antd renders `确 定`; matching strips whitespace). Success toasts: `已保存`, `操作已完成`, `审批已处理`, `申请已提交`.
   - Detail drawer title `<title>详情` (e.g. `客户详情`).

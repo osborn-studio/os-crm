@@ -9,8 +9,7 @@
   "shot": "01-dashboard"
  },
  {
-  "click": "客户经营",
-  "within": ".ant-layout-sider"
+  "waitText": "客户档案"
  },
  {
   "click": "客户档案",

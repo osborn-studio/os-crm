@@ -31,4 +31,6 @@ Preconditions:
 - The MCP server validates the Host header against `localhost:$PORT`/`127.0.0.1:$PORT` of the API; going through `serve-web.mjs` works because the proxy rewrites Host. Calling the API port directly with another Host gets rejected.
 - `examples/mcp-client.mjs` refuses non-local URLs by design.
 - AI summaries are rule-generated; there is no DashScope call to verify (no key, and none should be invented).
+- `/ai` also hosts `AgentControlPanel` (限时委托 / grant token / revoke). That write surface is **not** covered by `$V mcp` (JWT MCP stays the 7 read-only tools); list it under README candidates until mapped.
+- Re-proven 2026-11-02: tool list unchanged; scoped search found `验证客户-$RUN_ID`.
 - `$V mcp` overwrites `cli/mcp.*`; copy the files aside if you run it more than once per RUN_ID.

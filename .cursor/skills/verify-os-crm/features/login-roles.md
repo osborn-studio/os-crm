@@ -24,7 +24,7 @@ Preconditions:
 
 - **Sales login.** Use step `{"login":"sales"}` (first step of `journeys/customers-create.json`). Path becomes `/dashboard`; shot `01-dashboard` shows `我的销售工作台` and role badge `销售`.
 - **Other roles.** Write a steps file `[{"login":"boss"},{"waitText":"经营驾驶舱"},{"shot":"boss"}]` and run `$V ui login-boss <file>`; repeat for `admin` (`系统管理工作台`) and `manager` (`团队经营工作台`).
-- **Admin-only route.** As sales, `{"goto":"/system"}` then `{"waitText":"无权访问"}`; as admin the same route shows the 系统管理 page.
+- **Admin-only route.** As sales, `{"goto":"/system"}` then `{"waitText":"无权访问"}`; as admin the same route shows 系统管理 with tabs including `组织部门` (人员与部门管理).
 - **Bad password.** Steps `{"goto":"/login"}`, `{"fill":"密码","value":"wrong-${RUN_ID}"}`, `{"click":"登录"}`, `{"expectUrl":"/login"}`, `{"shot":"bad-password"}`. Still on `/login` with an error message.
 - **HTTP all roles.** Run `$V acceptance`. `cli/acceptance.stdout` lists `admin|manager|sales|boss: login, overview and schemas OK` and `Deployment read-only acceptance passed.`
 
@@ -34,3 +34,4 @@ Preconditions:
 - The login card defaults to `admin`; a role tab click only changes the username field.
 - The seeded password is random per launch (or `OSCRM_SEED_PASSWORD`); it is not `.local/演示账号.md`'s value.
 - Login lockout/Redis blacklist are TODOs in `auth.service.ts`; do not expect lockout after repeated failures.
+- Re-proven 2026-11-02: four role dashboards, sales forbidden on `/system`, admin system shows `组织部门`.

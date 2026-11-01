@@ -25,7 +25,7 @@ Preconditions:
 - `sales` can log in (`$V doctor` healthy).
 
 - **Whole journey.** Run `$V ui customers-create .cursor/skills/verify-os-crm/journeys/customers-create.json`. Exit `0`, `ui/customers-create.steps.log` ends with `all steps passed`.
-- **Open list.** Steps `login sales` → click `客户经营`, `客户档案` within `.ant-layout-sider`. Path is `/customers`, text `共 ` appears; shot `02-customer-list` shows seed rows such as `星河1号演示企业`.
+- **Open list.** Steps `login sales` → `{"waitText":"客户档案"}` then click `客户档案` within `.ant-layout-sider` (do **not** click the already-open `客户经营` parent — that toggles it closed). Path is `/customers`, text `共 ` appears; shot `02-customer-list` shows seed rows such as `星河1号演示企业`.
 - **Create.** Click `新建客户`; fill `客户名称` = `验证客户-${RUN_ID}`, `行业` = `智能制造`, `备注` = `verify-os-crm synthetic fixture` within `.ant-modal`; click `确定` within `.ant-modal-footer`. Toast `已保存`; shot `03-create-form` shows the filled dialog.
 - **Search.** Fill `搜索客户` with the same name and press `Enter`. Text `共 1 条`; shot `04-search-result` has exactly that row.
 - **Detail.** Click the row link. Drawer `客户详情` shows `verify-os-crm synthetic fixture`, 客户池 `私海`; shot `05-detail-drawer`.
@@ -38,6 +38,8 @@ Preconditions:
 - On the first proven run the `customers.create` audit row had `object_id = NULL`; match audit rows by `action` and user, not by object id. (Observed behavior, not fixed here.)
 - Sales-created customers are private (`私海`) with a 30-day `protectUntil`; they do not appear in `/pool/public`.
 - The search box only applies on `Enter` or the search icon; typing alone does not filter.
-- Dashboard cards repeat menu labels; an unscoped `click 客户经营` hits a dashboard button instead of the menu.
+- Dashboard cards repeat menu labels; an unscoped `click 客户经营` hits a dashboard button instead of the menu. Inside the sider, `客户经营` is already open via `defaultOpenKeys` — clicking the parent closes the leaf items.
+- Detail drawer may also show an attachments panel (`AttachmentPanel`); private evidence upload is not mapped in this feature (see README candidates).
+- Re-proven 2026-11-02 (`RUN_ID` `verify-maintain-20261102-005205`); `customers.create` audit `object_id` still NULL.
 - antd modal fields animate in; the helper waits for a still target and fails with `focus did not land` instead of typing into nothing.
 - `boss` has read-only business access (`当前角色无业务编辑权限`); use `sales` or `manager` for create/edit.
