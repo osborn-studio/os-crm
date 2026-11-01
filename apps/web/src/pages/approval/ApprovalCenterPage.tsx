@@ -16,10 +16,12 @@ import {
   Tag,
   Tabs,
   Typography,
+  Timeline,
   message,
 } from 'antd';
 import { get, post, key, errorText, statusNames, type RecordRow } from '../../services/workspace';
 import { ChangeComparison } from '../workspace/ContractChanges';
+import { useAuthStore } from '../../stores/useAuthStore';
 function BusinessChangeEvidence({ value }: { value: unknown }) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const snapshot = value as Record<string, unknown>;
@@ -46,7 +48,26 @@ interface Approval extends RecordRow {
   approvalNo: string;
   bizType: string;
   formData: Record<string, unknown>;
-  nodes?: { id: number; nodeName: string; action: string; comment: string }[];
+  nodes?: {
+    id: number;
+    nodeName: string;
+    action: string;
+    comment: string;
+    approverName: string;
+    canTransfer: boolean;
+  }[];
+}
+interface AuditEvent {
+  id: number;
+  actorName: string;
+  action: string;
+  note: string;
+  createdAt: string;
+  evidence: { fromName?: string; toName?: string; current?: boolean };
+}
+interface Page<T> {
+  items: T[];
+  nextCursor: number | null;
 }
 interface Pending {
   nodeId: number;
@@ -59,6 +80,7 @@ interface Flow extends RecordRow {
   definition?: { fields: { key: string; label: string; type: string; required: boolean }[] };
 }
 export default function ApprovalCenterPage() {
+  const isAdmin = useAuthStore((s) => s.user?.roles.includes('super_admin'));
   const [pending, setPending] = useState<Pending[]>([]),
     [initiated, setInitiated] = useState<Approval[]>([]),
     [flows, setFlows] = useState<Flow[]>([]),
@@ -66,19 +88,73 @@ export default function ApprovalCenterPage() {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [detail, setDetail] = useState<Approval>();
+  const [history, setHistory] = useState<Page<Approval>>({ items: [], nextCursor: null });
+  const [events, setEvents] = useState<Page<AuditEvent>>({ items: [], nextCursor: null });
+  const [transfer, setTransfer] = useState<{ approval: Approval; nodeId: number; requestKey: string }>();
+  const [people, setPeople] = useState<Page<{ id: number; name: string }>>({ items: [], nextCursor: null });
+  const [transferBusy, setTransferBusy] = useState(false);
+  const [transferForm] = Form.useForm();
+  const showDetail = async (approval: Approval) => {
+    try {
+      const [row, audit] = await Promise.all([
+        get<Approval>(`/approvals/${approval.id}`),
+        get<Page<AuditEvent>>(`/approvals/${approval.id}/events`),
+      ]);
+      setDetail(row);
+      setEvents(audit);
+    } catch (e) {
+      message.error(errorText(e));
+    }
+  };
+  const startTransfer = async (approval: Approval, nodeId: number) => {
+    try {
+      const [fresh, candidates] = await Promise.all([
+        get<Approval>(`/approvals/${approval.id}`),
+        get<Page<{ id: number; name: string }>>(`/approvals/${approval.id}/nodes/${nodeId}/transfer-people`),
+      ]);
+      setPeople(candidates);
+      transferForm.resetFields();
+      setTransfer({ approval: fresh, nodeId, requestKey: key() });
+    } catch (e) {
+      message.error(errorText(e));
+    }
+  };
+  const submitTransfer = async () => {
+    if (!transfer) return;
+    try {
+      const values = await transferForm.validateFields();
+      setTransferBusy(true);
+      await post(`/approvals/${transfer.approval.id}/nodes/${transfer.nodeId}/transfer`, {
+        ...values,
+        requestKey: transfer.requestKey,
+        expectedUpdatedAt: transfer.approval.updatedAt,
+      });
+      message.success('转审已保存，原节点和原因保留');
+      setTransfer(undefined);
+      await load();
+      await showDetail(transfer.approval);
+    } catch (e) {
+      if (e && typeof e === 'object' && 'errorFields' in e) return;
+      message.error(errorText(e));
+    } finally {
+      setTransferBusy(false);
+    }
+  };
   const [form] = Form.useForm();
   const selected = Form.useWatch('flowId', form);
   const flow = flows.find((f) => f.id === selected);
   const load = async () => {
     try {
-      const [p, i, f] = await Promise.all([
+      const [p, i, f, h] = await Promise.all([
         get<Pending[]>('/approvals/pending'),
         get<{ items: Approval[] }>('/approvals/my-initiated'),
         get<Flow[]>('/approvals/flows'),
+        get<Page<Approval>>('/approvals/history'),
       ]);
       setPending(p);
       setInitiated(i.items);
-      setFlows(f.filter((v) => !['contract', 'order', 'project_initiation'].includes(v.bizType)));
+      setFlows(f.filter((v) => !['contract', 'contract_change', 'order', 'project_initiation'].includes(v.bizType)));
+      setHistory(h);
       setError('');
     } catch (e) {
       setError(errorText(e));
@@ -184,13 +260,14 @@ export default function ApprovalCenterPage() {
                     <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div>
                         <Tag color="blue">{p.approval.bizType}</Tag>
-                        <a onClick={() => setDetail(p.approval)}>{p.approval.title}</a>
+                        <a onClick={() => void showDetail(p.approval)}>{p.approval.title}</a>
                         <div style={{ marginTop: 8, color: '#64748b' }}>
                           {p.approval.approvalNo} · {p.nodeName}
                         </div>
                       </div>
                       <Space>
-                        <Button onClick={() => setDetail(p.approval)}>查看申请</Button>
+                        <Button onClick={() => void showDetail(p.approval)}>查看申请</Button>
+                        <Button onClick={() => void startTransfer(p.approval, p.nodeId)}>转审</Button>
                         <Button type="primary" onClick={() => decide(p)}>
                           通过
                         </Button>
@@ -214,7 +291,7 @@ export default function ApprovalCenterPage() {
                   <Card style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Space>
-                        <a onClick={() => setDetail(a)}>{a.title}</a>
+                        <a onClick={() => void showDetail(a)}>{a.title}</a>
                         <Tag
                           color={a.status === 'approved' ? 'success' : a.status === 'rejected' ? 'error' : 'processing'}
                         >
@@ -229,7 +306,7 @@ export default function ApprovalCenterPage() {
                         size="small"
                         items={a.nodes.map((n) => ({
                           title: n.nodeName,
-                          description: n.comment,
+                          description: n.action === 'transferred' ? `已转审：${n.comment}` : n.comment,
                           status: n.action === 'approved' ? 'finish' : n.action === 'rejected' ? 'error' : 'wait',
                         }))}
                       />
@@ -237,6 +314,50 @@ export default function ApprovalCenterPage() {
                   </Card>
                 )}
               />
+            ),
+          },
+          {
+            key: 'history',
+            label: isAdmin ? '企业审批与交接' : '我参与的审批',
+            children: (
+              <>
+                <Alert
+                  type="info"
+                  showIcon
+                  message={
+                    isAdmin
+                      ? '管理员可转交当前或后续待审节点，不能代替审批通过。先交接完待审节点，再办理账号停用或调岗。'
+                      : '包含曾经转出的节点，方便回看处理历史；只能转交当前轮到自己处理的节点。'
+                  }
+                  style={{ marginBottom: 16 }}
+                />
+                <List
+                  dataSource={history.items}
+                  renderItem={(a) => (
+                    <List.Item>
+                      <a onClick={() => void showDetail(a)}>{a.title}</a>
+                      <Space>
+                        <Typography.Text type="secondary">{a.approvalNo}</Typography.Text>
+                        <Tag>{statusNames[a.status] ?? a.status}</Tag>
+                      </Space>
+                    </List.Item>
+                  )}
+                />
+                {history.nextCursor && (
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const more = await get<Page<Approval>>(`/approvals/history?after=${history.nextCursor}`);
+                        setHistory({ items: [...history.items, ...more.items], nextCursor: more.nextCursor });
+                      } catch (e) {
+                        message.error(errorText(e));
+                      }
+                    }}
+                  >
+                    加载更多审批
+                  </Button>
+                )}
+              </>
             ),
           },
         ]}
@@ -272,7 +393,120 @@ export default function ApprovalCenterPage() {
           ))}
         </Form>
       </Modal>
+      <Modal
+        title="转审 / 管理员恢复流转"
+        open={!!transfer}
+        onCancel={() => !transferBusy && setTransfer(undefined)}
+        onOk={() => void submitTransfer()}
+        confirmLoading={transferBusy}
+        destroyOnClose
+      >
+        <Alert
+          type="info"
+          showIcon
+          message="转交不会通过审批。原节点、已处理意见和流程快照保留；接收人必须具备审批权限，且不能是申请人。"
+          style={{ marginBottom: 16 }}
+        />
+        <Form form={transferForm} layout="vertical">
+          <Form.Item label="接收审批人" name="targetUserId" rules={[{ required: true }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              options={people.items.map((p) => ({ value: p.id, label: p.name }))}
+            />
+          </Form.Item>
+          {people.nextCursor && (
+            <Button
+              onClick={async () => {
+                if (!transfer) return;
+                try {
+                  const more = await get<Page<{ id: number; name: string }>>(
+                    `/approvals/${transfer.approval.id}/nodes/${transfer.nodeId}/transfer-people?after=${people.nextCursor}`,
+                  );
+                  setPeople({ items: [...people.items, ...more.items], nextCursor: more.nextCursor });
+                } catch (e) {
+                  message.error(errorText(e));
+                }
+              }}
+            >
+              加载更多候选人员
+            </Button>
+          )}
+          <Form.Item label="转审原因" name="reason" rules={[{ required: true, whitespace: true, max: 1000 }]}>
+            <Input.TextArea rows={3} maxLength={1000} showCount />
+          </Form.Item>
+        </Form>
+      </Modal>
       <Drawer title={detail?.title} open={!!detail} onClose={() => setDetail(undefined)} width={640}>
+        <Card title="节点与交接" style={{ marginBottom: 20 }}>
+          <List
+            dataSource={detail?.nodes}
+            renderItem={(n) => (
+              <List.Item
+                actions={
+                  n.canTransfer
+                    ? [
+                        <Button key="transfer" onClick={() => detail && void startTransfer(detail, n.id)}>
+                          转审
+                        </Button>,
+                      ]
+                    : []
+                }
+              >
+                <List.Item.Meta
+                  title={`${n.nodeName} · ${n.approverName}`}
+                  description={`${({ transferred: '已转交', pending: '待处理', approved: '已通过', rejected: '已驳回' } as Record<string, string>)[n.action] ?? n.action}${n.comment ? ' · ' + n.comment : ''}`}
+                />
+              </List.Item>
+            )}
+          />
+        </Card>
+        <Card title="处理与转审历史" style={{ marginBottom: 20 }}>
+          {!events.items.length && (
+            <Typography.Text type="secondary">暂无新审计事件；旧审批的处理记录请查看节点，不补造历史。</Typography.Text>
+          )}
+          <Timeline
+            items={events.items.map((e) => ({
+              children: (
+                <>
+                  <Typography.Text strong>
+                    {e.actorName} ·{' '}
+                    {(
+                      {
+                        created: '提交',
+                        approved: '通过',
+                        rejected: '驳回',
+                        withdrawn: '撤回',
+                        transferred: '转审',
+                      } as Record<string, string>
+                    )[e.action] ?? e.action}
+                  </Typography.Text>
+                  <div>
+                    {e.evidence.fromName &&
+                      `${e.evidence.fromName} → ${e.evidence.toName} · ${e.evidence.current ? '当前节点' : '后续节点'}`}
+                  </div>
+                  <div>{e.note}</div>
+                  <Typography.Text type="secondary">{new Date(e.createdAt).toLocaleString()}</Typography.Text>
+                </>
+              ),
+            }))}
+          />
+          {events.nextCursor && (
+            <Button
+              onClick={async () => {
+                if (!detail) return;
+                try {
+                  const more = await get<Page<AuditEvent>>(`/approvals/${detail.id}/events?after=${events.nextCursor}`);
+                  setEvents({ items: [...events.items, ...more.items], nextCursor: more.nextCursor });
+                } catch (e) {
+                  message.error(errorText(e));
+                }
+              }}
+            >
+              加载更早历史
+            </Button>
+          )}
+        </Card>
         {detail?.bizType === 'contract_change' && <BusinessChangeEvidence value={detail.formData.businessSnapshot} />}
         <Descriptions
           bordered

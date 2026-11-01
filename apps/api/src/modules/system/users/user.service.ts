@@ -221,7 +221,7 @@ export class UserService {
           where: { tenantId: actor.tenantId, approverId: target, action: 'pending', approval: { status: 'pending' } },
         }))
       )
-        throw new ConflictException('该用户仍有待处理审批，请先完成或撤回审批；紧急撤销访问可先重置密码');
+        throw new ConflictException('该用户仍有待处理审批，请先转审、完成或撤回审批；紧急撤销访问可先重置密码');
       const nextRoles = await tx.role.findMany({ where: { tenantId: actor.tenantId, id: { in: roleIds } } });
       const nextPermissions = nextRoles.flatMap((r) =>
         Array.isArray(r.permissions) ? r.permissions.filter((v): v is string => typeof v === 'string') : [],

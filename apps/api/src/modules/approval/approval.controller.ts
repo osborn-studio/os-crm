@@ -1,5 +1,5 @@
 import { approvalCatalog } from './approval.catalog';
-import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ApprovalService } from './approval.service';
 import { Permissions } from '../../common/decorators/permissions.decorator';
@@ -44,6 +44,35 @@ export class ApprovalController {
   }
   @Get('my-initiated') initiated(@CurrentUser() a: Actor) {
     return this.service.initiated(a);
+  }
+  @Get('history') history(@CurrentUser() a: Actor, @Query('after') after?: string) {
+    return this.service.history(a, after);
+  }
+  @Get(':id') detail(@CurrentUser() a: Actor, @Param('id', ParseIntPipe) approvalId: number) {
+    return this.service.detail(a, approvalId);
+  }
+  @Get(':id/events') events(
+    @CurrentUser() a: Actor,
+    @Param('id', ParseIntPipe) approvalId: number,
+    @Query('after') after?: string,
+  ) {
+    return this.service.events(a, approvalId, after);
+  }
+  @Get(':id/nodes/:nodeId/transfer-people') transferPeople(
+    @CurrentUser() a: Actor,
+    @Param('id', ParseIntPipe) approvalId: number,
+    @Param('nodeId', ParseIntPipe) nodeId: number,
+    @Query('after') after?: string,
+  ) {
+    return this.service.transferPeople(a, approvalId, nodeId, after);
+  }
+  @Post(':id/nodes/:nodeId/transfer') transfer(
+    @CurrentUser() a: Actor,
+    @Param('id', ParseIntPipe) approvalId: number,
+    @Param('nodeId', ParseIntPipe) nodeId: number,
+    @Body() b: Record<string, unknown>,
+  ) {
+    return this.service.transfer(a, approvalId, nodeId, b);
   }
   @Post() @Permissions('approval:create') create(@CurrentUser() a: Actor, @Body() b: Record<string, unknown>) {
     return this.service.create(a, b);

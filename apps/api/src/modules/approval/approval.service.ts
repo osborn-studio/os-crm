@@ -13,6 +13,7 @@ import { admin } from '../workspace/access';
 import { checkVersion, id, json, object, runCommand, text, type Tx } from '../workspace/command-runner';
 import { condition, flowInput, type FlowField } from './flow-rules';
 import { applyContractChange } from '../workspace/contract-change-policy';
+import { pageCursor, requireTransfer, transferInput } from './transfer-policy';
 
 function canDecide(roles: { role: { code: string; permissions: Prisma.JsonValue } }[]): boolean {
   if (roles.some((r) => r.role.code === 'super_admin')) return true;
@@ -26,6 +27,203 @@ function canDecide(roles: { role: { code: string; permissions: Prisma.JsonValue 
 @Injectable()
 export class ApprovalService {
   constructor(private readonly prisma: PrismaService) {}
+  private async event(
+    tx: Tx,
+    a: Actor,
+    approvalId: number,
+    action: string,
+    note: string,
+    evidence: unknown,
+    nodeId?: number,
+  ) {
+    const actor = await tx.user.findFirstOrThrow({
+      where: { id: a.userId, tenantId: a.tenantId },
+      select: { name: true },
+    });
+    await tx.approvalEvent.create({
+      data: {
+        tenantId: a.tenantId,
+        approvalId,
+        nodeId,
+        actorId: a.userId,
+        actorName: actor.name,
+        action,
+        note,
+        evidence: json(evidence),
+      },
+    });
+  }
+  private visible(a: Actor): Prisma.ApprovalWhereInput {
+    return {
+      tenantId: a.tenantId,
+      ...(!admin(a)
+        ? { OR: [{ applicantId: a.userId }, { nodes: { some: { tenantId: a.tenantId, approverId: a.userId } } }] }
+        : {}),
+    };
+  }
+  async history(a: Actor, after?: string) {
+    const cursor = pageCursor(after);
+    const rows = await this.prisma.system.approval.findMany({
+      where: { ...this.visible(a), ...(cursor ? { id: { lt: cursor } } : {}) },
+      orderBy: { id: 'desc' },
+      take: 51,
+      select: {
+        id: true,
+        title: true,
+        approvalNo: true,
+        bizType: true,
+        status: true,
+        updatedAt: true,
+        applicantId: true,
+      },
+    });
+    return { items: rows.slice(0, 50), nextCursor: rows.length > 50 ? rows[49].id : null };
+  }
+  async detail(a: Actor, approvalId: number) {
+    const approval = await this.prisma.system.approval.findFirst({
+      where: { ...this.visible(a), id: approvalId },
+      include: { nodes: { orderBy: [{ nodeOrder: 'asc' }, { id: 'asc' }] } },
+    });
+    if (!approval) throw new NotFoundException('审批不存在或不可见');
+    const people = await this.prisma.system.user.findMany({
+      where: { tenantId: a.tenantId, id: { in: approval.nodes.map((n) => n.approverId) } },
+      select: { id: true, name: true },
+    });
+    return {
+      ...approval,
+      nodes: approval.nodes.map((n) => ({
+        ...n,
+        approverName: people.find((u) => u.id === n.approverId)?.name ?? '历史人员',
+        canTransfer:
+          approval.status === 'pending' &&
+          n.action === 'pending' &&
+          (admin(a) ||
+            (approval.currentNodeId === n.id &&
+              n.approverId === a.userId &&
+              a.userId !== approval.applicantId &&
+              ['approval:approve', 'approval:reject'].every((p) =>
+                a.permissions.some((v) => v === '*' || v === 'approval:*' || v === p),
+              ))),
+      })),
+    };
+  }
+  async events(a: Actor, approvalId: number, after?: string) {
+    await this.detail(a, approvalId);
+    const cursor = pageCursor(after);
+    const rows = await this.prisma.system.approvalEvent.findMany({
+      where: { tenantId: a.tenantId, approvalId, ...(cursor ? { id: { lt: cursor } } : {}) },
+      orderBy: { id: 'desc' },
+      take: 51,
+    });
+    return { items: rows.slice(0, 50), nextCursor: rows.length > 50 ? rows[49].id : null };
+  }
+  async transferPeople(a: Actor, approvalId: number, nodeId: number, after?: string) {
+    const approval = await this.detail(a, approvalId);
+    const node = approval.nodes.find((n) => n.id === nodeId);
+    if (!node) throw new NotFoundException('审批节点不存在');
+    requireTransfer(a, approval, node);
+    const cursor = pageCursor(after);
+    const users = await this.prisma.system.user.findMany({
+      where: {
+        tenantId: a.tenantId,
+        status: 'active',
+        deletedAt: null,
+        id: { notIn: [approval.applicantId, node.approverId], ...(cursor ? { gt: cursor } : {}) },
+        OR: [{ deptId: null }, { department: { tenantId: a.tenantId, status: 1, deletedAt: null } }],
+      },
+      include: { roles: { include: { role: true } } },
+      orderBy: { id: 'asc' },
+      take: 101,
+    });
+    return {
+      items: users
+        .slice(0, 100)
+        .filter((u) => canDecide(u.roles))
+        .map((u) => ({ id: u.id, name: u.name })),
+      nextCursor: users.length > 100 ? users[99].id : null,
+    };
+  }
+  async transfer(a: Actor, approvalId: number, nodeId: number, body: Record<string, unknown>) {
+    const { targetUserId, reason } = transferInput(body);
+    return runCommand(this.prisma, a, 'approval.transfer', { ...body, approvalId, nodeId }, async (tx) => {
+      const approval = await tx.approval.findFirst({ where: { tenantId: a.tenantId, id: approvalId } });
+      const node = await tx.approvalNode.findFirst({ where: { tenantId: a.tenantId, approvalId, id: nodeId } });
+      if (!approval || !node) throw new NotFoundException('审批或节点不存在');
+      requireTransfer(a, approval, node);
+      checkVersion(approval, body.expectedUpdatedAt);
+      if (targetUserId === node.approverId || targetUserId === approval.applicantId)
+        throw new BadRequestException('不能转给原审批人或申请人');
+      const target = await tx.user.findFirst({
+        where: {
+          id: targetUserId,
+          tenantId: a.tenantId,
+          status: 'active',
+          deletedAt: null,
+          OR: [{ deptId: null }, { department: { tenantId: a.tenantId, status: 1, deletedAt: null } }],
+        },
+        include: { roles: { include: { role: true } } },
+      });
+      if (!target || !canDecide(target.roles)) throw new BadRequestException('接收人无有效的审批通过及驳回权限');
+      const from = await tx.user.findFirstOrThrow({
+        where: { id: node.approverId, tenantId: a.tenantId },
+        select: { name: true },
+      });
+      const successor = await tx.approvalNode.create({
+        data: {
+          tenantId: a.tenantId,
+          approvalId,
+          nodeOrder: node.nodeOrder,
+          nodeName: node.nodeName,
+          approverId: target.id,
+        },
+      });
+      await tx.approvalNode.update({
+        where: { id: node.id },
+        data: { action: 'transferred', comment: reason, actedAt: new Date() },
+      });
+      const current = approval.currentNodeId === node.id;
+      const updated = await tx.approval.update({
+        where: { id: approvalId },
+        data: {
+          ...(current ? { currentNodeId: successor.id } : {}),
+          updatedAt: new Date(Math.max(Date.now(), approval.updatedAt.getTime() + 1)),
+        },
+      });
+      await this.event(
+        tx,
+        a,
+        approvalId,
+        'transferred',
+        reason,
+        {
+          fromNodeId: node.id,
+          toNodeId: successor.id,
+          fromUserId: node.approverId,
+          fromName: from.name,
+          toUserId: target.id,
+          toName: target.name,
+          nodeOrder: node.nodeOrder,
+          current,
+          administratorRecovery: admin(a) && node.approverId !== a.userId,
+        },
+        node.id,
+      );
+      for (const userId of new Set([node.approverId, target.id, approval.applicantId])) {
+        await tx.notification.create({
+          data: {
+            tenantId: a.tenantId,
+            userId,
+            type: 'approval.transferred',
+            title: approval.title,
+            content: `节点“${node.nodeName}”已从${from.name}转交${target.name}。${current ? '当前待审' : '后续节点，尚未轮到处理'}。原因：${reason}`,
+            bizType: approval.bizType,
+            bizId: approvalId,
+          },
+        });
+      }
+      return { id: approvalId, nodeId: successor.id, status: updated.status, updatedAt: updated.updatedAt };
+    });
+  }
   async flows(a: Actor) {
     return this.prisma.system.approvalFlow.findMany({
       where: { tenantId: a.tenantId, ...(!admin(a) ? { isActive: true } : {}) },
@@ -238,6 +436,11 @@ export class ApprovalService {
         bizId: approval.id,
       },
     });
+    await this.event(tx, a, approval.id, 'created', '提交审批', {
+      flowId: flow.id,
+      version: flow.version,
+      firstNodeId: firstId,
+    });
     return tx.approval.update({ where: { id: approval.id }, data: { currentNodeId: firstId } });
   }
   async create(a: Actor, body: Record<string, unknown>) {
@@ -301,6 +504,15 @@ export class ApprovalService {
         },
       });
       if (!next) await this.callback(tx, a.tenantId, approval.bizType, approval.bizId, approval.id, action, a.userId);
+      await this.event(
+        tx,
+        a,
+        approvalId,
+        action,
+        comment,
+        { nodeName: node.nodeName, nodeOrder: node.nodeOrder, status, nextNodeId: next?.id ?? null },
+        node.id,
+      );
       return { id: approvalId, status, nextNode: next?.nodeName };
     });
   }
@@ -315,6 +527,7 @@ export class ApprovalService {
         data: { status: 'withdrawn', currentNodeId: null, completedAt: new Date() },
       });
       await this.callback(tx, a.tenantId, approval.bizType, approval.bizId, approval.id, 'draft');
+      await this.event(tx, a, approvalId, 'withdrawn', '申请人撤回', { previousNodeId: approval.currentNodeId });
       return { status: 'withdrawn' };
     });
   }
