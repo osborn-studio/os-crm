@@ -34,3 +34,5 @@
 `pnpm check`覆盖文件名、文件头/扩展名、标准Base64和大小边界；独立`SMOKE_ALLOW_WRITES=true node scripts/attachment-smoke.mjs`仅允许tb_crm_test_*合成数据库，验证真实HTTP、跨企业/角色/协作权限、冻结、父版本、验收快照、故障回滚、并发容量、100条完整历史、二进制损坏拒绝与非空加密恢复。演练文件和项目明确为合成资料，不是客户签收。
 
 仍待扩展：病毒扫描/隔离、大文件存储、容量配置、历史归档与保留策略、复杂格式/在线预览。当前目录中的原型ProjectDocument字段不自动变成新版证据附件，也不会根据旧文本虚构原文件。
+
+![合成项目的有效附件与撤回历史](screenshots/c10-private-evidence.jpg)
