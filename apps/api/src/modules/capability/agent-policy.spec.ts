@@ -11,6 +11,7 @@ const actor: Actor = {
   sessionId: randomUUID(),
 };
 const grant = {
+  requestKey: randomUUID(),
   name: '合成智能体',
   purpose: '合成跟进计划',
   minutes: 60,

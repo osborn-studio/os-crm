@@ -200,6 +200,7 @@ export class AgentService {
   async revoke(a: Actor, grantId: string, body: Record<string, unknown>) {
     uuid(grantId);
     only(body, ['requestKey', 'reason']);
+    uuid(body.requestKey);
     const reason = text(body.reason, '撤销原因', 1000);
     return runCommand(this.prisma, a, 'agent.grant.revoke', { ...body, grantId }, async (tx) => {
       const grant = await tx.agentGrant.findFirst({ where: { ...this.scope(a), id: grantId } });
@@ -233,6 +234,7 @@ export class AgentService {
   async compensate(a: Actor, proposalId: string, body: Record<string, unknown>) {
     uuid(proposalId);
     only(body, ['requestKey', 'expectedUpdatedAt', 'expectedActionUpdatedAt', 'reason']);
+    uuid(body.requestKey);
     const reason = text(body.reason, '补偿取消原因', 1000);
     return runCommand(this.prisma, a, 'agent.action.compensate', { ...body, proposalId }, async (tx) => {
       const p = await tx.agentProposal.findFirst({
@@ -277,6 +279,7 @@ export class AgentService {
   async decide(a: Actor, proposalId: string, decision: 'approved' | 'rejected', body: Record<string, unknown>) {
     uuid(proposalId);
     only(body, ['requestKey', 'expectedUpdatedAt', 'reason']);
+    uuid(body.requestKey);
     const reason = text(body.reason, '核对意见', 1000);
     return runCommand(this.prisma, a, 'agent.proposal.' + decision, { ...body, proposalId }, async (tx) => {
       const p = await tx.agentProposal.findFirst({
