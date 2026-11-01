@@ -130,12 +130,12 @@ export default function FlowDesignerPage() {
       ),
       onOk: async () => {
         try {
-          const r = await post<{ matches: boolean; nodes: { name: string; approverId: number }[] }>(
-            `/approvals/flows/${f.id}/preview`,
-            { amount },
-          );
+          const r = await post<{
+            matches: boolean;
+            nodes: { name: string; approverId: number; order: number; mode: string }[];
+          }>(`/approvals/flows/${f.id}/preview`, { amount });
           setPreview(
-            `${r.matches ? '流程匹配' : '流程未匹配'}；节点：${r.nodes.map((n) => `${n.name}（${people.users.find((u) => u.id === n.approverId)?.name ?? n.approverId}）`).join(' → ')}`,
+            `${r.matches ? '流程匹配' : '流程未匹配'}；${r.nodes.map((n) => `第${n.order}步 ${n.mode === 'all' ? '会签须全员同意：' : ''}${n.name}（${people.users.find((u) => u.id === n.approverId)?.name ?? n.approverId}）`).join('；')}`,
           );
         } catch (e) {
           message.error(errorText(e));
@@ -159,8 +159,8 @@ export default function FlowDesignerPage() {
       <Alert
         type="info"
         showIcon
-        message="支持顺序审批与金额条件分支，支持指定人、角色和部门负责人"
-        description="必需节点找不到审批人时会阻止提交；申请人不能审批自己的单据。并行会签与复杂嵌套表达式暂未开放。"
+        message="支持顺序审批、指定人员全员会签与金额条件分支"
+        description="同一会签步骤须全员同意，任一驳回即终止；必需人员不可用时阻止提交，申请人不能审批自己。加签、复杂嵌套与超时升级仍待开放。"
         style={{ marginBottom: 20 }}
       />
       {error && <Alert type="error" message={error} />}{' '}
@@ -186,7 +186,7 @@ export default function FlowDesignerPage() {
                 <Steps
                   size="small"
                   items={f.nodes.map((n) => ({
-                    title: n.nodeName,
+                    title: `${n.nodeName}${n.approverType === 'users_all' ? '（全员会签）' : ''}`,
                     description: n.conditionExpr === 'always' ? '' : n.conditionExpr,
                   }))}
                 />
@@ -218,6 +218,8 @@ export default function FlowDesignerPage() {
         open={open}
         width={960}
         title="审批流设计 · 保存为新草稿版本"
+        style={{ top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', paddingRight: 8 } }}
         onCancel={() => setOpen(false)}
         onOk={() => void save()}
         confirmLoading={busy}
@@ -343,9 +345,11 @@ export default function FlowDesignerPage() {
                       </Form.Item>
                       <Form.Item name={[f.name, 'approverType']}>
                         <Select
-                          style={{ width: 140 }}
+                          style={{ width: 200 }}
+                          onChange={() => form.setFieldValue(['nodes', f.name, 'approverValue'], undefined)}
                           options={[
                             { value: 'user', label: '指定审批人' },
+                            { value: 'users_all', label: '多人会签（全同意）' },
                             { value: 'role', label: '按角色' },
                             { value: 'dept_leader', label: '部门负责人' },
                           ]}
@@ -356,10 +360,26 @@ export default function FlowDesignerPage() {
                           const type = form.getFieldValue(['nodes', f.name, 'approverType']);
                           return (
                             type !== 'dept_leader' && (
-                              <Form.Item name={[f.name, 'approverValue']} rules={[{ required: true }]}>
+                              <Form.Item
+                                name={[f.name, 'approverValue']}
+                                rules={[{ required: true }]}
+                                getValueProps={(value: unknown) => ({
+                                  value:
+                                    type === 'users_all'
+                                      ? typeof value === 'string'
+                                        ? value.split(',').filter(Boolean)
+                                        : []
+                                      : value,
+                                })}
+                                getValueFromEvent={(value: unknown) =>
+                                  Array.isArray(value) ? value.map(String).join(',') : value
+                                }
+                              >
                                 <Select
-                                  style={{ width: 180 }}
-                                  placeholder="选择审批人"
+                                  style={{ width: type === 'users_all' ? 300 : 180 }}
+                                  mode={type === 'users_all' ? 'multiple' : undefined}
+                                  maxCount={type === 'users_all' ? 8 : undefined}
+                                  placeholder={type === 'users_all' ? '指定2—8位会签人，全员同意后流转' : '选择审批人'}
                                   options={(type === 'role' ? people.roles : people.users).map((p) => ({
                                     value: String(type === 'role' ? p.code : p.id),
                                     label: String(p.name),

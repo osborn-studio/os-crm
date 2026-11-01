@@ -50,6 +50,7 @@ interface Approval extends RecordRow {
   formData: Record<string, unknown>;
   nodes?: {
     id: number;
+    nodeOrder: number;
     nodeName: string;
     action: string;
     comment: string;
@@ -166,7 +167,7 @@ export default function ApprovalCenterPage() {
   const decide = (p: Pending, reject = false) => {
     let comment = '';
     Modal.confirm({
-      title: reject ? '驳回申请' : '通过当前节点',
+      title: reject ? '驳回申请' : '提交同意意见',
       content: (
         <>
           <Typography.Paragraph>
@@ -186,11 +187,22 @@ export default function ApprovalCenterPage() {
           throw new Error('缺少意见');
         }
         try {
-          await post(`/approvals/${p.approval.id}/nodes/${p.nodeId}/${reject ? 'reject' : 'approve'}`, {
-            requestKey: key(),
-            comment: comment || (reject ? '' : '同意'),
-          });
-          message.success('审批已处理');
+          const result = await post<{ status: string; waitingForCountersign: boolean }>(
+            `/approvals/${p.approval.id}/nodes/${p.nodeId}/${reject ? 'reject' : 'approve'}`,
+            {
+              requestKey: key(),
+              comment: comment || (reject ? '' : '同意'),
+            },
+          );
+          message.success(
+            reject
+              ? '申请已驳回'
+              : result.waitingForCountersign
+                ? '意见已保存，等待同组其他成员'
+                : result.status === 'approved'
+                  ? '申请已通过'
+                  : '本步已完成，等待下一步',
+          );
           await load();
         } catch (e) {
           message.error(errorText(e));
@@ -438,6 +450,18 @@ export default function ApprovalCenterPage() {
         </Form>
       </Modal>
       <Drawer title={detail?.title} open={!!detail} onClose={() => setDetail(undefined)} width={640}>
+        {detail?.nodes?.some(
+          (n) =>
+            n.action !== 'transferred' &&
+            detail.nodes!.filter((v) => v.nodeOrder === n.nodeOrder && v.action !== 'transferred').length > 1,
+        ) && (
+          <Alert
+            type="info"
+            showIcon
+            message="会签：同一步内全部人员同意后才能流转；任一驳回会结束申请。转审不会代替审批意见。"
+            style={{ marginBottom: 16 }}
+          />
+        )}
         <Card title="节点与交接" style={{ marginBottom: 20 }}>
           <List
             dataSource={detail?.nodes}
@@ -454,7 +478,7 @@ export default function ApprovalCenterPage() {
                 }
               >
                 <List.Item.Meta
-                  title={`${n.nodeName} · ${n.approverName}`}
+                  title={`第${n.nodeOrder}步 · ${n.nodeName} · ${n.approverName}`}
                   description={`${({ transferred: '已转交', pending: '待处理', approved: '已通过', rejected: '已驳回' } as Record<string, string>)[n.action] ?? n.action}${n.comment ? ' · ' + n.comment : ''}`}
                 />
               </List.Item>
