@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { get, post, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useSearchParams } from 'react-router-dom';
 type Event = { id: number; kind: string; note: string; actorName: string; createdAt: string; evidence: unknown };
 type Ticket = {
   id: number;
@@ -52,6 +53,8 @@ const actions: Record<string, string> = {
   cancel: '取消工单',
 };
 export default function ServiceTicketsPage() {
+  const [search] = useSearchParams();
+  const linkedId = search.get('ticketId');
   const user = useAuthStore((s) => s.user);
   const canWrite = !!user?.roles.some((r) => ['super_admin', 'sales_manager', 'sales'].includes(r));
   const [rows, setRows] = useState<Ticket[]>([]),
@@ -81,6 +84,9 @@ export default function ServiceTicketsPage() {
   useEffect(() => {
     void load().catch(fail);
   }, []);
+  useEffect(() => {
+    if (linkedId && /^[1-9][0-9]*$/.test(linkedId)) void detail(Number(linkedId)).catch(fail);
+  }, [linkedId]);
   async function open(action: string) {
     if (action === 'create') {
       // Traverse project pages so eligible older projects are not silently omitted.

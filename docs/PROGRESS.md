@@ -6,9 +6,11 @@
 
 新增两张表的独立迁移，不改写旧验收。共享ServiceTicketService、1.0 JSON Schema契约、50条稳定编号分页；成功写入在Serializable事务中原子保存工单、事件、幂等回执和审计，晚期失败全回滚。售后写入暂不开放到代理/MCP，问题文本保持数据。
 
-本地`pnpm check`通过：164项API+4项安装/加密自动化及类型/lint/build。103项最新真实MySQL（后缀1793513944）验证身份/企业/行范围、复核、重办/取消、幂等并发、晚期事件故障原子回滚、离职前转派、跨部门工单协作不授予项目、分页、非空加密新库恢复与旧会话失效。另重新验证365项业务主链和126项人员/会话（后缀1793513792），本轮本地共594项真实数据库检查；不将此前99项初轮重复累计。
+本地`pnpm check`通过：164项API+4项安装/加密自动化及类型/lint/build。111项最新真实MySQL（后缀1793514751）验证身份/企业/行范围、复核、重办/取消、幂等并发、晚期事件故障原子回滚、离职前转派、跨部门工单协作不授予项目、分页、非空加密新库恢复与旧会话失效。另重新验证365项业务主链和126项人员/会话（后缀1793513792），本轮另复跑财务325项，合计以本批最终结果为准；不将此前99/103/108项初轮重复累计。
 
-合成3018页面已核对工单列表、已验收项目选择框、待复核解决方案和处理历史，浏览器仅读取/打开表单；合成业务准备通过HTTP进行，不混入原演示数据。手册及截图见SERVICE_TICKET_OPERATIONS。云端九组MySQL与Docker结果待本批推送后实测。当前仍缺私有附件、SLA自动升级、外发/客户门户和整体验收，不声称所有商用内容完成。
+增补事务内站内通知：指派、解决待复核、关闭、重开、取消，通知只保留工单编号/状态，不复制客户问题或方案正文；重复回执不重复通知，追加通知落库故障的晚期回滚测试。通知可打开工单，读取仍重检权限。
+
+合成3018页面已核对工单列表、已验收项目选择框、待复核解决方案和处理历史，浏览器仅读取/打开表单；合成业务准备通过HTTP进行，不混入原演示数据。手册及截图见SERVICE_TICKET_OPERATIONS。首版267ab4a的九组MySQL中售后及其余七组通过，财务投影检查未通过，定位为全JSON搜索金额字符串4.25会误匹配14.25秒等ISO时间戳；改为严格断言更正事件说明及证据仅允许actorName/redacted字段，未放宽服务端投影。该回归修正及新增通知的最终云端结果待更新。原演示升级前私有备份，68张既有表行数不变；新增两张售后表为空，四角色12345登录和代理/审批/财务/售后读取通过，其余68张表保持行数，只有会话/审计各增加4条预期登录。当前仍缺私有附件、SLA自动升级、外发/客户门户和整体验收，不声称所有商用内容完成。
 
 
 ## C7 独立智能体委托与受控行动第一批
@@ -31,7 +33,7 @@
 
 首版实现`afd9e42`的[工程/依赖审计及七组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41278058142)、[Linux Docker正式安装/运行树/重启/恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278058084)和[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278058103)通过。[PR #11](https://github.com/osborn-studio/os-crm/pull/11)基于PR #9，未合并或部署客户生产；待办/版本及非空升级修正后的最终云端结果完成后补记。更多对象/真实模型、附件售后、复杂审批/外发及整体验收仍未完成。
 
-修正提交`e04c018`的[工程/依赖审计及八组MySQL（含227项代理和25项非空代理升级）](https://github.com/osborn-studio/os-crm/actions/runs/41278931308)、[Linux Docker正式安装/运行树/重启/新库恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278931272)、[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278931279)均通过。最终UI提交`619eb2b`的[全部工程/八组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41279327144)、[正式Docker安装恢复](https://github.com/osborn-studio/os-crm/actions/runs/41279327121)、[演示Docker](https://github.com/osborn-studio/os-crm/actions/runs/41279327030)亦均通过。其后仅加宽人工核对表单，避免长内容和确认框被挤出视窗，本地147项API+4项安装、类型/lint/build再次通过，已实际核对中文表单和未选中的确认框，未在浏览器提交授权或展示凭证。
+修正提交`e04c018`的[工程/依赖审计及八组MySQL（含227项代理和25项非空代理升级）](https://github.com/osborn-studio/os-crm/actions/runs/41278931308)、[Linux Docker正式安装/运行树/重启/新库恢复](https://github.com/osborn-studio/os-crm/actions/runs/41278931272)、[Docker演示/角色/MCP/重启](https://github.com/osborn-studio/os-crm/actions/runs/41278931279)均通过。最终UI提交`619eb2b`的[全部工程/八组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41279327144)、[正式Docker安装恢复](https://github.com/osborn-studio/os-crm/actions/runs/41279327121)、[演示Docker](https://github.com/osborn-studio/os-crm/actions/runs/41279327030)亦均通过。最终UI中加宽人工核对表单，避免长内容和确认框被挤出视窗，本地147项API+4项安装、类型/lint/build再次通过，已实际核对中文表单和未选中的确认框，未在浏览器提交授权或展示凭证。
 
 ## C9 依赖安全与集成失败关闭候选
 

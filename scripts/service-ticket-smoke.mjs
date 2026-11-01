@@ -209,6 +209,18 @@ try {
   await cmd(row, 'assign', tokens.sales, { userId: users.boss.id }, 400);
   await cmd(row, 'resolve', tokens.sales, {}, 409);
   row = await cmd(row, 'assign', tokens.sales, { userId: users.peer.id });
+  ok(
+    (await db.notification.count({
+      where: {
+        tenantId: tid,
+        userId: users.peer.id,
+        bizType: 'service-ticket',
+        bizId: row.id,
+        type: 'service-ticket.assign',
+      },
+    })) === 1,
+    'Assignment creates one transactional inbox message',
+  );
   await cmd(row, 'start', tokens.sales, {}, 403);
   row = await cmd(row, 'start', tokens.peer);
   const stale = row;
@@ -218,6 +230,16 @@ try {
   await call('/system/users/' + user.id, 'PUT', req({ status: 'inactive' }, user), admin, 409);
   await cmd(row, 'assign', tokens.peer, { userId: users.sales.id }, 403);
   row = await cmd(row, 'resolve', tokens.peer, { note: '修复配置并验证重试成功。合成结果。' });
+  ok(
+    (await call('/notifications', 'GET', undefined, tokens.sales)).items.some(
+      (n) =>
+        n.bizType === 'service-ticket' &&
+        n.bizId === row.id &&
+        n.type === 'service-ticket.resolve' &&
+        !n.content.includes('修复配置'),
+    ),
+    'Resolution reaches the reviewers inbox without copying private problem text',
+  );
   await cmd(row, 'close', tokens.peer, {}, 403);
   await cmd(row, 'close', tokens.boss, {}, 403);
   row = await cmd(row, 'reopen', tokens.sales, { note: '复核未通过：需要补充异常场景' });
@@ -237,6 +259,12 @@ try {
   ok(
     (await db.serviceTicketEvent.count({ where: { ticketId: row.id, kind: 'close' } })) === 1,
     'Exactly one closure event',
+  );
+  ok(
+    (await db.notification.count({
+      where: { tenantId: tid, bizType: 'service-ticket', bizId: row.id, type: 'service-ticket.close' },
+    })) === 1,
+    'Concurrent replay never duplicates closure inbox messages',
   );
   await cmd(row, 'note', tokens.sales, {}, 409);
   await cmd(row, 'cancel', tokens.sales, {}, 409);
@@ -263,6 +291,7 @@ try {
     events: await db.serviceTicketEvent.count(),
     commands: await db.commandExecution.count(),
     audit: await db.auditLog.count(),
+    notifications: await db.notification.count(),
   };
   query(
     "CREATE TRIGGER fixture_service_rollback BEFORE INSERT ON service_ticket_events FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='synthetic event failure'",
@@ -276,10 +305,27 @@ try {
     (await detail(failed)).status === 'open' &&
       (await db.serviceTicketEvent.count()) === counts.events &&
       (await db.commandExecution.count()) === counts.commands &&
-      (await db.auditLog.count()) === counts.audit,
+      (await db.auditLog.count()) === counts.audit &&
+      (await db.notification.count()) === counts.notifications,
     'Late failure rolls back all success state',
   );
-  failed = await call(`/service-tickets/${failed.id}/cancel`, 'POST', cancelBody, tokens.sales, 201);
+  query(
+    "CREATE TRIGGER fixture_service_inbox_rollback BEFORE INSERT ON notifications FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='synthetic inbox failure'",
+  );
+  try {
+    await call(`/service-tickets/${failed.id}/cancel`, 'POST', cancelBody, admin, 500);
+  } finally {
+    query('DROP TRIGGER fixture_service_inbox_rollback');
+  }
+  ok(
+    (await detail(failed)).status === 'open' &&
+      (await db.serviceTicketEvent.count()) === counts.events &&
+      (await db.commandExecution.count()) === counts.commands &&
+      (await db.auditLog.count()) === counts.audit &&
+      (await db.notification.count()) === counts.notifications,
+    'Inbox failure after event creation also rolls back ticket, event, receipt and audit',
+  );
+  failed = await call(`/service-tickets/${failed.id}/cancel`, 'POST', cancelBody, admin, 201);
   await cmd(failed, 'reopen', tokens.sales, {}, 409);
   // Transfer still-open work before offboarding; completed history remains intact.
   let transfer = await create();
@@ -354,7 +400,7 @@ try {
   const cloneUrl = new URL(env.DATABASE_URL);
   cloneUrl.pathname = '/' + cloneName;
   cloneDb = new PrismaClient({ datasources: { db: { url: cloneUrl.href } } });
-  for (const model of ['serviceTicket', 'serviceTicketEvent', 'commandExecution', 'auditLog']) {
+  for (const model of ['serviceTicket', 'serviceTicketEvent', 'commandExecution', 'auditLog', 'notification']) {
     assert.deepEqual(
       await cloneDb[model].findMany({ orderBy: { id: 'asc' } }),
       await db[model].findMany({ orderBy: { id: 'asc' } }),
