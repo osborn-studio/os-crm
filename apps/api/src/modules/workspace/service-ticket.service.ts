@@ -124,6 +124,41 @@ export class ServiceTicketService {
       },
     });
   }
+  private async notify(tx: Tx, a: Actor, row: ServiceTicket, kind: string, candidates: number[]) {
+    // Inbox metadata only; no customer/problem/solution text is copied to old recipients.
+    const users = await tx.user.findMany({
+      where: {
+        tenantId: a.tenantId,
+        id: { in: [...new Set(candidates)].filter((v) => v !== a.userId) },
+        status: 'active',
+        deletedAt: null,
+      },
+      select: { id: true },
+    });
+    if (users.length)
+      await tx.notification.createMany({
+        data: users.map((u) => ({
+          tenantId: a.tenantId,
+          userId: u.id,
+          type: 'service-ticket.' + kind,
+          title: '售后工单 #' + row.id,
+          content:
+            (
+              {
+                created: '新工单待指派',
+                assign: '工单已指派，请查看当前职责',
+                resolve: '解决方案待另一管理人复核',
+                close: '工单已复核关闭',
+                reopen: '工单需要重新处理',
+                cancel: '工单已取消',
+              } as Record<string, string>
+            )[kind] ?? '工单状态已更新',
+          bizType: 'service-ticket',
+          bizId: row.id,
+          channel: 'inbox' as const,
+        })),
+      });
+  }
   async create(a: Actor, body: Record<string, unknown>) {
     this.write(a);
     ticketKeys(body, ['requestKey', 'projectId', 'title', 'description', 'priority']);
@@ -157,6 +192,7 @@ export class ServiceTicketService {
           title: row.title,
           priority,
         });
+        await this.notify(tx, a, row, 'created', [p.pmId]);
         return row;
       },
       async (tx) => {
@@ -207,6 +243,24 @@ export class ServiceTicketService {
           after: { status, assigneeId },
           ...(action === 'reopen' ? { previousResolution: row.resolution, previousResolvedBy: row.resolvedBy } : {}),
         });
+        if (['assign', 'reopen', 'close', 'cancel'].includes(action))
+          await this.notify(tx, a, updated, action, [
+            row.createdBy,
+            ...(updated.assigneeId ? [updated.assigneeId] : []),
+          ]);
+        if (action === 'resolve') {
+          const project = await tx.project.findFirstOrThrow({ where: { tenantId: a.tenantId, id: row.projectId } });
+          const admins = await tx.user.findMany({
+            where: {
+              tenantId: a.tenantId,
+              status: 'active',
+              deletedAt: null,
+              roles: { some: { role: { tenantId: a.tenantId, code: 'super_admin' } } },
+            },
+            select: { id: true },
+          });
+          await this.notify(tx, a, updated, action, [project.pmId, row.createdBy, ...admins.map((u) => u.id)]);
+        }
         return updated;
       },
       async (tx) => {

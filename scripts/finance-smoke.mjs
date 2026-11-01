@@ -777,8 +777,15 @@ try {
   await action(successor, 'confirm', {}, admin);
   successor = await ledger(successor);
   await call('/finance-ledger/receipts/' + successor.id, 'GET', undefined, sales, 404);
+  // Deterministic regression: an allowed timestamp can contain the private amount's characters.
+  // Whole-JSON substring checks used to intermittently mistake this time for leaked money.
+  await db.receipt.update({ where: { id: original.id }, data: { updatedAt: new Date('2026-01-01T00:00:14.250Z') } });
   const peerView = await ledger(successor, peer),
     salesView = await ledger(original, sales);
+  ok(
+    salesView.updatedAt === '2026-01-01T00:00:14.250Z' && JSON.stringify(salesView).includes('4.25'),
+    'Allowed timestamp collision must not be classified as financial disclosure',
+  );
   ok(
     peerView.previous === null && salesView.replacement === null,
     'Sales readers cannot follow cross-customer correction links',
@@ -786,7 +793,14 @@ try {
   ok(
     !JSON.stringify(peerView).includes(customer.name) &&
       !JSON.stringify(salesView).includes(hidden.name) &&
-      !JSON.stringify(salesView).includes('4.25'),
+      salesView.events
+        .filter((e) => e.kind.startsWith('correction.'))
+        .every(
+          (e) =>
+            e.note === '登记更正记录；关联客户数据按读取权限查看' &&
+            e.evidence.redacted === true &&
+            JSON.stringify(Object.keys(e.evidence).sort()) === JSON.stringify(['actorName', 'redacted']),
+        ),
     'Projected correction evidence cannot disclose the other customer',
   );
   const peerRaw = (await call('/workspace/receipts/' + successor.id, 'GET', undefined, peer)).data;

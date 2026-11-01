@@ -65,7 +65,10 @@ export default function NotificationCenterPage() {
             <List.Item
               style={{ background: item.isRead ? 'transparent' : '#eff6ff', padding: '12px 16px', marginBottom: 4, borderRadius: 4, cursor: 'pointer' }}
               onClick={() => !item.isRead && handleRead(item.id)}
-              actions={!item.isRead ? [<a key="read" onClick={(e) => { e.stopPropagation(); handleRead(item.id); }}>标记已读</a>] : undefined}
+              actions={[
+                ...(item.bizType === 'service-ticket' && Number.isSafeInteger(item.bizId) ? [<a key="ticket" href={`/service-tickets?ticketId=${item.bizId}`} onClick={(e) => e.stopPropagation()}>查看工单</a>] : []),
+                ...(!item.isRead ? [<a key="read" onClick={(e) => { e.stopPropagation(); handleRead(item.id); }}>标记已读</a>] : []),
+              ]}
             >
               <List.Item.Meta
                 avatar={<span style={{ fontSize: 20 }}>{TYPE_ICONS[item.type] || '🔔'}</span>}
