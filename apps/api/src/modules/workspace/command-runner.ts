@@ -43,6 +43,7 @@ export async function runCommand(
   command: string,
   body: Record<string, unknown>,
   work: (tx: Tx) => Promise<unknown>,
+  beforeReplay?: (tx: Tx) => Promise<void>,
 ) {
   const key = text(body.requestKey, '请求标识', 80);
   const payloadHash = createHash('sha256')
@@ -101,6 +102,8 @@ export async function runCommand(
             !same(permissions, actor.permissions)
           )
             throw new ForbiddenException('当前执行权限已变更，请重新登录');
+          // Trusted application hook; delegated execution must revalidate even a cached receipt.
+          if (beforeReplay) await beforeReplay(tx);
           const prior = await tx.commandExecution.findUnique({
             where: {
               tenantId_actorId_requestKey: { tenantId: actor.tenantId, actorId: actor.userId, requestKey: key },

@@ -592,10 +592,13 @@ export class WorkspaceService {
       `${kind}.${recordId ? 'update' : 'create'}`,
       { ...body, recordId },
       async (tx) => {
+        if (kind === 'actions' && !recordId) return this.createAction(tx, a, body.data);
         let row: Row | undefined;
         if (recordId) {
           row = await this.require(tx, a, kind, recordId);
           checkVersion(row as { updatedAt: Date }, body.expectedUpdatedAt);
+          if (kind === 'actions' && ['completed', 'cancelled'].includes(String(row.status)))
+            throw new ConflictException('已完成或取消的行动保留历史，不可编辑');
           if (kind === 'leads' && row.status === 'converted')
             throw new BadRequestException('已转化线索保留原始记录，不可继续编辑');
           if (kind === 'customers' && row.poolType === 'public' && !admin(a) && !manager(a))
@@ -727,6 +730,33 @@ export class WorkspaceService {
         return result;
       },
     );
+  }
+  async previewAction(tx: Tx, a: Actor, input: unknown) {
+    allowWrite(a);
+    requirePermission(a, 'actions', 'create');
+    const data = cleanInput('actions', input);
+    await this.references(tx, a, 'actions', data);
+    const customer = await this.require(tx, a, 'customers', id(data.targetId));
+    return { data, customer };
+  }
+  async cancelAgentAction(tx: Tx, a: Actor, actionId: number, expected: unknown) {
+    allowWrite(a);
+    requirePermission(a, 'actions', 'update');
+    const action = await this.require(tx, a, 'actions', actionId);
+    checkVersion(action as { updatedAt: Date }, expected);
+    if (action.source !== 'ai_recommend' || !['pending', 'in_progress', 'overdue'].includes(String(action.status)))
+      throw new ConflictException('只能补偿取消尚未完成的AI行动');
+    return tx.actionPlan.update({ where: { id: actionId }, data: { status: 'cancelled',
+      updatedAt: new Date(Math.max(Date.now(), (action.updatedAt as Date).getTime() + 1)) } });
+  }
+  async createAction(tx: Tx, a: Actor, input: unknown, source: 'manual' | 'ai_recommend' = 'manual') {
+    const { data } = await this.previewAction(tx, a, input);
+    return tx.actionPlan.create({ data: {
+      tenantId: a.tenantId, createdBy: a.userId, assigneeId: a.userId, targetType: 'customer',
+      targetId: id(data.targetId), title: text(data.title, '行动名称'),
+      content: typeof data.content === 'string' ? data.content : null,
+      dueDate: data.dueDate instanceof Date ? data.dueDate : null, source,
+    } });
   }
   async command(a: Actor, kind: string, recordId: number, action: string, body: Record<string, unknown>) {
     allowWrite(a);
@@ -1073,7 +1103,7 @@ export class WorkspaceService {
             recordId,
           );
         } else if (kind === 'actions' && action === 'complete') {
-          if (row.status === 'completed') throw new ConflictException('Already complete');
+          if (!['pending', 'in_progress', 'overdue'].includes(String(row.status))) throw new ConflictException('行动已完成或取消');
           await this.db(tx, kind).update({ where, data: { status: 'completed', completedAt: new Date() } });
         }
         return { id: recordId, kind, action };

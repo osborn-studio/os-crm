@@ -16,7 +16,12 @@ export class CapabilityService {
     return CAPABILITIES.filter((entry) => this.allowed(actor, entry.permission));
   }
 
-  async invoke(actor: Actor, id: string, input: unknown): Promise<unknown> {
+  async invoke(
+    actor: Actor,
+    id: string,
+    input: unknown,
+    trace?: { grantId: string; agentExecutionId: string },
+  ): Promise<unknown> {
     const definition = CAPABILITIES.find((entry) => entry.id === id);
     if (!definition) throw new NotFoundException('业务能力不存在');
     if (!this.allowed(actor, definition.permission)) throw new ForbiddenException('无权调用此业务能力');
@@ -77,7 +82,12 @@ export class CapabilityService {
         action: 'capability.succeeded',
         objectType: 'capability',
         objectNo: executionId,
-        afterData: { capabilityId: id, version: definition.version, effect: definition.effect },
+        afterData: {
+          capabilityId: id,
+          version: definition.version,
+          effect: definition.effect,
+          ...(trace ? { executor: 'agent', ...trace } : { executor: 'human' }),
+        },
       });
       return { executionId, capabilityId: id, version: definition.version, result };
     } catch (error) {
@@ -87,7 +97,11 @@ export class CapabilityService {
         action: 'capability.failed',
         objectType: 'capability',
         objectNo: executionId,
-        afterData: { capabilityId: id, version: definition.version },
+        afterData: {
+          capabilityId: id,
+          version: definition.version,
+          ...(trace ? { executor: 'agent', ...trace } : { executor: 'human' }),
+        },
       });
       throw error;
     }
