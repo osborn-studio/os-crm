@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 const base = process.env.CRM_URL || 'http://127.0.0.1:3000';
 assert.equal((await fetch(base)).status, 200);
-assert.equal((await fetch(base + '/api/v1/health')).status, 200);
+assert.equal((await fetch(base + '/api/v1/health/ready')).status, 200);
 const response = await fetch(base + '/api/v1/auth/login', {
   method: 'POST', headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ tenantCode: process.env.TENANT_CODE, username: process.env.ADMIN_USERNAME || 'admin', password: process.env.SEED_ADMIN_PASSWORD }),

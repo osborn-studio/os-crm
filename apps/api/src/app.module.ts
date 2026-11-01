@@ -27,6 +27,7 @@ import { IntegrationModule } from './modules/integration/integration.module';
 import { AiModule } from './modules/ai/ai.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { HealthController } from './health.controller';
+import { ReadinessService } from './readiness.service';
 import { PoolCronService } from './cron/pool-cron.service';
 import { FinanceCronService } from './cron/finance-cron.service';
 import configuration from './config/configuration';
@@ -56,7 +57,7 @@ import configuration from './config/configuration';
     WorkspaceModule,
   ],
   controllers: [HealthController],
-  providers: [PoolCronService, FinanceCronService,
+  providers: [ReadinessService, PoolCronService, FinanceCronService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
     { provide: APP_GUARD, useClass: PrototypeGuard },

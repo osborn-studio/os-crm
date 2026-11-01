@@ -1,6 +1,13 @@
 packages:
   - "apps/*"
   - "packages/*"
+# Security patches for exact transitive pins. Compatibility is covered by the
+# full HTTP/MySQL, Prisma migration/recovery, MCP and Docker release gates.
+overrides:
+  "path-to-regexp@>=8.0.0 <8.4.0": "8.4.2"
+  "@nestjs/platform-express>multer": "2.5.0"
+  "@nestjs/swagger>js-yaml": "5.4.1"
+  "@prisma/config>deepmerge-ts": "8.0.0"
 allowBuilds:
   "@nestjs/core": true
   "@prisma/client": true
