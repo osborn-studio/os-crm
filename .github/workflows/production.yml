@@ -23,6 +23,7 @@ jobs:
       - run: node --test deploy/installation.test.mjs
       - run: node deploy/configure-production.mjs
       - run: docker compose --env-file deploy/production.env -f deploy/compose.production.yml up -d --build --wait --wait-timeout 900
+      - run: docker compose --env-file deploy/production.env -f deploy/compose.production.yml exec -T app node deploy/verify-runtime.mjs
       - name: Verify empty installation and create synthetic persistence fixture
         run: node --env-file=deploy/production.env deploy/verify-production.mjs --expect-empty --create-fixture
       - name: Verify restart preserves fixture

@@ -29,7 +29,11 @@ Nest核心、Common、Express适配器、Testing升级到11.2.8；配套Config4.
 
 CI工程检查增加生产依赖所有级别告警阻断，以及全工作区高危/严重阻断，审计网络错误也不能作为成功。Docker正式安装与演示工作流新增应用、包和锁文件触发条件，避免只改依赖却跳过实际容器安装恢复验证。
 
-全工作区仍有3项开发工具告警：deepmerge低危且暂无补丁、minimatch中危、glob中危；未隐藏或忽略公告。它们来自CLI/Jest/ESLint等开发链，不在生产依赖审计范围。当前Docker镜像保留构建工具，因此不能把这些开发依赖说成已从交付镜像剔除；上线前仍需完成兼容升级、构建运行分离或由负责人接受明确例外。另有webpack/schema-utils的开发依赖peer范围告警，构建成功不消除此项待办。
+全工作区仍有3项开发工具告警：deepmerge低危且暂无补丁、minimatch中危、glob中危；未隐藏或忽略公告。它们来自CLI/Jest/ESLint等开发链，不在生产依赖审计范围。另有webpack/schema-utils的开发依赖peer范围告警，构建成功不消除此项待办；开发/构建环境仍需继续治理，未将其作为默认接受的例外。
+
+Docker改为独立builder/runtime阶段，运行阶段从干净文件树冻结锁文件只安装生产依赖，然后复制编译产物，避免复制构建阶段node_modules及其孤立文件。迁移/演示初始化实际需要的prisma、tsx、bcrypt明确列为数据库包运行依赖，不依赖开发依赖偶然存在。`deploy/verify-runtime.mjs`核对产物及安装/种子所需依赖，并拒绝Jest、ESLint、Nest CLI、webpack的模块入口和.pnpm目录残留；正式和演示容器工作流均实际执行该检查。
+
+本机全新临时目录生产安装、client生成、运行树检查和真实API数据库就绪通过，生产依赖仍0告警。Docker镜像以PROGRESS中的实际云端结果为准；工作区审计没有扫描基础OS镜像或全局npm/pnpm，不能据此宣布整个镜像无漏洞。OS镜像扫描、SBOM及持续镜像治理仍待补。
 
 本批本地验证：冻结锁文件安装、137项API与4项安装/加密自动化、类型/lint/build，以及1295项真实MySQL回归均通过。云端Linux Docker和各组工程/MySQL结果在PROGRESS记录后才算通过；Windows/macOS Docker、容量测试、渗透检查和最终商用验收待执行。
 

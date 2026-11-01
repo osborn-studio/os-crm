@@ -10,7 +10,9 @@
 
 数据库就绪新增固定SELECT 1、1秒缓存和并发合并、2秒超时503及错误脱敏；正式/演示Compose、容器/本地演示启动和安装恢复验证均改用ready，而非只看进程存活。就绪不等于磁盘、备份、迁移版本或商用验收。最新177项审批/就绪/恢复和41项安装检查的独立库后缀为`1793507802`。
 
-依赖实现提交`03b3d1b`的[工程/依赖审计与各组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41273599322)、[Linux Docker正式安装/恢复](https://github.com/osborn-studio/os-crm/actions/runs/41273599326)、[Docker演示/MCP/重启保留](https://github.com/osborn-studio/os-crm/actions/runs/41273599263)均通过。[PR #9](https://github.com/osborn-studio/os-crm/pull/9)未合并。新增就绪版本的云端结果待实际完成后补记。
+依赖实现提交`03b3d1b`的[工程/依赖审计与各组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41273599322)、[Linux Docker正式安装/恢复](https://github.com/osborn-studio/os-crm/actions/runs/41273599326)、[Docker演示/MCP/重启保留](https://github.com/osborn-studio/os-crm/actions/runs/41273599263)均通过。新增就绪提交`2849d8b`的[工程/审计/各组MySQL](https://github.com/osborn-studio/os-crm/actions/runs/41273813526)、[正式安装恢复](https://github.com/osborn-studio/os-crm/actions/runs/41273813479)及[演示/MCP](https://github.com/osborn-studio/os-crm/actions/runs/41273813493)均通过。[PR #9](https://github.com/osborn-studio/os-crm/pull/9)未合并。
+
+Docker继续分离builder/runtime，运行阶段全新生产安装，显式保留迁移/种子依赖，核对编译产物并拒绝Jest、ESLint、Nest CLI、webpack的模块和孤立文件残留。本机临时目录生产冻结安装、client生成、运行树验证和真实API数据库就绪通过；新增生产依赖后再次审计仍0告警。最终容器结果待云端实际完成补记，不以本机文件检查替代Linux Docker。
 
 原本地演示先私有备份、停止旧API再应用新增审批事件表，64张既有表计数不变。四角色12345登录和审批历史/契约、财务契约读取通过，63张其他表保持原计数，会话和登录审计各只增加4条预期记录，无重播种子和补造审批事件。
 
