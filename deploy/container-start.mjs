@@ -32,7 +32,7 @@ const api = spawn(process.execPath, ['dist/main.js'], { cwd: 'apps/api', stdio: 
 let ready = false;
 for (let i = 0; i < 120; i++) {
   if (api.exitCode !== null) throw new Error('API exited before readiness');
-  try { ready = (await fetch('http://127.0.0.1:4000/api/v1/health')).ok; } catch {}
+  try { ready = (await fetch('http://127.0.0.1:4000/api/v1/health/ready')).ok; } catch {}
   if (ready) break;
   await delay(250);
 }

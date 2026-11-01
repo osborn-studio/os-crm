@@ -82,7 +82,7 @@ try {
   let ready = false;
   for (let i = 0; i < 120; i++) {
     if (api.exitCode !== null) throw new Error('Restored API failed: ' + log);
-    try { ready = (await fetch('http://127.0.0.1:4097/api/v1/health')).ok; } catch {}
+    try { ready = (await fetch('http://127.0.0.1:4097/api/v1/health/ready')).ok; } catch {}
     if (ready) break; await delay(250);
   }
   ok(ready, 'Restored API starts');

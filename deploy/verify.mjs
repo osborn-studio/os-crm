@@ -4,7 +4,7 @@ const base = process.env.DEMO_URL || 'http://127.0.0.1:3000';
 const ui = await fetch(base);
 assert.equal(ui.status, 200);
 assert.match(await ui.text(), /伴圆 CRM/);
-const health = await fetch(base + '/api/v1/health');
+const health = await fetch(base + '/api/v1/health/ready');
 assert.equal(health.status, 200);
 for (const username of ['admin', 'manager', 'sales', 'boss']) {
   const login = await fetch(base + '/api/v1/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password: process.env.SEED_ADMIN_PASSWORD }) });
