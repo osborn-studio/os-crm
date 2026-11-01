@@ -17,6 +17,13 @@ const commands = {
   allocate: { ...envelope, paymentPlanId: integer, expectedPlanUpdatedAt: version, amount: money },
   reverse: { ...envelope, allocationId: integer, expectedPlanUpdatedAt: version },
   void: envelope,
+  correct: {
+    ...envelope,
+    customerId: integer,
+    contractId: { type: ['integer', 'null'], minimum: 1 },
+    amount: money,
+    receiptDate: { type: 'string', format: 'date' },
+  },
 };
 export const financeCapabilities = [
   ...['list', 'detail', 'plans'].map((name) => ({
@@ -37,7 +44,36 @@ export const financeCapabilities = [
       properties: name === 'detail' ? { recordId: integer } : {},
       required: name === 'detail' ? ['recordId'] : [],
     },
-    outputSchema: { type: name === 'detail' ? 'object' : 'array' },
+    outputSchema:
+      name === 'detail'
+        ? {
+            type: 'object',
+            required: [
+              'id',
+              'receiptNo',
+              'amount',
+              'allocatedAmount',
+              'unallocatedAmount',
+              'events',
+              'allocations',
+              'previous',
+              'replacement',
+              'canCorrect',
+            ],
+            properties: {
+              id: integer,
+              receiptNo: { type: 'string' },
+              amount: money,
+              allocatedAmount: money,
+              unallocatedAmount: money,
+              events: { type: 'array', maxItems: 100 },
+              allocations: { type: 'array', maxItems: 100 },
+              previous: { type: ['object', 'null'] },
+              replacement: { type: ['object', 'null'] },
+              canCorrect: { type: 'boolean' },
+            },
+          }
+        : { type: 'array', maxItems: 100, items: { type: 'object', required: ['id'], properties: { id: integer } } },
     guards: ['authenticated tenant and record scope', 'bounded 100 results'],
     evidence: ['local ledger only; no bank/tax verification'],
   })),
@@ -52,9 +88,13 @@ export const financeCapabilities = [
       type: 'object',
       additionalProperties: false,
       properties,
-      required: Object.keys(properties).filter((k) => k !== 'contractId'),
+      required: Object.keys(properties).filter((k) => name === 'correct' || k !== 'contractId'),
     },
-    outputSchema: { type: 'object', required: ['id'], properties: { id: integer } },
+    outputSchema: {
+      type: 'object',
+      required: ['id', ...(name === 'correct' ? ['sourceId'] : [])],
+      properties: { id: integer, ...(name === 'correct' ? { sourceId: integer, action: { const: 'correct' } } : {}) },
+    },
     guards: [
       'current authenticated actor and tenant',
       'managed ledger record only',
@@ -64,6 +104,15 @@ export const financeCapabilities = [
       'exact decimal balances and same customer/contract',
       'pending contract change guard',
       'immutable history; no bank movement',
+      ...(name === 'correct'
+        ? [
+            'no active allocations',
+            'current receipt of an immutable voucher reference',
+            'original reference never released',
+            'replacement starts unconfirmed',
+            'cross-customer correction evidence redacted for non-admin readers',
+          ]
+        : []),
     ],
     evidence: [
       'finance event with before/after balances',

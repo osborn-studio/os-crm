@@ -31,6 +31,12 @@ type Receipt = RecordRow & {
   createdBy: number;
   allocations?: Allocation[];
   events?: RecordRow[];
+  serialNo?: string;
+  receiptDate?: string;
+  canCorrect?: boolean;
+  previous?: RecordRow | null;
+  replacement?: RecordRow | null;
+  contract?: RecordRow | null;
 };
 type Allocation = RecordRow & { paymentPlanId: number; amount: string; active: boolean };
 type Plan = RecordRow & {
@@ -49,6 +55,7 @@ const actions: Record<string, string> = {
   allocate: '分摊核销',
   reverse: '撤销核销',
   void: '作废登记',
+  correct: '更正登记 / 同凭据重开',
 };
 const eventNames: Record<string, string> = {
   registered: '登记收款',
@@ -56,6 +63,8 @@ const eventNames: Record<string, string> = {
   allocated: '分摊核销',
   'allocation.reversed': '撤销核销',
   voided: '作废登记',
+  'correction.replaced': '原登记已更正',
+  'correction.registered': '更正登记待复核',
 };
 export default function FinanceLedgerPage() {
   const user = useAuthStore((s) => s.user),
@@ -97,16 +106,33 @@ export default function FinanceLedgerPage() {
       const current = row ? await get<Receipt>(`/finance-ledger/receipts/${row.id}`) : undefined;
       const p = await get<Plan[]>('/finance-ledger/plans');
       setPlans(p);
-      if (name === 'create') {
+      if (name === 'correct' && !current?.canCorrect)
+        throw new Error('请先撤销全部有效核销，并从该凭据的当前登记发起更正');
+      if (['create', 'correct'].includes(name)) {
         const [c, cs] = await Promise.all([
           get<{ items: RecordRow[] }>('/workspace/customers', { pageSize: 100 }),
           get<{ items: RecordRow[] }>('/workspace/contracts', { pageSize: 100 }),
         ]);
-        setCustomers(c.items);
-        setContracts(cs.items);
+        setCustomers(
+          current && !c.items.some((x) => x.id === current.customerId)
+            ? [{ id: current.customerId, name: current.customerName }, ...c.items]
+            : c.items,
+        );
+        setContracts(
+          current?.contract && !cs.items.some((x) => x.id === current.contractId)
+            ? [current.contract, ...cs.items]
+            : cs.items,
+        );
       }
       requestKey.current = key();
       form.resetFields();
+      if (name === 'correct' && current)
+        form.setFieldsValue({
+          customerId: current.customerId,
+          contractId: current.contractId,
+          amount: current.amount,
+          receiptDate: current.receiptDate?.slice(0, 10),
+        });
       setAction({ name, row: current });
     } catch (e) {
       message.error(errorText(e));
@@ -129,6 +155,7 @@ export default function FinanceLedgerPage() {
     try {
       const fields = await form.validateFields();
       const body: Record<string, unknown> = { ...fields, requestKey: requestKey.current };
+      if (action.name === 'correct') body.contractId = fields.contractId ?? null;
       if (action.name !== 'create') {
         body.expectedUpdatedAt = action.row?.updatedAt;
         if (['allocate', 'reverse'].includes(action.name)) {
@@ -136,7 +163,7 @@ export default function FinanceLedgerPage() {
           body.expectedPlanUpdatedAt = selectedPlan.updatedAt;
         }
       }
-      await post(
+      const result = await post<{ id: number }>(
         action.name === 'create'
           ? '/finance-ledger/receipts'
           : `/finance-ledger/receipts/${action.row?.id}/${action.name}`,
@@ -146,6 +173,7 @@ export default function FinanceLedgerPage() {
       setAction(undefined);
       setDetail(undefined);
       await load();
+      if (action.name === 'correct') setDetail(await get<Receipt>(`/finance-ledger/receipts/${result.id}`));
     } catch (e) {
       if (!(e && typeof e === 'object' && 'errorFields' in e)) message.error(errorText(e));
     } finally {
@@ -219,6 +247,9 @@ export default function FinanceLedgerPage() {
                         </Button>
                         {isAdmin && r.ledgerManaged && (
                           <>
+                            <Button size="small" onClick={() => void open('correct', r)}>
+                              更正 / 重开
+                            </Button>
                             {r.status === 'draft' && (
                               <Button
                                 size="small"
@@ -293,13 +324,15 @@ export default function FinanceLedgerPage() {
           type="warning"
           style={{ marginBottom: 16 }}
           message={
-            action?.name === 'confirm'
-              ? '须由登记人以外的另一名管理员核对凭据。'
-              : action?.name === 'reverse'
-                ? '撤销本次整笔核销，保留原核销及余额变动历史；不会发起退款。'
-                : action?.name === 'void'
-                  ? '须先撤销所有有效核销。作废保留原凭据，禁止重复登记相同凭据。'
-                  : '操作仅更新本地台账，请核对金额、客户和凭据。'
+            action?.name === 'correct'
+              ? '保留原凭据编号及历史，原登记作废，新登记必须由另一管理员重新复核；不会转账或退款。更正前请撤销全部有效核销。'
+              : action?.name === 'confirm'
+                ? '须由登记人以外的另一名管理员核对凭据。'
+                : action?.name === 'reverse'
+                  ? '撤销本次整笔核销，保留原核销及余额变动历史；不会发起退款。'
+                  : action?.name === 'void'
+                    ? '须先撤销所有有效核销。作废保留原凭据，禁止重复登记相同凭据。'
+                    : '操作仅更新本地台账，请核对金额、客户和凭据。'
           }
         />
         <Form form={form} layout="vertical">
@@ -315,7 +348,15 @@ export default function FinanceLedgerPage() {
               style={{ marginBottom: 16 }}
             />
           )}
-          {action?.name === 'create' && (
+          {action?.name === 'correct' && (
+            <Alert
+              type="info"
+              style={{ marginBottom: 12 }}
+              message={`原凭据：${action.row?.serialNo}；原金额：¥${money(action.row?.amount)}；原日期：${action.row?.receiptDate?.slice(0, 10)}`}
+              description="凭据编号不可修改。更正后的合同须有效，必要时明确清除合同绑定。"
+            />
+          )}
+          {action && ['create', 'correct'].includes(action.name) && (
             <>
               <Form.Item name="customerId" label="客户" rules={[{ required: true }]}>
                 <Select
@@ -331,7 +372,9 @@ export default function FinanceLedgerPage() {
                   options={contracts
                     .filter(
                       (c) =>
-                        c.customerId === customerId && ['signed', 'executing', 'completed'].includes(String(c.status)),
+                        c.customerId === customerId &&
+                        (['signed', 'executing', 'completed'].includes(String(c.status)) ||
+                          c.id === action.row?.contractId),
                     )
                     .map((c) => ({ value: c.id, label: String(c.contractNo) + ' ' + String(c.name) }))}
                 />
@@ -342,9 +385,11 @@ export default function FinanceLedgerPage() {
               <Form.Item name="receiptDate" label="凭据到账日期" rules={[{ required: true }]}>
                 <Input type="date" />
               </Form.Item>
-              <Form.Item name="reference" label="外部到账凭据编号（本企业唯一）" rules={[{ required: true }]}>
-                <Input maxLength={50} />
-              </Form.Item>
+              {action.name === 'create' && (
+                <Form.Item name="reference" label="外部到账凭据编号（本企业唯一）" rules={[{ required: true }]}>
+                  <Input maxLength={50} />
+                </Form.Item>
+              )}
             </>
           )}
           {action?.name === 'allocate' && (
@@ -388,6 +433,29 @@ export default function FinanceLedgerPage() {
       >
         {detail && (
           <>
+            {(detail.previous || detail.replacement) && (
+              <Card size="small" title="更正凭据链" style={{ marginBottom: 16 }}>
+                <Space wrap>
+                  {[detail.previous, detail.replacement].filter(Boolean).map((r, i) => (
+                    <Button
+                      key={r!.id}
+                      onClick={() =>
+                        void get<Receipt>(`/finance-ledger/receipts/${r!.id}`)
+                          .then(setDetail)
+                          .catch((e) => message.error(errorText(e)))
+                      }
+                    >
+                      {i === 0 && detail.previous ? '更正前登记' : '后续更正登记'}：{String(r!.receiptNo)}
+                    </Button>
+                  ))}
+                </Space>
+              </Card>
+            )}
+            {isAdmin && detail.canCorrect && (
+              <Button style={{ marginBottom: 16 }} onClick={() => void open('correct', detail)}>
+                更正 / 同凭据重开
+              </Button>
+            )}
             <Descriptions
               items={[
                 { key: 'amount', label: '凭据金额', children: money(detail.amount) },
@@ -429,6 +497,29 @@ export default function FinanceLedgerPage() {
               expandable={{
                 expandedRowRender: (e) => {
                   const x = e.evidence as Record<string, Record<string, string>>;
+                  if (String(e.kind).startsWith('correction.') && x.before && x.after)
+                    return (
+                      <Descriptions
+                        items={[
+                          {
+                            key: 'customer',
+                            label: '客户',
+                            children: `${x.before.customerName} → ${x.after.customerName}`,
+                          },
+                          { key: 'amount', label: '登记金额', children: `${x.before.amount} → ${x.after.amount}` },
+                          {
+                            key: 'date',
+                            label: '到账日期',
+                            children: `${x.before.receiptDate} → ${x.after.receiptDate}`,
+                          },
+                          {
+                            key: 'contract',
+                            label: '合同绑定',
+                            children: `${x.before.contractNo ?? '未绑定'} → ${x.after.contractNo ?? '未绑定'}`,
+                          },
+                        ]}
+                      />
+                    );
                   return x.before && x.after ? (
                     <Descriptions
                       items={[

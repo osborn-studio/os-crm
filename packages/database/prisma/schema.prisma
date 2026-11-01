@@ -1385,6 +1385,7 @@ model Receipt {
   receiptNo         String         @map("receipt_no") @db.VarChar(30)
   ledgerManaged     Boolean        @default(false) @map("ledger_managed")
   referenceKey      String?        @map("reference_key") @db.Char(64)
+  replacesId        Int?           @map("replaces_id")
   customerId        Int            @map("customer_id")
   contractId        Int?           @map("contract_id")
   amount            Decimal        @db.Decimal(15, 2)
@@ -1414,6 +1415,7 @@ model Receipt {
 
   @@unique([tenantId, receiptNo])
   @@unique([tenantId, referenceKey])
+  @@unique([tenantId, replacesId])
   @@index([tenantId, customerId])
   @@index([contractId])
   @@index([tenantId, status])
@@ -1469,6 +1471,19 @@ model FinanceEvent {
 
   @@index([tenantId, receiptId, id])
   @@map("finance_events")
+}
+
+model ReceiptVoucher {
+  tenantId          Int      @map("tenant_id")
+  referenceKey      String   @map("reference_key") @db.Char(64)
+  originalReceiptId Int      @map("original_receipt_id")
+  currentReceiptId  Int      @unique @map("current_receipt_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@id([tenantId, referenceKey])
+  @@unique([tenantId, originalReceiptId])
+  @@map("receipt_vouchers")
 }
 
 model CollectionLog {

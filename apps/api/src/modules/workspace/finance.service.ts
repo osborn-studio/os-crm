@@ -9,6 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../database/prisma.service';
 import type { Actor } from '../../common/types/actor';
 import { WorkspaceService } from './workspace.service';
+import { admin } from './access';
 import { checkVersion, id, text, json, runCommand, type Tx } from './command-runner';
 import {
   ledgerWriter,
@@ -19,6 +20,9 @@ import {
   referenceKey,
   receiptBalance,
   contractBalances,
+  financeEventsForActor,
+  receiptSnapshot,
+  financeAuditReader,
 } from './finance-policy';
 @Injectable()
 export class FinanceService {
@@ -44,6 +48,7 @@ export class FinanceService {
         status: true,
         ledgerManaged: true,
         createdBy: true,
+        replacesId: true,
         updatedAt: true,
       },
     });
@@ -55,7 +60,11 @@ export class FinanceService {
         })
       ).map((c) => [c.id, c.name]),
     );
-    return rows.map((r) => ({ ...r, customerName: names.get(r.customerId) ?? '历史客户' }));
+    return rows.map(({ replacesId, ...r }) => ({
+      ...r,
+      ...(financeAuditReader(a) ? { replacesId } : {}),
+      customerName: names.get(r.customerId) ?? '历史客户',
+    }));
   }
   private async receipt(tx: Tx, a: Actor, receiptId: number) {
     const r = await tx.receipt.findFirst({
@@ -85,6 +94,13 @@ export class FinanceService {
       receiptNo: r.receiptNo,
       customerId: r.customerId,
       contractId: r.contractId,
+      contract:
+        admin(a) && r.contractId
+          ? await tx.contract.findFirst({
+              where: { tenantId: a.tenantId, id: r.contractId },
+              select: { id: true, contractNo: true, name: true, status: true, customerId: true },
+            })
+          : null,
       amount: r.amount,
       allocatedAmount: r.allocatedAmount,
       unallocatedAmount: r.unallocatedAmount,
@@ -96,7 +112,28 @@ export class FinanceService {
       confirmedBy: r.confirmedBy,
       updatedAt: r.updatedAt,
       allocations,
-      events,
+      events: financeEventsForActor(a, events),
+      previous:
+        financeAuditReader(a) && r.replacesId
+          ? await tx.receipt.findFirst({
+              where: { tenantId: a.tenantId, id: r.replacesId },
+              select: { id: true, receiptNo: true, status: true },
+            })
+          : null,
+      replacement: financeAuditReader(a)
+        ? await tx.receipt.findFirst({
+            where: { tenantId: a.tenantId, replacesId: r.id },
+            select: { id: true, receiptNo: true, status: true },
+          })
+        : null,
+      canCorrect:
+        admin(a) &&
+        r.ledgerManaged &&
+        r.allocatedAmount.eq(0) &&
+        !!(await tx.receiptVoucher.findFirst({
+          where: { tenantId: a.tenantId, currentReceiptId: r.id },
+          select: { currentReceiptId: true },
+        })),
     };
   }
   async plans(a: Actor) {
@@ -178,6 +215,14 @@ export class FinanceService {
           remark: note,
         },
       });
+      await tx.receiptVoucher.create({
+        data: {
+          tenantId: a.tenantId,
+          referenceKey: referenceKey(reference),
+          originalReceiptId: r.id,
+          currentReceiptId: r.id,
+        },
+      });
       await this.event(tx, a, r.id, 'registered', note, {
         amount: amount.toFixed(2),
         reference,
@@ -187,8 +232,117 @@ export class FinanceService {
       return { id: r.id };
     });
   }
+  async correct(a: Actor, receiptId: number, body: Record<string, unknown>) {
+    ledgerWriter(a);
+    ledgerKeys(body, ['requestKey', 'expectedUpdatedAt', 'customerId', 'contractId', 'amount', 'receiptDate', 'note']);
+    const customerId = id(body.customerId),
+      amount = ledgerMoney(body.amount),
+      receiptDate = ledgerDate(body.receiptDate),
+      note = text(body.note, '更正原因及凭据说明', 1000);
+    if (!Object.hasOwn(body, 'contractId')) throw new BadRequestException('更正须明确绑定合同编号或null（不绑定）');
+    const contractId = body.contractId === null ? null : id(body.contractId);
+    return runCommand(this.prisma, a, 'finance.receipt.correct', { ...body, receiptId }, async (tx) => {
+      const old = await this.receipt(tx, a, receiptId);
+      checkVersion(old, body.expectedUpdatedAt);
+      if (!old.ledgerManaged || !old.serialNo || !['draft', 'confirmed', 'voided'].includes(old.status))
+        throw new ConflictException('该收款不能通过本地台账更正');
+      await receiptBalance(tx, old);
+      if (
+        old.allocatedAmount.gt(0) ||
+        (await tx.receiptAllocation.count({ where: { tenantId: a.tenantId, receiptId: old.id, active: true } }))
+      )
+        throw new ConflictException('请先撤销全部有效核销，再更正登记');
+      const voucher = await tx.receiptVoucher.findFirst({ where: { tenantId: a.tenantId, currentReceiptId: old.id } });
+      if (!voucher || voucher.referenceKey !== referenceKey(old.serialNo))
+        throw new ConflictException('凭据已被更正或来源记录不完整，请查看当前登记');
+      if (
+        old.contractId &&
+        (await tx.contractChange.count({
+          where: { tenantId: a.tenantId, contractId: old.contractId, status: 'pending' },
+        }))
+      )
+        throw new ConflictException('原合同变更审批中，暂不能更正绑定');
+      const customer = await tx.customer.findFirst({
+        where: { ...(await this.workspace.scope(tx, a, 'customers')), id: customerId },
+        select: { id: true, name: true },
+      });
+      if (!customer) throw new NotFoundException('更正后的客户不可用');
+      let nextContractNo: string | null = null;
+      if (contractId !== null) {
+        const c = await contractBalances(tx, a.tenantId, contractId);
+        if (c.customerId !== customerId) throw new BadRequestException('更正后的客户与合同不符');
+        nextContractNo = c.contractNo;
+      }
+      if (
+        old.status !== 'voided' &&
+        old.customerId === customerId &&
+        old.contractId === contractId &&
+        old.amount.eq(amount) &&
+        old.receiptDate.getTime() === receiptDate.getTime()
+      )
+        throw new BadRequestException('没有实际登记变更；若需重新开立已作废登记，请填写原因');
+      const next = await tx.receipt.create({
+        data: {
+          tenantId: a.tenantId,
+          receiptNo: 'SK' + randomUUID().replaceAll('-', '').slice(0, 24),
+          ledgerManaged: true,
+          replacesId: old.id,
+          customerId,
+          contractId,
+          amount,
+          unallocatedAmount: amount,
+          receiptDate,
+          serialNo: old.serialNo,
+          status: 'draft',
+          createdBy: a.userId,
+          remark: note,
+        },
+      });
+      await tx.receipt.update({
+        where: { id: old.id },
+        data: {
+          status: 'voided',
+          unallocatedAmount: 0,
+          voidReason: old.status === 'voided' ? old.voidReason : '登记更正：' + note.slice(0, 190),
+          voidedAt: old.voidedAt ?? new Date(),
+          updatedAt: ledgerStamp(old.updatedAt),
+        },
+      });
+      const moved = await tx.receiptVoucher.updateMany({
+        where: { tenantId: a.tenantId, referenceKey: voucher.referenceKey, currentReceiptId: old.id },
+        data: { currentReceiptId: next.id, updatedAt: ledgerStamp(voucher.updatedAt) },
+      });
+      if (moved.count !== 1) throw new ConflictException('凭据当前登记已变化，请刷新');
+      const oldCustomer = await tx.customer.findFirst({
+        where: { tenantId: a.tenantId, id: old.customerId },
+        select: { name: true },
+      });
+      const oldContract = old.contractId
+        ? await tx.contract.findFirst({
+            where: { tenantId: a.tenantId, id: old.contractId },
+            select: { contractNo: true },
+          })
+        : null;
+      const evidence = {
+        originalReceiptId: voucher.originalReceiptId,
+        sourceReceiptId: old.id,
+        replacementReceiptId: next.id,
+        reference: old.serialNo,
+        before: {
+          ...receiptSnapshot(old),
+          customerName: oldCustomer?.name ?? '历史客户',
+          contractNo: oldContract?.contractNo ?? null,
+        },
+        after: { ...receiptSnapshot(next), customerName: customer.name, contractNo: nextContractNo },
+      };
+      await this.event(tx, a, old.id, 'correction.replaced', note, evidence);
+      await this.event(tx, a, next.id, 'correction.registered', note, evidence);
+      return { id: next.id, sourceId: old.id, action: 'correct' };
+    });
+  }
   async command(a: Actor, receiptId: number, action: string, body: Record<string, unknown>) {
     ledgerWriter(a);
+    if (action === 'correct') return this.correct(a, receiptId, body);
     if (!['confirm', 'allocate', 'reverse', 'void'].includes(action)) throw new BadRequestException('不支持的台账操作');
     ledgerKeys(body, [
       'requestKey',

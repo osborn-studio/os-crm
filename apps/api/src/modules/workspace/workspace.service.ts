@@ -25,6 +25,7 @@ import {
 import { cleanInput, resource, resources } from './registry';
 import { uniqueCustomer } from './customer-policy';
 import { recalculateCustomerContracts } from './contract-change-policy';
+import { financeEventsForActor, hideReceiptCorrectionFields } from './finance-policy';
 import { deliveryPeople, handoverProjectManager } from './delivery-staff-policy';
 import {
   activeDelivery,
@@ -426,6 +427,7 @@ export class WorkspaceService {
       ).map((c) => [c.id, c.name]),
     );
     for (const row of items) {
+      if (kind === 'receipts') hideReceiptCorrectionFields(a, row);
       if (typeof row.ownerId === 'number') row.ownerName = names.get(row.ownerId) ?? '未分配';
       if (typeof row.assigneeId === 'number') row.assigneeName = names.get(row.assigneeId) ?? '未分配';
       if (typeof row.customerId === 'number') row.customerName = customerNames.get(row.customerId) ?? '—';
@@ -451,6 +453,7 @@ export class WorkspaceService {
   async detail(a: Actor, kind: string, recordId: number) {
     const tx = this.prisma.system,
       row = await this.require(tx, a, kind, recordId);
+    if (kind === 'receipts') hideReceiptCorrectionFields(a, row);
     if (kind === 'customers' && row.poolType === 'public' && !admin(a) && !boss(a))
       return {
         id: row.id,
@@ -519,11 +522,14 @@ export class WorkspaceService {
         orderBy: { id: 'desc' },
         take: 100,
       });
-      related.financeEvents = await tx.financeEvent.findMany({
-        where: { tenantId: a.tenantId, receiptId: recordId },
-        orderBy: { id: 'desc' },
-        take: 100,
-      });
+      related.financeEvents = financeEventsForActor(
+        a,
+        await tx.financeEvent.findMany({
+          where: { tenantId: a.tenantId, receiptId: recordId },
+          orderBy: { id: 'desc' },
+          take: 100,
+        }),
+      );
     }
     return { ...row, related };
   }
