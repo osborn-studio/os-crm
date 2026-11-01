@@ -5,11 +5,18 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { Actor } from '../../common/types/actor';
+import { identityCapabilities } from './identity-contract';
 
 @ApiTags('认证')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('capabilities')
+  capabilities(@CurrentUser() actor: Actor) {
+    return identityCapabilities.filter((c) => c.permission === 'authenticated' || actor.roles.includes('super_admin'));
+  }
 
   @Post('login')
   @Public()
@@ -39,7 +46,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '获取当前用户信息+权限' })
-  async me(@CurrentUser() user: any) {
+  async me(@CurrentUser() user: Actor) {
     return this.authService.getProfile(user.userId, user.tenantId);
   }
 
@@ -48,7 +55,24 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(200)
   @ApiOperation({ summary: '登出' })
-  async logout(@CurrentUser() user: any) {
-    return this.authService.logout(user.userId);
+  async logout(@CurrentUser() user: Actor) {
+    return this.authService.logout(user);
+  }
+
+  @Get('sessions')
+  sessions(@CurrentUser() actor: Actor) {
+    return this.authService.sessions(actor);
+  }
+
+  @Post('sessions/revoke-all')
+  @HttpCode(200)
+  revokeSessions(@CurrentUser() actor: Actor) {
+    return this.authService.revokeSessions(actor);
+  }
+
+  @Post('password')
+  @HttpCode(200)
+  changePassword(@CurrentUser() actor: Actor, @Body() body: Record<string, unknown>) {
+    return this.authService.changePassword(actor, body);
   }
 }

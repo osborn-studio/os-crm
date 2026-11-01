@@ -152,6 +152,30 @@ model UserRole {
   @@map("user_roles")
 }
 
+// Authentication sessions are server-revocable; no bearer token is stored in plaintext.
+model AuthSession {
+  id          String    @id @db.Char(36)
+  tenantId    Int       @map("tenant_id")
+  userId      Int       @map("user_id")
+  refreshHash String    @map("refresh_hash") @db.Char(64)
+  expiresAt   DateTime  @map("expires_at")
+  revokedAt   DateTime? @map("revoked_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, userId, revokedAt])
+  @@map("auth_sessions")
+}
+
+model AuthAttempt {
+  key            String   @id @db.Char(64)
+  failures       Int      @default(0)
+  windowStartedAt DateTime @map("window_started_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("auth_attempts")
+}
+
 // ============ 2. 客户域 ============
 
 model Customer {

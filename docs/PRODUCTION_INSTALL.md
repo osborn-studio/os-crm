@@ -34,7 +34,7 @@ $env:SEED_ADMIN_PASSWORD = '替换为自己的强密码'
 node --env-file=deploy/production.env deploy/verify-production.mjs --expect-empty
 ```
 
-这条验收命令只读取；`--expect-empty` 仅首次空安装使用。正式外部访问应通过 HTTPS 反向代理连接本机端口，并设置 HTTPS 的 `APP_URL`；本入口不会配置域名、证书或公网端口。人员管理完整闭环正在后续 C2 建设。
+这条验收命令只读取；`--expect-empty` 仅首次空安装使用。正式外部访问应通过 HTTPS 反向代理连接本机端口，并设置 HTTPS 的 `APP_URL`；本入口不会配置域名、证书或公网端口。人员与会话操作见 [人员管理说明](IDENTITY_OPERATIONS.md)。
 
 ## 加密备份
 

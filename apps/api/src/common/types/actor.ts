@@ -5,4 +5,5 @@ export interface Actor {
   roles: string[];
   permissions: string[];
   dataScope: 'self' | 'team' | 'dept' | 'custom' | 'all';
+  sessionId?: string;
 }

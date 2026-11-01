@@ -1,41 +1,23 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Put, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { DepartmentService } from './department.service';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../../../common/guards/permissions.guard';
-import { Permissions } from '../../../common/decorators/permissions.decorator';
-import { TenantId } from '../../../common/decorators/current-user.decorator';
-
+import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import type { Actor } from '../../../common/types/actor';
 @ApiTags('系统管理-部门')
 @ApiBearerAuth()
 @Controller('system/departments')
 export class DepartmentController {
-  constructor(private readonly deptService: DepartmentService) {}
-
+  constructor(private readonly service: DepartmentService) {}
   @Get('tree')
-  @ApiOperation({ summary: '获取部门树' })
-  getTree(@TenantId() tenantId: number) {
-    return this.deptService.getTree(tenantId);
+  tree(@CurrentUser() actor: Actor) {
+    return this.service.getTree(actor);
   }
-
   @Post()
-  @Permissions('system:department')
-  @ApiOperation({ summary: '创建部门' })
-  create(@TenantId() tenantId: number, @Body() dto: { name: string; code?: string; parentId?: number; leaderId?: number; sortOrder?: number }) {
-    return this.deptService.create(tenantId, dto);
+  create(@CurrentUser() actor: Actor, @Body() body: Record<string, unknown>) {
+    return this.service.save(actor, null, body);
   }
-
   @Put(':id')
-  @Permissions('system:department')
-  @ApiOperation({ summary: '更新部门' })
-  update(@TenantId() tenantId: number, @Param('id', ParseIntPipe) id: number, @Body() dto: any) {
-    return this.deptService.update(tenantId, id, dto);
-  }
-
-  @Delete(':id')
-  @Permissions('system:department')
-  @ApiOperation({ summary: '删除部门' })
-  remove(@TenantId() tenantId: number, @Param('id', ParseIntPipe) id: number) {
-    return this.deptService.remove(tenantId, id);
+  update(@CurrentUser() actor: Actor, @Param('id', ParseIntPipe) id: number, @Body() body: Record<string, unknown>) {
+    return this.service.save(actor, id, body);
   }
 }

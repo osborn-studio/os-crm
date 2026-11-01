@@ -18,7 +18,7 @@ describe('HTTP authorization and capability boundary', () => {
   const writeAudit = jest.fn();
   const tenantDb = { customer: { findMany: findCustomers, count: jest.fn().mockResolvedValue(1), findFirst: findCustomer } };
   const prisma = { onModuleInit: jest.fn(), onModuleDestroy: jest.fn(),
-    system: { user: { findFirst: findUser }, auditLog: { create: writeAudit } },
+    system: { user: { findFirst: findUser }, authSession: { findFirst: jest.fn().mockResolvedValue({ id: 'fixture-session' }) }, auditLog: { create: writeAudit } },
     forTenant: jest.fn().mockReturnValue(tenantDb) };
 
   beforeAll(async () => {
@@ -29,11 +29,12 @@ describe('HTTP authorization and capability boundary', () => {
     app.setGlobalPrefix('api/v1');
     await app.init();
     jwt = app.get(JwtService);
-    token = jwt.sign({ sub: 7, tid: 1 });
+    token = jwt.sign({ sub: 7, tid: 1, sid: 'fixture-session' });
   });
   beforeEach(() => {
     jest.clearAllMocks();
     findUser.mockResolvedValue(user);
+    prisma.system.authSession.findFirst.mockResolvedValue({ id: 'fixture-session' });
     findCustomers.mockResolvedValue([{ id: 12, code: 'KH001', name: 'Fixture customer', industry: '制造', poolType: 'private',
       phone: 'should-never-return', aiProfile: 'internal-only' }]);
     writeAudit.mockResolvedValue({ id: 1 });
@@ -48,6 +49,14 @@ describe('HTTP authorization and capability boundary', () => {
   it('rejects refresh tokens used as access tokens', async () => {
     const refresh = jwt.sign({ sub: 7, tid: 1, type: 'refresh' });
     await request(app.getHttpServer()).get('/api/v1/capabilities').auth(refresh, { type: 'bearer' }).expect(401);
+  });
+  it('rejects old sessionless JWTs after the session migration', async () => {
+    await request(app.getHttpServer()).get('/api/v1/capabilities').auth(jwt.sign({ sub: 7, tid: 1 }), { type: 'bearer' }).expect(401);
+  });
+  it('rejects revoked sessions even when the signed access token is unexpired', async () => {
+    prisma.system.authSession.findFirst.mockResolvedValueOnce(null);
+    await request(app.getHttpServer()).get('/api/v1/capabilities').auth(token, { type: 'bearer' }).expect(401);
+    expect(findCustomers).not.toHaveBeenCalled();
   });
   it('rejects disabled or mismatching tenant identities', async () => {
     findUser.mockResolvedValue(null);
