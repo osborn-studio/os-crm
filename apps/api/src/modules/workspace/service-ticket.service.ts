@@ -216,8 +216,8 @@ export class ServiceTicketService {
       async (tx) => {
         const row = await this.require(tx, a, ticketId);
         checkVersion(row, body.expectedUpdatedAt);
-        const status = ticketTransition(row, action, a.userId),
-          note = text(body.note, '处理说明', 5000);
+        let status = ticketTransition(row, action, a.userId);
+        const note = text(body.note, '处理说明', 5000);
         const management = ['assign', 'close', 'reopen', 'cancel'].includes(action);
         const p = management ? await this.manager(tx, a, row.projectId) : null;
         if (!management && row.assigneeId !== a.userId)
@@ -227,6 +227,12 @@ export class ServiceTicketService {
           const candidate = (await deliveryPeople(tx, a, p!)).find((u) => u.id === id(body.userId));
           if (!candidate || candidate.id === row.assigneeId) throw new BadRequestException('接收人无效或未变化');
           assigneeId = candidate.id;
+        }
+        // A closed ticket ignores staffing guards, so reopening must re-qualify the previous
+        // assignee exactly as a fresh assignment would; otherwise it returns to the unassigned pool.
+        if (action === 'reopen' && !(await deliveryPeople(tx, a, p!)).some((u) => u.id === assigneeId)) {
+          assigneeId = null;
+          status = 'open';
         }
         const updated = await tx.serviceTicket.update({
           where: { id: row.id, tenantId: a.tenantId },

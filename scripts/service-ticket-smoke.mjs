@@ -331,9 +331,27 @@ try {
   let transfer = await create();
   transfer = await cmd(transfer, 'assign', tokens.sales, { userId: users.peer.id });
   transfer = await cmd(transfer, 'assign', admin, { userId: users.sales.id });
+  // Closed work does not block offboarding, so reopening must not hand it back to the departed executor.
+  let dormant = await create();
+  dormant = await cmd(dormant, 'assign', tokens.sales, { userId: users.peer.id });
+  dormant = await cmd(dormant, 'start', tokens.peer);
+  dormant = await cmd(dormant, 'resolve', tokens.peer, { note: '合成：已处理' });
+  dormant = await cmd(dormant, 'close', tokens.sales);
   const peerNow = await call('/system/users/' + user.id, 'GET', undefined, admin);
   await call('/system/users/' + user.id, 'PUT', req({ status: 'inactive' }, peerNow), admin, 200);
   await call('/service-tickets', 'GET', undefined, tokens.peer, 401);
+  const reopenedAt = new Date();
+  dormant = await cmd(dormant, 'reopen', tokens.sales, { note: '客户反馈问题复现' });
+  ok(
+    dormant.status === 'open' &&
+      dormant.assigneeId === null &&
+      (await db.notification.count({
+        where: { tenantId: tid, userId: users.peer.id, bizId: dormant.id, createdAt: { gte: reopenedAt } },
+      })) === 0,
+    'Reopen re-qualifies the previous executor and returns work to the pool after offboarding',
+  );
+  dormant = await cmd(dormant, 'assign', tokens.sales, { userId: users.sales.id });
+  ok(dormant.status === 'assigned', 'Pooled reopened work can be reassigned to an eligible executor');
   const historical = await detail(row);
   ok(
     historical.events.some((e) => e.actorName === '合成peer'),
