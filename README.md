@@ -4,6 +4,8 @@
 
 **当前阶段：v0.2本地演示与数据测试版，尚未生产验收。**
 
+继续建设以[商用验收清单与阻断项](docs/COMMERCIAL_ACCEPTANCE.md)为准；依赖修复和CI门槛见[依赖安全说明](docs/DEPENDENCY_SECURITY.md)。
+
 2026-11-01 开始商用建设，按[分批计划与验收门槛](docs/COMMERCIAL_PLAN.md)推进。新增[正式安装与加密备份恢复基础候选](docs/PRODUCTION_INSTALL.md)，独立空企业初始化，不灌入演示业务；整套商用闭环尚未完成。每次较大改进验证后同步 `osborn-studio/os-crm` 的功能分支和 PR。
 
 第二批新增[人员与会话管理](docs/IDENTITY_OPERATIONS.md)：组织/账号维护、四种预置角色、调岗/停用、密码修改/重置、服务端登出与刷新轮换、登录失败限制和审计。升级新增会话表后，旧令牌需要重新登录。

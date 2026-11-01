@@ -1,7 +1,7 @@
 name: Portable demo deployment
 on:
   push:
-    paths: ['Dockerfile', '.dockerignore', 'deploy/**', 'scripts/serve-web.mjs', '.github/workflows/deployment.yml']
+    paths: ['Dockerfile', '.dockerignore', 'deploy/**', 'apps/**', 'packages/**', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', 'scripts/serve-web.mjs', '.github/workflows/deployment.yml']
   workflow_dispatch:
 permissions:
   contents: read

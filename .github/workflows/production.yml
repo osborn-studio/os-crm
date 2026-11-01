@@ -2,7 +2,7 @@ name: Production installation and recovery candidate
 on:
   push:
     branches: [main, 'feat/**', 'fix/**']
-    paths: ['deploy/**', 'Dockerfile', '.dockerignore', 'packages/database/**', '.github/workflows/production.yml']
+    paths: ['deploy/**', 'Dockerfile', '.dockerignore', 'apps/**', 'packages/**', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', '.github/workflows/production.yml']
   workflow_dispatch:
 permissions:
   contents: read
