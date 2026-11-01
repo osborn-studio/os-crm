@@ -29,6 +29,7 @@ export async function deliveryEvent(
   evidence: unknown,
   taskId?: number,
 ) {
+  const actor = await tx.user.findFirst({ where: { tenantId: a.tenantId, id: a.userId }, select: { name: true } });
   return tx.deliveryEvent.create({
     data: {
       tenantId: a.tenantId,
@@ -36,7 +37,10 @@ export async function deliveryEvent(
       actorId: a.userId,
       kind,
       note,
-      evidence: json(evidence),
+      evidence: json({
+        ...(evidence && typeof evidence === 'object' && !Array.isArray(evidence) ? evidence : { details: evidence }),
+        actorName: actor?.name ?? '历史操作人',
+      }),
       ...(taskId ? { taskId } : {}),
     },
   });

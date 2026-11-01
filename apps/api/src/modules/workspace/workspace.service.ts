@@ -25,6 +25,7 @@ import {
 import { cleanInput, resource, resources } from './registry';
 import { uniqueCustomer } from './customer-policy';
 import { recalculateCustomerContracts } from './contract-change-policy';
+import { deliveryPeople, handoverProjectManager } from './delivery-staff-policy';
 import {
   activeDelivery,
   deliveryEvent,
@@ -78,7 +79,7 @@ export class WorkspaceService {
           ? r.actions.filter(
               (action) =>
                 action !== 'follow' &&
-                (!['assign', 'accept', 'reject_acceptance'].includes(action) || admin(a) || manager(a)),
+                (!['assign', 'accept', 'reject_acceptance', 'handover_pm'].includes(action) || admin(a) || manager(a)),
             )
           : [];
         const properties = Object.fromEntries(
@@ -108,6 +109,43 @@ export class WorkspaceService {
           canEdit,
           actions,
           operations: [
+            ...(['projects', 'tasks'].includes(key) && canEdit
+              ? [
+                  {
+                    id: `${key}.delivery_recipients`,
+                    version: '1.0',
+                    effect: 'read',
+                    permission: 'project:update and delivery management scope',
+                    route: `/workspace/${key}/{recordId}/delivery-people`,
+                    agentExposed: false,
+                    inputSchema: {
+                      type: 'object',
+                      additionalProperties: false,
+                      required: ['recordId'],
+                      properties: { recordId: { type: 'integer', minimum: 1 } },
+                    },
+                    outputSchema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        required: ['id', 'name', 'deptId'],
+                        properties: {
+                          id: { type: 'integer' },
+                          name: { type: 'string' },
+                          deptId: { type: ['integer', 'null'] },
+                        },
+                      },
+                    },
+                    guards: [
+                      'tenant and parent project management scope',
+                      'active account and department',
+                      'recipient role and project permissions',
+                      'department boundary',
+                    ],
+                    evidence: ['bounded eligible recipient projection; no credentials'],
+                  },
+                ]
+              : []),
             {
               id: `${key}.list`,
               version: '1.0',
@@ -199,11 +237,12 @@ export class WorkspaceService {
                   'requestKey',
                   'expectedUpdatedAt',
                   ...((key === 'projects' &&
-                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(action)) ||
+                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'].includes(action)) ||
                   key === 'tasks'
                     ? ['note']
                     : []),
                   ...(key === 'tasks' && action === 'complete' ? ['actualHours'] : []),
+                  ...(['assign_task', 'handover_pm'].includes(action) ? ['userId'] : []),
                 ],
                 properties: {
                   ...commandProperties,
@@ -215,11 +254,13 @@ export class WorkspaceService {
                         },
                       }
                     : {}),
-                  ...(action === 'assign' ? { userId: { type: 'integer', minimum: 1 } } : {}),
+                  ...(['assign', 'assign_task', 'handover_pm'].includes(action)
+                    ? { userId: { type: 'integer', minimum: 1 } }
+                    : {}),
                   ...(action === 'quote' ? { items: { type: 'array', minItems: 1, maxItems: 20 } } : {}),
                   ...(action === 'lose' ? { reason: { type: 'string', minLength: 1 } } : {}),
                   ...((key === 'projects' &&
-                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(action)) ||
+                    ['advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'].includes(action)) ||
                   key === 'tasks'
                     ? { note: { type: 'string', minLength: 1, maxLength: 3000 } }
                     : {}),
@@ -257,7 +298,22 @@ export class WorkspaceService {
     else if (kind === 'leads')
       visibility = { OR: [await ownerScope(tx, a, 'assigneeId'), await ownerScope(tx, a, 'createdBy')] };
     else if (kind === 'projects')
-      visibility = { OR: [await ownerScope(tx, a, 'salesOwnerId'), await ownerScope(tx, a, 'pmId')] };
+      visibility = {
+        OR: [
+          await ownerScope(tx, a, 'salesOwnerId'),
+          await ownerScope(tx, a, 'pmId'),
+          {
+            tasks: {
+              some: {
+                tenantId: a.tenantId,
+                deletedAt: null,
+                status: { notIn: ['done', 'cancelled'] },
+                ...(await ownerScope(tx, a, 'assigneeId')),
+              },
+            },
+          },
+        ],
+      };
     else if (kind === 'contacts')
       visibility = { customer: { tenantId: a.tenantId, deletedAt: null, ...(await customerScope(tx, a, false)) } };
     else if (kind === 'tasks')
@@ -292,6 +348,25 @@ export class WorkspaceService {
     const row = await this.db(tx, kind).findFirst({ where: { ...(await this.scope(tx, a, kind)), id: recordId } });
     if (!row) throw new NotFoundException('记录不存在或无权访问');
     return row;
+  }
+  private async deliveryAuthority(tx: Tx, a: Actor, projectId: number) {
+    const p = await taskProject(tx, a, projectId);
+    deliveryManager(a, p);
+    if (
+      !admin(a) &&
+      p.pmId !== a.userId &&
+      !(await tx.project.findFirst({
+        where: {
+          tenantId: a.tenantId,
+          id: projectId,
+          deletedAt: null,
+          OR: [await ownerScope(tx, a, 'salesOwnerId'), await ownerScope(tx, a, 'pmId')],
+        },
+        select: { id: true },
+      }))
+    )
+      throw new ForbiddenException('任务协作可读取项目，不授予其他部门项目的管理权限');
+    return p;
   }
   async list(a: Actor, kind: string, query: Record<string, string>) {
     const r = resource(kind),
@@ -455,6 +530,17 @@ export class WorkspaceService {
       flow.definition && typeof flow.definition === 'object' && !Array.isArray(flow.definition) ? flow.definition : {};
     return { name: flow.name, version: flow.version, fields: definition.fields ?? [] };
   }
+  async deliveryRecipients(a: Actor, kind: string, recordId: number) {
+    allowWrite(a);
+    if (!['projects', 'tasks'].includes(kind)) throw new BadRequestException('仅用于交付人员交接');
+    requirePermission(a, kind, 'update');
+    const tx = this.prisma.system,
+      row = await this.require(tx, a, kind, recordId);
+    const p = await taskProject(tx, a, kind === 'projects' ? recordId : id(row.projectId));
+    await this.deliveryAuthority(tx, a, p.id);
+    if (kind === 'projects' && !admin(a) && !manager(a)) throw new ForbiddenException('仅管理员或主管可交接项目经理');
+    return deliveryPeople(tx, a, p);
+  }
   private async references(tx: Tx, a: Actor, kind: string, data: Record<string, unknown>) {
     for (const f of resource(kind).fields)
       if (f.reference && data[f.key]) {
@@ -498,6 +584,7 @@ export class WorkspaceService {
             throw new ForbiddenException('公海客户请先领取');
           if (['contracts', 'orders', 'projects'].includes(kind) && !['draft', 'rejected'].includes(String(row.status)))
             throw new BadRequestException('仅草稿或驳回单据可编辑');
+          if (kind === 'projects') await this.deliveryAuthority(tx, a, recordId);
           if (
             ['contractId', 'customerId', 'opportunityId', 'projectId', 'targetId'].some(
               (key) => key in data && data[key] !== row?.[key],
@@ -557,8 +644,8 @@ export class WorkspaceService {
           activeDelivery(p);
           if (recordId) {
             if (row?.status === 'done') throw new ConflictException('已完成任务不可编辑，请先发起整改');
-            if (row?.assigneeId !== a.userId) deliveryManager(a, p);
-          } else deliveryManager(a, p);
+            if (row?.assigneeId !== a.userId) await this.deliveryAuthority(tx, a, p.id);
+          } else await this.deliveryAuthority(tx, a, p.id);
           await validateTaskMilestone(tx, a, p.id, data.milestoneId ?? row?.milestoneId);
           defaults.assigneeId = a.userId;
           await tx.project.update({
@@ -637,6 +724,7 @@ export class WorkspaceService {
     return runCommand(this.prisma, a, `${kind}.${action}`, { ...body, recordId }, async (tx) => {
       const row = await this.require(tx, a, kind, recordId);
       checkVersion(row as { updatedAt: Date }, body.expectedUpdatedAt);
+      if (kind === 'projects') await this.deliveryAuthority(tx, a, recordId);
       if (
         kind === 'contracts' &&
         (await tx.contractChange.count({ where: { tenantId: a.tenantId, contractId: recordId, status: 'pending' } }))
@@ -866,6 +954,7 @@ export class WorkspaceService {
             await tx.order.update({ where, data: { status: 'delivered', actualDeliveryDate: new Date() } });
           } else throw new BadRequestException('操作与业务对象不匹配');
         } else if (kind === 'projects') {
+          if (action === 'handover_pm') await handoverProjectManager(tx, a, await taskProject(tx, a, recordId), body);
           if (action === 'submit') {
             if (!['draft', 'rejected'].includes(String(row.status)))
               throw new BadRequestException('仅草稿或驳回项目可提交');
@@ -894,12 +983,20 @@ export class WorkspaceService {
         } else if (kind === 'tasks') {
           const p = await taskProject(tx, a, id(row.projectId));
           activeDelivery(p);
-          if (row.assigneeId !== a.userId || action === 'reopen_task') {
-            deliveryManager(a, p);
-            if (!admin(a) && p.pmId !== a.userId) await this.require(tx, a, 'projects', p.id);
+          if (row.assigneeId !== a.userId || ['reopen_task', 'assign_task'].includes(action)) {
+            await this.deliveryAuthority(tx, a, p.id);
           }
           const note = text(body.note, '任务结果或整改说明', 3000);
-          if (action === 'start_task') {
+          let assignment: Record<string, unknown> = {};
+          if (action === 'assign_task') {
+            if (['done', 'cancelled'].includes(String(row.status)))
+              throw new ConflictException('历史已完成或取消任务不能转派');
+            const recipient = (await deliveryPeople(tx, a, p)).find((u) => u.id === id(body.userId));
+            if (!recipient || recipient.id === row.assigneeId)
+              throw new BadRequestException('接收人不可用或没有实际变化');
+            assignment = { fromUserId: row.assigneeId, toUserId: recipient.id, toName: recipient.name };
+            await tx.projectTask.update({ where, data: { assigneeId: recipient.id } });
+          } else if (action === 'start_task') {
             if (row.status !== 'todo') throw new ConflictException('仅待办任务可开始');
             await tx.projectTask.update({ where, data: { status: 'in_progress' } });
           } else if (action === 'complete') {
@@ -928,11 +1025,15 @@ export class WorkspaceService {
             const done = await tx.projectMilestone.count({
               where: { tenantId: a.tenantId, projectId: p.id, status: 'completed' },
             });
+            const nextMilestone = await tx.projectMilestone.findFirst({
+              where: { tenantId: a.tenantId, projectId: p.id, status: { not: 'completed' } },
+              orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+            });
             await tx.project.update({
               where: { id: p.id },
               data: {
                 progress: total ? Math.round((done / total) * 100) : 0,
-                stage: (milestone?.stage ?? 'initiation') as 'initiation',
+                stage: (nextMilestone?.stage ?? 'initiation') as 'initiation',
               },
             });
           }
@@ -948,6 +1049,7 @@ export class WorkspaceService {
             note,
             {
               from: row.status,
+              ...assignment,
               ...(action === 'complete' ? { actualHours: taskHours(body.actualHours).toFixed(1) } : {}),
             },
             recordId,

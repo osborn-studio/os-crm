@@ -296,6 +296,14 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
         setBusy(false);
       }
     }
+    if (['assign_task', 'handover_pm'].includes(action)) {
+      try {
+        setOptions({ users: await get<RecordRow[]>(`/workspace/${kind}/${row.id}/delivery-people`) });
+      } catch (e) {
+        message.error(errorText(e));
+        setCommand(undefined);
+      }
+    }
     if (action === 'assign')
       try {
         const overview = await get<{ users: RecordRow[] }>('/workspace/overview');
@@ -362,6 +370,10 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
       if (a === 'deliver') return row.status === 'confirmed';
       if (a === 'order' || a === 'project') return ['signed', 'executing'].includes(String(row.status));
       if (kind === 'opportunities') return row.status === 'open';
+      if (a === 'handover_pm')
+        return (
+          ['draft', 'rejected', 'active', 'on_hold'].includes(String(row.status)) && row.acceptanceState !== 'pending'
+        );
       if (a === 'accept' || a === 'reject_acceptance')
         return row.status === 'active' && row.acceptanceState === 'pending';
       if (a === 'request_acceptance')
@@ -375,11 +387,13 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           Number(row.progress) < 100
         );
       if (kind === 'tasks')
-        return a === 'start_task'
-          ? row.status === 'todo'
-          : a === 'complete'
-            ? row.status === 'in_progress'
-            : a === 'reopen_task' && row.status === 'done';
+        return a === 'assign_task'
+          ? !['done', 'cancelled'].includes(String(row.status))
+          : a === 'start_task'
+            ? row.status === 'todo'
+            : a === 'complete'
+              ? row.status === 'in_progress'
+              : a === 'reopen_task' && row.status === 'done';
       if (a === 'complete') return !['done', 'completed'].includes(String(row.status));
       return true;
     }) ?? [];
@@ -557,9 +571,10 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                         pagination={{ pageSize: 10 }}
                         columns={[
                           {
-                            title: '时间',
+                            title: '时间（北京时间）',
                             dataIndex: 'createdAt',
-                            render: (v: unknown) => String(v).replace('T', ' ').slice(0, 19),
+                            render: (v: unknown) =>
+                              new Date(String(v)).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }),
                           },
                           {
                             title: '动作',
@@ -574,10 +589,16 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                                 'task.start_task': '任务开始',
                                 'task.complete': '任务完成',
                                 'task.reopen_task': '任务整改',
+                                'task.assign_task': '任务转派',
+                                'project.pm_handover': '项目经理交接',
                               })[String(v)] ?? String(v),
                           },
                           { title: '依据/整改要求', dataIndex: 'note' },
-                          { title: '记录人', dataIndex: 'actorId' },
+                          {
+                            title: '记录人',
+                            render: (_: unknown, r: RecordRow) =>
+                              String((r.evidence as Record<string, unknown>)?.actorName ?? r.actorId),
+                          },
                         ]}
                       />
                     ) : name === 'quoteVersions' ? (
@@ -680,8 +701,20 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
               ))}
             </>
           )}
-          {command?.action === 'assign' && (
-            <Form.Item name="userId" label="目标销售" rules={[{ required: true }]}>
+          {command?.action === 'handover_pm' && (
+            <Alert
+              style={{ marginBottom: 16 }}
+              type="info"
+              showIcon
+              message="同时交接原项目经理名下未完成任务及其负责的未完成里程碑，保留已完成记录和其他执行人的工作。"
+            />
+          )}
+          {command && ['assign', 'assign_task', 'handover_pm'].includes(command.action) && (
+            <Form.Item
+              name="userId"
+              label={command.action === 'assign' ? '目标销售' : '接收人'}
+              rules={[{ required: true }]}
+            >
               <Select options={(options.users ?? []).map((u) => ({ value: u.id, label: String(u.name) }))} />
             </Form.Item>
           )}
@@ -692,9 +725,19 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           )}
           {command &&
             ((kind === 'projects' &&
-              ['advance', 'request_acceptance', 'reject_acceptance', 'accept'].includes(command.action)) ||
+              ['advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'].includes(
+                command.action,
+              )) ||
               kind === 'tasks') && (
-              <Form.Item name="note" label="交付结果、验收依据或整改要求" rules={[{ required: true }]}>
+              <Form.Item
+                name="note"
+                label={
+                  ['handover_pm', 'assign_task'].includes(command.action)
+                    ? '交接原因及待办说明'
+                    : '交付结果、验收依据或整改要求'
+                }
+                rules={[{ required: true }]}
+              >
                 <Input.TextArea rows={3} maxLength={3000} />
               </Form.Item>
             )}

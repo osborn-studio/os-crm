@@ -28,6 +28,13 @@ export class WorkspaceController {
   ) {
     return this.service.approvalForm(a, kind, recordId);
   }
+  @Get(':kind/:id/delivery-people') deliveryPeople(
+    @CurrentUser() a: Actor,
+    @Param('kind') kind: string,
+    @Param('id', ParseIntPipe) recordId: number,
+  ) {
+    return this.service.deliveryRecipients(a, kind, recordId);
+  }
   @Post(':kind') create(@CurrentUser() a: Actor, @Param('kind') kind: string, @Body() b: Record<string, unknown>) {
     return this.service.save(a, kind, b);
   }

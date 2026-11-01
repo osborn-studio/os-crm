@@ -396,6 +396,182 @@ try {
     sales,
     400,
   );
+  // Delivery responsibility and safe offboarding use an independent synthetic employee.
+  const sourceStaff = await db.user.findFirstOrThrow({ where: { username: 'sales', tenantId: customer.tenantId } });
+  const staffRole = await db.role.findFirstOrThrow({ where: { tenantId: customer.tenantId, code: 'sales' } });
+  const bossRole = await db.role.findFirstOrThrow({ where: { tenantId: customer.tenantId, code: 'gm' } });
+  const staffName = 'handover' + Date.now();
+  const employee = (
+    await call(
+      '/system/users',
+      'POST',
+      {
+        requestKey: newKey(),
+        data: {
+          username: staffName,
+          name: 'Delivery successor',
+          password: process.env.SEED_ADMIN_PASSWORD,
+          deptId: sourceStaff.deptId,
+          roleIds: [staffRole.id],
+        },
+      },
+      admin,
+      201,
+    )
+  ).data;
+  const staffToken = await login(staffName);
+  let staffProject = await create(sales, 'projects', {
+    name: 'Responsibility handover fixture',
+    budgetAmount: '200000.00',
+    customerId: customer.id,
+    plannedStartDate: '2026-11-01',
+    plannedEndDate: '2026-12-01',
+  });
+  await approveBusiness('projects', staffProject);
+  staffProject = await detail(sales, 'projects', staffProject);
+  await command(sales, 'projects', staffProject, 'start');
+  let historicalTask = await create(sales, 'tasks', {
+    title: 'Historical author must remain',
+    projectId: staffProject.id,
+  });
+  await command(sales, 'tasks', historicalTask, 'start_task', { note: 'Prepare history' });
+  historicalTask = await detail(sales, 'tasks', historicalTask);
+  await command(sales, 'tasks', historicalTask, 'complete', { note: 'Historical evidence', actualHours: '1.0' });
+  let openTask = await create(sales, 'tasks', { title: 'Open responsibility', projectId: staffProject.id });
+  staffProject = await detail(sales, 'projects', staffProject);
+  await dcmd(
+    sales,
+    'projects',
+    staffProject,
+    'handover_pm',
+    { userId: employee.id, note: 'Sales cannot change project manager' },
+    403,
+  );
+  const bossId = (await db.user.findFirstOrThrow({ where: { tenantId: customer.tenantId, username: 'boss' } })).id;
+  await dcmd(
+    admin,
+    'projects',
+    staffProject,
+    'handover_pm',
+    { userId: bossId, note: 'Read-only boss not eligible' },
+    400,
+  );
+  await dcmd(admin, 'projects', staffProject, 'handover_pm', { userId: 9999999, note: 'Unknown recipient' }, 400);
+  await dcmd(admin, 'projects', staffProject, 'handover_pm', { userId: sourceStaff.id, note: 'No change' }, 400);
+  await dcmd(admin, 'projects', staffProject, 'handover_pm', {
+    userId: employee.id,
+    note: 'Transfer open delivery responsibility',
+  });
+  staffProject = await detail(staffToken, 'projects', staffProject);
+  eq(staffProject.pmId, employee.id);
+  openTask = await detail(staffToken, 'tasks', openTask);
+  eq(openTask.assigneeId, employee.id, 'Open task moves with PM');
+  eq(openTask.createdBy, sourceStaff.id, 'Original author retained');
+  eq(
+    (await db.projectTask.findUniqueOrThrow({ where: { id: historicalTask.id } })).assigneeId,
+    sourceStaff.id,
+    'Historical completed executor retained',
+  );
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Former PM cannot manage delivery', projectId: staffProject.id } },
+    sales,
+    403,
+  );
+  const person = (await call('/system/users/' + employee.id, 'GET', undefined, admin)).data;
+  const changeStaff = (data, expected) =>
+    call(
+      '/system/users/' + employee.id,
+      'PUT',
+      { requestKey: newKey(), expectedUpdatedAt: person.updatedAt, data },
+      admin,
+      expected,
+    );
+  await changeStaff({ status: 'inactive' }, 409);
+  await changeStaff({ roleIds: [bossRole.id] }, 409);
+  const differentDept = await db.department.findFirstOrThrow({
+    where: { tenantId: customer.tenantId, id: { not: sourceStaff.deptId }, status: 1 },
+  });
+  await changeStaff({ deptId: differentDept.id }, 409);
+  const people = (await call(`/workspace/tasks/${openTask.id}/delivery-people`, 'GET', undefined, staffToken)).data;
+  eq(
+    people.some((p) => p.id === employee.id),
+    true,
+    'Eligible recipient options available',
+  );
+  await dcmd(staffToken, 'tasks', openTask, 'assign_task', {
+    userId: sourceStaff.id,
+    note: 'Delegate a task to original colleague',
+  });
+  openTask = await detail(sales, 'tasks', openTask);
+  eq(openTask.assigneeId, sourceStaff.id);
+  await dcmd(
+    sales,
+    'tasks',
+    openTask,
+    'assign_task',
+    { userId: employee.id, note: 'Executor cannot self-grant delegation' },
+    403,
+  );
+  await dcmd(staffToken, 'tasks', openTask, 'assign_task', { userId: employee.id, note: 'PM reclaims open task' });
+  openTask = await detail(staffToken, 'tasks', openTask);
+  const outside = await db.user.findFirstOrThrow({ where: { tenantId: customer.tenantId, username: 'sales03' } });
+  await dcmd(
+    staffToken,
+    'tasks',
+    openTask,
+    'assign_task',
+    { userId: outside.id, note: 'PM cannot assign other department' },
+    400,
+  );
+  await dcmd(admin, 'tasks', openTask, 'assign_task', {
+    userId: outside.id,
+    note: 'Explicit administrator collaboration assignment',
+  });
+  await detail(other, 'projects', staffProject);
+  await call(
+    '/workspace/tasks',
+    'POST',
+    { requestKey: newKey(), data: { title: 'Collaborator cannot manage whole project', projectId: staffProject.id } },
+    other,
+    403,
+  );
+  openTask = await detail(other, 'tasks', openTask);
+  await command(other, 'tasks', openTask, 'start_task', { note: 'Cross-team contributor starts assigned work' });
+  openTask = await detail(other, 'tasks', openTask);
+  await command(other, 'tasks', openTask, 'complete', { note: 'Assigned work complete', actualHours: '2.0' });
+  await call(`/workspace/projects/${staffProject.id}`, 'GET', undefined, other, 404);
+  openTask = await detail(staffToken, 'tasks', openTask);
+  await command(staffToken, 'tasks', openTask, 'reopen_task', { note: 'Remediation required' });
+  openTask = await detail(staffToken, 'tasks', openTask);
+  await dcmd(staffToken, 'tasks', openTask, 'assign_task', { userId: employee.id, note: 'PM takes remediation task' });
+  staffProject = await detail(staffToken, 'projects', staffProject);
+  eq(staffProject.stage, 'initiation', 'Remediation returns to first unfinished milestone rather than jumping stages');
+  await dcmd(admin, 'projects', staffProject, 'handover_pm', {
+    userId: sourceStaff.id,
+    note: 'Complete offboarding handover',
+  });
+  await call(`/workspace/projects/${staffProject.id}`, 'GET', undefined, staffToken, 404);
+  const finalPerson = (await call('/system/users/' + employee.id, 'GET', undefined, admin)).data;
+  await call(
+    '/system/users/' + employee.id,
+    'PUT',
+    { requestKey: newKey(), expectedUpdatedAt: finalPerson.updatedAt, data: { status: 'inactive' } },
+    admin,
+  );
+  await call('/workspace/tasks', 'GET', undefined, staffToken, 401);
+  const retained = await detail(sales, 'projects', staffProject);
+  eq(
+    retained.related.deliveryEvents.filter((e) => e.kind === 'project.pm_handover').length,
+    2,
+    'Both PM handovers retained',
+  );
+  eq(
+    retained.related.deliveryEvents.some((e) => e.evidence.actorName),
+    true,
+    'System snapshot stores actor name',
+  );
   const publicCustomer = (await call('/workspace/customers?poolType=public', 'GET', undefined, sales)).data.items[0];
   assert(publicCustomer, 'Public fixture');
   const racing = await Promise.all(
