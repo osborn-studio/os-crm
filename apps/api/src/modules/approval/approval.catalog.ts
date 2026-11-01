@@ -274,7 +274,19 @@ export const APPROVAL_OPERATIONS: readonly Operation[] = [
       `/api/v1/approvals/{approvalId}/nodes/{nodeId}/${action}`,
       `approval:${action}`,
       keyed({ comment: { type: 'string', maxLength: 1000 } }, action === 'reject' ? ['comment'] : []),
-      objectResult,
+      {
+        type: 'object',
+        required: ['id', 'status', 'waitingForCountersign'],
+        properties: {
+          id: integer,
+          status: { enum: ['pending', 'approved', 'rejected'] },
+          waitingForCountersign: {
+            type: 'boolean',
+            description: 'This vote is saved but other distinct members of the same stage must still approve',
+          },
+          nextNode: { type: ['string', 'null'] },
+        },
+      },
       [
         ...writeGuards,
         'assigned participant in current stage',

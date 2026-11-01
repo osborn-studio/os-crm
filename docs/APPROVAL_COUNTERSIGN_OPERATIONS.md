@@ -32,3 +32,7 @@
 `pnpm check`及独立`SMOKE_ALLOW_WRITES=true node scripts/countersign-smoke.mjs`验证组内独立处理、非锚点成员、单人顺序兼容、转审、防重复意见、申请人/企业边界、并发同意与驳回、晚期故障回滚、合同最后一票原子回调、发布新版本不改旧快照，以及部分同意实例的加密恢复和恢复后继续处理。测试只允许独立tb_crm_test_*合成数据库，不是客户签收或第三方平台联调。
 
 仍待后续：前后加签、或签/复杂分支、超时升级、可靠外发Outbox和第三方审批对账。本批会签通过不代表复杂审批与整套商用验收全部完成。
+
+![合成会签节点与后续单人核准](screenshots/c11-countersign-designer.jpg)
+
+![同一步中独立保留已通过和待处理意见](screenshots/c11-countersign-review.jpg)

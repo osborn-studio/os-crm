@@ -159,8 +159,8 @@ export default function FlowDesignerPage() {
       <Alert
         type="info"
         showIcon
-        message="支持顺序审批与金额条件分支，支持指定人、角色和部门负责人"
-        description="必需节点找不到审批人时会阻止提交；申请人不能审批自己的单据。并行会签与复杂嵌套表达式暂未开放。"
+        message="支持顺序审批、指定人员全员会签与金额条件分支"
+        description="同一会签步骤须全员同意，任一驳回即终止；必需人员不可用时阻止提交，申请人不能审批自己。加签、复杂嵌套与超时升级仍待开放。"
         style={{ marginBottom: 20 }}
       />
       {error && <Alert type="error" message={error} />}{' '}
@@ -218,6 +218,8 @@ export default function FlowDesignerPage() {
         open={open}
         width={960}
         title="审批流设计 · 保存为新草稿版本"
+        style={{ top: 20 }}
+        styles={{ body: { maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', paddingRight: 8 } }}
         onCancel={() => setOpen(false)}
         onOk={() => void save()}
         confirmLoading={busy}
