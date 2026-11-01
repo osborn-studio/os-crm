@@ -7,6 +7,42 @@ on:
 permissions:
   contents: read
 jobs:
+  approval-transfer:
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: tb_crm_test_approval
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -ptest"
+          --health-interval=5s --health-timeout=5s --health-retries=12
+    env:
+      DATABASE_URL: mysql://root:test@127.0.0.1:3306/tb_crm_test_approval
+      SMOKE_ALLOW_WRITES: 'true'
+      DEMO_MODE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: pnpm --filter @partneros/database generate
+      - run: pnpm --filter @partneros/database migrate:deploy
+      - run: pnpm build
+      - name: Install SQL fixture client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+      - run: node scripts/approval-transfer-smoke.mjs
   verify:
     runs-on: ubuntu-latest
     steps:

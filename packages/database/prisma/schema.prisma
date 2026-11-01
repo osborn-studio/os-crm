@@ -1839,6 +1839,23 @@ model ApprovalNode {
   @@map("approval_nodes")
 }
 
+// Append-only application audit. Existing approvals have no fabricated historical events.
+model ApprovalEvent {
+  id           Int      @id @default(autoincrement())
+  tenantId     Int      @map("tenant_id")
+  approvalId   Int      @map("approval_id")
+  nodeId       Int?     @map("node_id")
+  actorId      Int      @map("actor_id")
+  actorName    String   @map("actor_name") @db.VarChar(100)
+  action       String   @db.VarChar(30)
+  note         String   @db.Text
+  evidence     Json
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, approvalId, id])
+  @@map("approval_events")
+}
+
 enum ApprovalAction {
   pending
   approved
