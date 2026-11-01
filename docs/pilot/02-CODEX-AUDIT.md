@@ -1,6 +1,6 @@
 # Codex 独立审计 · v0.3 试点方案
 
-日期：2026-11-01 · 审计方：Codex CLI，`gpt-6-astra`，reasoning effort `medium`，`-s read-only` · 对象：619eb2b + 方案 v1（00/01 两份文档） · 方式：静态审计，未运行测试、MySQL 或浏览器
+日期：2026-11-01 · 审计方：Codex CLI，`gpt-6-astra`，reasoning effort `medium`，`-s read-only` · 对象：619eb2b + 方案 v1（00/01 两份文档） · 方式：静态审计，未运行测试、MySQL 或浏览器 · 范围外：之后出现的 PR #12（售后）与 #13（私有附件），需单独审计
 
 ## 关闭记录
 
