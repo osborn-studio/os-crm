@@ -1,37 +1,37 @@
-# 本地演示交付
+# C11 本地演示与安装交付
 
-本次演示包版本为0.2.0-demo.2。源代码MIT开源，交付不代表生产验收。
+当前交付为2026-11-01 C11工程候选，源码MIT开源，尚未生产验收。应用包版本仍是0.2.0-demo.2，工程版本以总包MANIFEST.json中的源码提交及迁移清单识别。历史v0.2.0-demo.2完整包继续保留，新包不覆盖历史资产。
 
-## Docker部署
+## 内容与阅读顺序
 
-安装官方Docker Desktop或Docker Engine及Compose v2。首次需要联网下载镜像和依赖。
+[当前交付材料](releases/C11/README.md)包含24页可编辑PPT、22页逐项功能操作手册、2页演示手册、4页AI接入说明、4页部署手册，手册同时提供DOCX、HTML和Markdown。页数为本轮捆绑LibreOffice字体配置下的实际渲染结果，其他Office环境可能重新分页。
 
-1. 在本机终端设置`SEED_ADMIN_PASSWORD`作为演示种子账号口令（至少5位）；不要把企业凭证提交仓库。
-2. macOS/Linux运行`sh deploy/start.sh`，Windows运行`./deploy/start.ps1`。
-3. 脚本随机生成独立数据库/JWT/加密密钥到忽略文件`deploy/.env`，再构建、迁移并初始化。
-4. 打开`http://localhost:3000`，使用admin、manager、sales、boss四角色账号。
-5. 后续重启保留命名卷数据，种子只在首次初始化未完成时运行。停机使用`docker compose --env-file deploy/.env -f deploy/compose.yml down`，不附加删除卷选项。
+完整ZIP另包含干净提交的全部源码、冻结锁文件、15个迁移、种子、部署脚本和预构建API/网页；保留原九张总体截图，并加入15张C2—C11专题截图。截图来自演示或合成企业，早期截图中的功能限制须结合当前手册解读。
 
-只读验收：`node --env-file=deploy/.env deploy/verify.mjs`，或在app容器中运行`node deploy/verify.mjs`。
+先读总包00_先读我.html，再按本地部署手册选择演示或空企业安装。首次安装需要联网；不内置Node、MySQL、Docker镜像或node_modules，不是离线首装包。
 
-3000端口占用时修改`deploy/.env`中的`WEB_PORT`，然后重新启动。只映射127.0.0.1网页端口，MySQL不映射宿主机端口。需要干净副本时保留旧卷，使用独立Compose项目名及端口启动新实例。
+## 演示安装
 
-## 智能体实调示例
+安装Docker Engine/Desktop与Compose v2。macOS/Linux设置`SEED_ADMIN_PASSWORD=12345`后运行`sh deploy/start.sh`；Windows PowerShell设置同名环境变量，运行`./deploy/start.ps1`。完整包额外提供本地部署.command/.sh/.ps1入口。
 
-原生安装依赖后，在配置好本机`.env`的源码目录执行：
+脚本首次生成独立基础密钥到忽略文件deploy/.env，初始化四角色及演示业务；之后重启保留卷和账号。打开http://localhost:3000，admin、manager、sales、boss四个演示账号密码均为12345。不要用此公开密码安装正式企业。
 
-```sh
-node --env-file=.env examples/mcp-client.mjs
-```
+只读检查：`node --env-file=deploy/.env deploy/verify.mjs`。停止使用`docker compose --env-file deploy/.env -f deploy/compose.yml down`，不添加删除卷选项。端口冲突时修改WEB_PORT；创建副本应使用独立Compose项目、端口与卷。
 
-默认使用sales身份。可通过`CRM_USERNAME`、`CRM_PASSWORD`、`CRM_URL`、`CRM_KEYWORD`调整。示例使用官方MCP SDK完成协议连接、列举7个只读工具和资源，实际调用customer.search，不打印访问令牌。Docker中可在app容器运行同一示例。
+## 空企业安装及恢复
 
-摘要为规则生成，未接大模型。当前MCP不提供写入或独立OAuth委托身份。真实平台凭证和企业联调另见[集成说明](INTEGRATIONS.md)。
+按[正式安装手册](PRODUCTION_INSTALL.md)使用start-production入口，设置企业编码、名称和独立强密码。只创建初始管理员和基础配置，不灌演示客户。新生成的正式配置、企业数据和备份不上传Git。
 
-## 总包内容与验证
+升级先备份、停止旧API、执行增量迁移，再启动同版API/网页并核对ready及角色读取；不对已有库重播种子。加密备份包含C10附件二进制，恢复到全新库、保留原库、轮换会话签名。新会签定义需要支持users_all的同版API，不能原地降级覆盖。
 
-完整交付总包包括安装源码与预构建静态文件、迁移/种子/锁文件、启动入口、9张真实功能截图及讲解、17页可编辑Demo PPT、26页功能操作手册、6页演示手册、5页AI接入说明、6页部署手册及HTML阅读版、版本记录、验收和依赖审计结果。账号卡仅在交付文件中提供。
+## AI能力与边界
 
-以包内MANIFEST.json的源码提交、SHA256SUMS.txt及当次验收记录为准。不得打包原机.env、数据库、访问令牌、node_modules、.git、内部原始设计资料或私人运行日志。最终ZIP重新解压到独立目录，用新测试库执行安装验证，保留原演示库。
+规则摘要未接大模型。人工MCP入口保留7个只读工具；独立委托入口提供customer.search/get、action.propose/execute和同委托回执读取。代理提交建议后，原委托人核对批准，代理再执行共享业务事务；不提供代理审批、财务、银行税务或外发操作。详见[AI操作说明](AGENT_DELEGATION_OPERATIONS.md)。
 
-已验证Linux Docker构建、初始化、四角色登录及重启后读取；Windows和macOS Docker尚未实机验收。Node24/MySQL本机模式另有独立验证。当前生产依赖审计仍有公告，详见交付验收记录，不能称为生产安全验收通过。
+本地收款台账已可人工登记、独立复核、核销撤销和同凭据更正；税务、会计、银行与退款仍未开放。钉钉飞书真实接口已有代码，尚未取得测试企业凭证和完成真实联调。
+
+## 校验与验证范围
+
+包内SHA256SUMS.txt覆盖逐文件内容，包外.sha256核对整个ZIP；[本轮验收记录](releases/C11/VALIDATION.md)标明实际源码和检查链接。打包脚本拒绝脏工作树、私有目录和符号链接；不复制.env、数据库、令牌、原机备份、node_modules或.git。
+
+已验证macOS原生Node24/MySQL8.4及Linux Docker正式/演示构建、初始化、重启与恢复；Windows/macOS Docker未实机验收。容量、渗透、完整运维告警、外部企业接入和产品负责人最终验收仍待完成。

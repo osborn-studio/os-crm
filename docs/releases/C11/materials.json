@@ -1,0 +1,10 @@
+{
+  "slides": 24,
+  "screenshots": 24,
+  "manualPages": {
+    "operations": 22,
+    "demo": 2,
+    "ai": 4,
+    "deployment": 4
+  }
+}
