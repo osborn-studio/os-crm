@@ -1110,7 +1110,16 @@ export class WorkspaceService {
             {
               from: row.status,
               ...assignment,
-              ...(action === 'complete' ? { actualHours: taskHours(body.actualHours).toFixed(1) } : {}),
+              ...(action === 'complete'
+                ? {
+                    actualHours: taskHours(body.actualHours).toFixed(1),
+                    attachments: await tx.evidenceAttachment.findMany({
+                      where: { tenantId: a.tenantId, subjectKind: 'tasks', subjectId: recordId, withdrawnAt: null },
+                      select: { id: true, filename: true, sha256: true, size: true },
+                      orderBy: { id: 'asc' },
+                    }),
+                  }
+                : {}),
             },
             recordId,
           );

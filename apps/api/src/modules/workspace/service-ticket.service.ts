@@ -39,6 +39,16 @@ export class ServiceTicketService {
     if (!row) throw new NotFoundException('工单不存在或无权访问');
     return row;
   }
+  async authorizeAttachment(tx: Tx, a: Actor, ticketId: number, write: boolean) {
+    const row = await this.require(tx, a, ticketId);
+    if (write) {
+      this.write(a);
+      if (!['open', 'assigned', 'in_progress'].includes(row.status))
+        throw new ConflictException('待复核、关闭或取消工单的附件冻结');
+      if (row.assigneeId !== a.userId) await this.manager(tx, a, row.projectId);
+    }
+    return row;
+  }
   private async manager(tx: Tx, a: Actor, projectId: number) {
     const p = await tx.project.findFirst({
       where: {
@@ -247,6 +257,15 @@ export class ServiceTicketService {
         await this.event(tx, a, row, action, note, {
           before: { status: row.status, assigneeId: row.assigneeId },
           after: { status, assigneeId },
+          ...(action === 'resolve'
+            ? {
+                attachments: await tx.evidenceAttachment.findMany({
+                  where: { tenantId: a.tenantId, subjectKind: 'service-tickets', subjectId: row.id, withdrawnAt: null },
+                  select: { id: true, filename: true, sha256: true, size: true },
+                  orderBy: { id: 'asc' },
+                }),
+              }
+            : {}),
           ...(action === 'reopen' ? { previousResolution: row.resolution, previousResolvedBy: row.resolvedBy } : {}),
         });
         if (['assign', 'reopen', 'close', 'cancel'].includes(action))

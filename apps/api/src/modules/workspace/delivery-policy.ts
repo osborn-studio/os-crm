@@ -123,6 +123,11 @@ export async function projectDeliveryCommand(
     await deliveryEvent(tx, a, p.id, 'acceptance.requested', note, {
       milestones: totalMilestones,
       progress: p.progress,
+      attachments: await tx.evidenceAttachment.findMany({
+        where: { tenantId: a.tenantId, subjectKind: 'projects', subjectId: p.id, withdrawnAt: null },
+        select: { id: true, filename: true, sha256: true, size: true },
+        orderBy: { id: 'asc' },
+      }),
     });
     return;
   }

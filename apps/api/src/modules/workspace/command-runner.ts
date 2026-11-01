@@ -37,6 +37,53 @@ function canonical(value: unknown, depth = 0): unknown {
     );
   return value;
 }
+export async function validateActor(tx: Tx, actor: Actor) {
+  const live = actor.sessionId
+    ? await tx.authSession.findFirst({
+        where: {
+          id: actor.sessionId,
+          tenantId: actor.tenantId,
+          userId: actor.userId,
+          revokedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+      })
+    : null;
+  const principal = live
+    ? await tx.user.findFirst({
+        where: {
+          id: actor.userId,
+          tenantId: actor.tenantId,
+          status: 'active',
+          deletedAt: null,
+          tenant: { status: { in: ['active', 'trial'] } },
+        },
+        include: { roles: { include: { role: true } } },
+      })
+    : null;
+  if (!principal) throw new ForbiddenException('当前执行身份已撤销或变更，请重新登录');
+  const roleDefinitions = principal.roles.map((r) => r.role);
+  const permissions = [
+    ...new Set(
+      roleDefinitions.flatMap((r) =>
+        Array.isArray(r.permissions) ? r.permissions.filter((p): p is string => typeof p === 'string') : [],
+      ),
+    ),
+  ];
+  const scope =
+    ['all', 'dept', 'team', 'custom', 'self'].find((s) => roleDefinitions.some((r) => r.dataScope === s)) ?? 'self';
+  const same = (a: string[], b: string[]) => JSON.stringify(a.slice().sort()) === JSON.stringify(b.slice().sort());
+  if (
+    principal.deptId !== actor.deptId ||
+    scope !== actor.dataScope ||
+    !same(
+      roleDefinitions.map((r) => r.code),
+      actor.roles,
+    ) ||
+    !same(permissions, actor.permissions)
+  )
+    throw new ForbiddenException('当前执行权限已变更，请重新登录');
+}
 export async function runCommand(
   prisma: PrismaService,
   actor: Actor,
@@ -55,53 +102,7 @@ export async function runCommand(
         async (tx) => {
           // Close the race between the HTTP guard and the write transaction. Role/department
           // changes revoke sessions atomically; an already-loaded actor must not bypass that.
-          const live = actor.sessionId
-            ? await tx.authSession.findFirst({
-                where: {
-                  id: actor.sessionId,
-                  tenantId: actor.tenantId,
-                  userId: actor.userId,
-                  revokedAt: null,
-                  expiresAt: { gt: new Date() },
-                },
-              })
-            : null;
-          const principal = live
-            ? await tx.user.findFirst({
-                where: {
-                  id: actor.userId,
-                  tenantId: actor.tenantId,
-                  status: 'active',
-                  deletedAt: null,
-                  tenant: { status: { in: ['active', 'trial'] } },
-                },
-                include: { roles: { include: { role: true } } },
-              })
-            : null;
-          if (!principal) throw new ForbiddenException('当前执行身份已撤销或变更，请重新登录');
-          const roleDefinitions = principal.roles.map((r) => r.role);
-          const permissions = [
-            ...new Set(
-              roleDefinitions.flatMap((r) =>
-                Array.isArray(r.permissions) ? r.permissions.filter((p): p is string => typeof p === 'string') : [],
-              ),
-            ),
-          ];
-          const scope =
-            ['all', 'dept', 'team', 'custom', 'self'].find((s) => roleDefinitions.some((r) => r.dataScope === s)) ??
-            'self';
-          const same = (a: string[], b: string[]) =>
-            JSON.stringify(a.slice().sort()) === JSON.stringify(b.slice().sort());
-          if (
-            principal.deptId !== actor.deptId ||
-            scope !== actor.dataScope ||
-            !same(
-              roleDefinitions.map((r) => r.code),
-              actor.roles,
-            ) ||
-            !same(permissions, actor.permissions)
-          )
-            throw new ForbiddenException('当前执行权限已变更，请重新登录');
+          await validateActor(tx, actor);
           // Trusted application hook; delegated execution must revalidate even a cached receipt.
           if (beforeReplay) await beforeReplay(tx);
           const prior = await tx.commandExecution.findUnique({

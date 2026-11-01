@@ -20,6 +20,7 @@ import {
 } from 'antd';
 import { PlusOutlined, ReloadOutlined, ExportOutlined } from '@ant-design/icons';
 import ContractChanges from './ContractChanges';
+import AttachmentPanel from './AttachmentPanel';
 import QuoteHistory, { QuoteLines } from './QuoteHistory';
 import {
   get,
@@ -531,6 +532,18 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
                 .filter(([k, v]) => k in labels && v !== null)
                 .map(([k, v]) => ({ key: k, label: labels[k], children: display(k, v) }))}
             />
+            {['projects', 'tasks'].includes(kind) && (
+              <AttachmentPanel
+                subjectKind={kind}
+                subjectId={detail.id}
+                onChanged={async () => setDetail(await get<RecordRow>(`/workspace/${kind}/${detail.id}`))}
+                writable={
+                  !!spec?.canEdit &&
+                  !['done', 'cancelled', 'completed'].includes(String(detail.status)) &&
+                  detail.acceptanceState !== 'pending'
+                }
+              />
+            )}
             {kind === 'contracts' && detail.quoteSnapshot && typeof detail.quoteSnapshot === 'object' && (
               <Card
                 title={`选用报价版本 ${(detail.quoteSnapshot as Record<string, unknown>).version}`}
