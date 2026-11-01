@@ -633,6 +633,7 @@ model Opportunity {
   healthFactors     Json?            @map("health_factors")
   healthLevel       HealthLevel?     @map("health_level")
   status            OppStatus        @default(open)
+  closedAt          DateTime?        @map("closed_at")
   winDate           DateTime?        @map("win_date") @db.Date
   lossReason        String?          @map("loss_reason") @db.VarChar(30)
   lossDetail        String?          @map("loss_detail") @db.VarChar(500)

@@ -743,6 +743,105 @@ try {
     (await db.auditLog.count({ where: { action: 'customer.sales.handover' } })) === 2,
     'Handover retry does not duplicate audit',
   );
+  // Closure counterexamples run after the existing aggregate/handover assertions.
+  // The original sales user was disabled above; use the active peer for these fixtures.
+  sales = peer;
+  const closureCustomer = await create('customers', { name: '商机终结回归客户' });
+  const closureOpp = await create('opportunities', {
+    name: '输单后禁止签约',
+    customerId: closureCustomer.id,
+    amount: '10.00',
+    demandSummary: '阶段推进验证',
+  });
+  const stages = await db.opportunityStage.findMany({ where: { tenantId: tid }, orderBy: { sortOrder: 'asc' } });
+  const skipped = stages[1];
+  const target = stages[2];
+  ok(!target.isWon, 'Fixture has an intermediate active stage');
+  await db.opportunityStage.update({ where: { id: skipped.id }, data: { isActive: false } });
+  try {
+    await command('opportunities', await detail('opportunities', closureOpp), 'advance');
+    let advanced = await detail('opportunities', closureOpp);
+    ok(advanced.stage === target.code, 'Advance skips inactive next stage');
+    ok(Number(advanced.weightedAmount) > 0, 'Fixture has nonzero weighted pipeline before loss');
+    // Existing rows can still refer to a stage that was later deactivated.
+    await db.opportunity.update({ where: { id: closureOpp.id }, data: { stage: skipped.code } });
+    const inactiveOverview = (await call('/workspace/overview', 'GET', undefined, sales)).data;
+    ok(!inactiveOverview.funnel.some((s) => s.code === skipped.code), 'Overview excludes inactive stage and its rows');
+    await command('opportunities', await detail('opportunities', closureOpp), 'advance');
+    advanced = await detail('opportunities', closureOpp);
+    ok(advanced.stage === target.code, 'Advance from inactive current stage moves forward without restarting');
+  } finally {
+    await db.opportunityStage.update({ where: { id: skipped.id }, data: { isActive: true } });
+  }
+  const lostContract = await create('contracts', {
+    name: '输单阻断合同',
+    customerId: closureCustomer.id,
+    opportunityId: closureOpp.id,
+    contractType: 'implementation',
+    amount: '10.00',
+  });
+  await command('contracts', await detail('contracts', lostContract), 'submit');
+  await approve((await detail('contracts', lostContract)).approvalId);
+  const beforeLoss = await detail('opportunities', closureOpp);
+  const lossBody = { requestKey: randomUUID(), expectedUpdatedAt: beforeLoss.updatedAt, reason: '客户取消' };
+  const lossPath = `/workspace/opportunities/${closureOpp.id}/lose`;
+  await command(
+    'opportunities',
+    beforeLoss,
+    'lose',
+    { expectedUpdatedAt: '2000-01-01T00:00:00.000Z', reason: '陈旧请求' },
+    sales,
+    409,
+  );
+  ok((await detail('opportunities', closureOpp)).closedAt === null, 'Stale loss does not close opportunity');
+  await call(lossPath, 'POST', lossBody, sales, 201);
+  const lost = await detail('opportunities', closureOpp);
+  ok(
+    lost.status === 'lost' && !!lost.closedAt && Number(lost.weightedAmount) === 0,
+    'Loss closes and zeros weighted amount',
+  );
+  await call(lossPath, 'POST', lossBody, sales, 201);
+  ok((await detail('opportunities', closureOpp)).closedAt === lost.closedAt, 'Loss replay preserves closure timestamp');
+  await command('contracts', await detail('contracts', lostContract), 'sign', {}, sales, 409);
+  ok((await detail('contracts', lostContract)).status === 'approved', 'Rejected sign leaves contract approved');
+  ok(
+    (await db.paymentPlan.count({ where: { contractId: lostContract.id } })) === 0,
+    'Rejected sign creates no payment plan',
+  );
+  ok((await detail('opportunities', closureOpp)).status === 'lost', 'Rejected sign preserves lost opportunity');
+  const wonOpp = await create('opportunities', {
+    name: '签约赢单验证',
+    customerId: closureCustomer.id,
+    amount: '12.00',
+  });
+  const wonContract = await sign(
+    await create('contracts', {
+      name: '赢单合同',
+      customerId: closureCustomer.id,
+      opportunityId: wonOpp.id,
+      contractType: 'implementation',
+      amount: '12.00',
+    }),
+  );
+  const won = await detail('opportunities', wonOpp);
+  ok(
+    won.status === 'won' && !!won.closedAt && !!won.winDate && won.contractId === wonContract.id,
+    'Signing records won closure',
+  );
+  const secondContract = await create('contracts', {
+    name: '重复赢单合同',
+    customerId: closureCustomer.id,
+    opportunityId: wonOpp.id,
+    contractType: 'implementation',
+    amount: '12.00',
+  });
+  await command('contracts', await detail('contracts', secondContract), 'submit');
+  await approve((await detail('contracts', secondContract)).approvalId);
+  await command('contracts', await detail('contracts', secondContract), 'sign', {}, sales, 409);
+  ok(
+    (await detail('opportunities', wonOpp)).contractId === wonContract.id,
+    'Second sign cannot replace winning contract',
+  );
   console.log(
     JSON.stringify({
       checks,

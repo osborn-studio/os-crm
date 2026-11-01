@@ -233,6 +233,7 @@ export class WorkspaceService {
               id: `${key}.${action}`,
               version: key === 'projects' || key === 'tasks' ? '2.0' : '1.0',
               effect: 'write',
+              permission: resourcePermission(key, 'update'),
               inputSchema: {
                 type: 'object',
                 required: [
@@ -275,6 +276,13 @@ export class WorkspaceService {
                 'record scope',
                 'expectedUpdatedAt',
                 'business state preconditions',
+                ...(key === 'opportunities' && action === 'advance' ? ['next active stage only'] : []),
+                ...(key === 'opportunities' && action === 'lose'
+                  ? ['open opportunity; closedAt and zero weightedAmount atomically']
+                  : []),
+                ...(key === 'contracts' && action === 'sign'
+                  ? ['approved contract; linked opportunity must be open; atomic won closedAt/winDate']
+                  : []),
                 'serializable transaction',
                 'durable idempotency',
                 'audit',
@@ -902,12 +910,15 @@ export class WorkspaceService {
         } else if (kind === 'opportunities') {
           if (row.status !== 'open') throw new BadRequestException('仅开放商机可操作');
           if (action === 'advance') {
-            const stages = await tx.opportunityStage.findMany({
-              where: { tenantId: a.tenantId },
-              orderBy: { sortOrder: 'asc' },
+            // Keep the current stage as an ordering anchor even if it was deactivated.
+            const current = await tx.opportunityStage.findFirst({
+              where: { tenantId: a.tenantId, code: String(row.stage) },
             });
-            const index = stages.findIndex((s) => s.code === row.stage);
-            const next = stages[index + 1];
+            if (!current) throw new ConflictException('当前商机阶段不存在，请先核对阶段配置');
+            const next = await tx.opportunityStage.findFirst({
+              where: { tenantId: a.tenantId, isActive: true, sortOrder: { gt: current.sortOrder } },
+              orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+            });
             if (!next || next.isWon) throw new BadRequestException('下一步需通过合同签约完成赢单');
             if (new Prisma.Decimal(String(row.amount)).lte(0) || !row.demandSummary)
               throw new BadRequestException('请先填写有效金额和需求摘要');
@@ -923,7 +934,12 @@ export class WorkspaceService {
           if (action === 'lose')
             await tx.opportunity.update({
               where,
-              data: { status: 'lost', lossDetail: text(body.reason, '输单原因', 500) },
+              data: {
+                status: 'lost',
+                lossDetail: text(body.reason, '输单原因', 500),
+                closedAt: writeStamp,
+                weightedAmount: 0,
+              },
             });
           if (action === 'quote') return this.quote(tx, a, row, body);
         } else if (['contracts', 'orders'].includes(kind)) {
@@ -942,13 +958,21 @@ export class WorkspaceService {
             await this.db(tx, kind).update({ where, data: { status: 'pending_approval', approvalId: approval.id } });
           } else if (action === 'sign' && kind === 'contracts') {
             if (row.status !== 'approved') throw new BadRequestException('合同必须先审批通过');
-            await tx.contract.update({ where, data: { status: 'signed', signDate: new Date() } });
-            await recalculateCustomerContracts(tx, a.tenantId, id(row.customerId));
-            if (row.opportunityId)
-              await tx.opportunity.updateMany({
-                where: { id: id(row.opportunityId), tenantId: a.tenantId },
-                data: { status: 'won', stage: 'signing', winDate: new Date(), contractId: recordId },
+            if (row.opportunityId) {
+              const closed = await tx.opportunity.updateMany({
+                where: { id: id(row.opportunityId), tenantId: a.tenantId, deletedAt: null, status: 'open' },
+                data: {
+                  status: 'won',
+                  stage: 'signing',
+                  winDate: writeStamp,
+                  closedAt: writeStamp,
+                  contractId: recordId,
+                },
               });
+              if (closed.count !== 1) throw new ConflictException('关联商机必须为开放状态才能签约');
+            }
+            await tx.contract.update({ where, data: { status: 'signed', signDate: writeStamp } });
+            await recalculateCustomerContracts(tx, a.tenantId, id(row.customerId));
             const amount = new Prisma.Decimal(String(row.amount));
             await tx.paymentPlan.create({
               data: {
@@ -1235,7 +1259,7 @@ export class WorkspaceService {
     ]);
     const sum = (values: Prisma.Decimal[]) => values.reduce((n, v) => n.add(v), new Prisma.Decimal(0)).toString();
     const stages = await tx.opportunityStage.findMany({
-      where: { tenantId: a.tenantId },
+      where: { tenantId: a.tenantId, isActive: true },
       orderBy: { sortOrder: 'asc' },
     });
     return {
