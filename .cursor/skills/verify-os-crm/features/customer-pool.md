@@ -21,15 +21,16 @@ Preconditions:
 
 - Fresh launch (claims change seed rows). Pick a public customer id first: `$V api pool.before sales GET "/workspace/customers?poolType=public&pageSize=5"` and note `data.items[0].id` (= `<ID>`) and its `name` (= `<NAME>`).
 
-- **Open public pool.** Steps `{"login":"sales"}`, `{"click":"客户经营","within":".ant-layout-sider"}`, `{"click":"公海客户","within":".ant-layout-sider"}`, `{"expectUrl":"/pool/public"}`, `{"shot":"public-before"}`. Heading `公海客户`, rows with `领取`.
+- **Open public pool.** `{"login":"sales"}`, `{"waitText":"公海客户"}`, `{"click":"公海客户","within":".ant-layout-sider"}` — **do not** click the already-open `客户经营` parent first (`defaultOpenKeys` includes `customer`; clicking the parent toggles it **closed**). `{"expectUrl":"/pool/public"}`, `{"shot":"public-before"}`. Heading `公海客户`, rows with `领取`.
 - **Claim.** `{"click":"领取","within":"tr[data-row-key=\"<ID>\"]"}`, `{"click":"确定","within":".ant-modal-footer"}`, `{"waitText":"操作已完成"}`, `{"shot":"claimed"}`. The row leaves the public list.
 - **Private view.** `{"click":"私海客户","within":".ant-layout-sider"}`, `{"waitText":"<NAME>"}`, `{"shot":"private-after"}`. The row shows `退回公海`.
 - **Second view.** `$V db pool.row "SELECT c.id, c.pool_type, u.username FROM customers c LEFT JOIN users u ON u.id=c.owner_id WHERE c.id=<ID>"` → `private`, `sales`.
-- **Return.** On `/pool/private`, `{"click":"退回公海","within":"tr[data-row-key=\"<ID>\"]"}`, `{"click":"确定","within":".ant-modal-footer"}`, `{"waitText":"操作已完成"}`; DB shows `public` again.
+- **Return.** On `/pool/private`, `{"click":"退回公海","within":"tr[data-row-key=\"<ID>\"]"}`, `{"click":"确定","within":".ant-modal-footer"}`, `{"waitText":"操作已完成"}`; DB shows `public` again (owner `NULL`).
 
 ## Gotchas
 
-- Not yet driven end to end by this skill; first run should record the exact toasts and any confirmation text and update this file.
+- Proven end to end 2026-11-06 (`RUN_ID` `verify-maintain-20261106-005900`) and 2026-11-02 on seed `松原4号演示企业`.
+- Clicking an already-expanded sider group title closes it; leaf items under `客户经营` / `销售管理` are visible after login without an extra parent click.
 - Seed data mixes public and private rows on `/customers` too; use `tr[data-row-key]` so the click hits the intended row, because unscoped `领取` picks the last visible one.
 - Claim limits or protection rules may reject a claim with a server message; report it with the message, do not switch customers silently.
 - `boss` cannot claim (read-only role); `admin`/`boss` see full public rows while sales see restricted summaries.
