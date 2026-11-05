@@ -40,11 +40,11 @@ Each feature file starts with an H1 title and one paragraph describing the user-
 
 ## Features
 
-- [Login and role workbenches](./login-roles.md) covers four-role UI login, role-specific dashboards and admin-only menus. *Proven 2026-11-02 (`verify-maintain-20261102-005205`).*
-- [Customer records](./customers.md) covers creating, searching and opening a customer from 客户档案. *Proven end to end 2026-11-02 (`verify-maintain-20261102-005205`); also 2026-11-01.*
-- [Public / private pool](./customer-pool.md) covers claiming a public-pool customer and returning it. *Proven end to end 2026-11-02 (`verify-maintain-20261102-005205`).*
-- [Approvals](./approvals.md) covers submitting a contract for approval and deciding it in 审批中心 (incl. transfer/countersign notes). *Proven end to end 2026-11-02 (`verify-maintain-20261102-005205`).*
-- [Agent surface (MCP) and deployment acceptance](./mcp-agent.md) covers the read-only MCP tools and the repo's `deploy/verify.mjs`. *Proven 2026-11-02.*
+- [Login and role workbenches](./login-roles.md) covers four-role UI login, role-specific dashboards and admin-only menus. *Proven 2026-11-06 (`verify-maintain-20261106-005900`); also 2026-11-02.*
+- [Customer records](./customers.md) covers creating, searching and opening a customer from 客户档案. *Proven end to end 2026-11-06 (`verify-maintain-20261106-005900`); also 2026-11-02 / 2026-11-01.*
+- [Public / private pool](./customer-pool.md) covers claiming a public-pool customer and returning it. *Proven end to end 2026-11-06 (`verify-maintain-20261106-005900`); also 2026-11-02.*
+- [Approvals](./approvals.md) covers submitting a contract for approval and deciding it in 审批中心 (incl. transfer/countersign notes). *Proven end to end 2026-11-06 (`verify-maintain-20261106-005900`); also 2026-11-02.*
+- [Agent surface (MCP) and deployment acceptance](./mcp-agent.md) covers the read-only MCP tools and the repo's `deploy/verify.mjs`. *Proven 2026-11-06 (`verify-maintain-20261106-005900`); also 2026-11-02.*
 
 ## Not yet mapped (candidates)
 

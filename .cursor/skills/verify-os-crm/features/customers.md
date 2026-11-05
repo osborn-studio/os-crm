@@ -40,6 +40,6 @@ Preconditions:
 - The search box only applies on `Enter` or the search icon; typing alone does not filter.
 - Dashboard cards repeat menu labels; an unscoped `click 客户经营` hits a dashboard button instead of the menu. Inside the sider, `客户经营` is already open via `defaultOpenKeys` — clicking the parent closes the leaf items.
 - Detail drawer may also show an attachments panel (`AttachmentPanel`); private evidence upload is not mapped in this feature (see README candidates).
-- Re-proven 2026-11-02 (`RUN_ID` `verify-maintain-20261102-005205`); `customers.create` audit `object_id` still NULL.
+- Re-proven 2026-11-06 (`RUN_ID` `verify-maintain-20261106-005900`) and 2026-11-02; `customers.create` audit `object_id` still NULL.
 - antd modal fields animate in; the helper waits for a still target and fails with `focus did not land` instead of typing into nothing.
 - `boss` has read-only business access (`当前角色无业务编辑权限`); use `sales` or `manager` for create/edit.

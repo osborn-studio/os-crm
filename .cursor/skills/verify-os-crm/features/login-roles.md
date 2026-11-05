@@ -34,4 +34,4 @@ Preconditions:
 - The login card defaults to `admin`; a role tab click only changes the username field.
 - The seeded password is random per launch (or `OSCRM_SEED_PASSWORD`); it is not `.local/演示账号.md`'s value.
 - Login lockout/Redis blacklist are TODOs in `auth.service.ts`; do not expect lockout after repeated failures.
-- Re-proven 2026-11-02: four role dashboards, sales forbidden on `/system`, admin system shows `组织部门`.
+- Re-proven 2026-11-06 (`RUN_ID` `verify-maintain-20261106-005900`) and 2026-11-02: four role dashboards, sales forbidden on `/system`, admin `/system` shows tabs `用户账号` / `角色权限` / `组织部门` / `业务审计`.

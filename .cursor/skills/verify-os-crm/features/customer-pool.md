@@ -29,7 +29,7 @@ Preconditions:
 
 ## Gotchas
 
-- Proven end to end 2026-11-02 (`RUN_ID` `verify-maintain-20261102-005205`) on seed `松原4号演示企业`.
+- Proven end to end 2026-11-06 (`RUN_ID` `verify-maintain-20261106-005900`) and 2026-11-02 on seed `松原4号演示企业`.
 - Clicking an already-expanded sider group title closes it; leaf items under `客户经营` / `销售管理` are visible after login without an extra parent click.
 - Seed data mixes public and private rows on `/customers` too; use `tr[data-row-key]` so the click hits the intended row, because unscoped `领取` picks the last visible one.
 - Claim limits or protection rules may reject a claim with a server message; report it with the message, do not switch customers silently.

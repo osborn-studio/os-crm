@@ -35,7 +35,7 @@ Preconditions:
 
 ## Gotchas
 
-- Proven end to end 2026-11-02 (`RUN_ID` `verify-maintain-20261102-005205`): submit → manager → boss on `DEMO-HT-10` (amount 120000).
+- Proven end to end 2026-11-06 (`RUN_ID` `verify-maintain-20261106-005900`) and 2026-11-02: submit → manager → boss on `DEMO-HT-10` (amount 120000).
 - Do not wait for `DEMO-HT-*` on the pending list; the card title is the business title (`溪桥1号演示企业服务合同`).
 - Toast `审批已处理` is obsolete; use the messages above (including countersign `意见已保存，等待同组其他成员`).
 - Approve/reject confirm lives under `.ant-modal-confirm`; `.ant-modal-footer` is for ordinary Form modals (submit / 发起通用申请 / 转审).
