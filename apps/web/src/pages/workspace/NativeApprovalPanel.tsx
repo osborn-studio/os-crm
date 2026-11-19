@@ -1,3 +1,4 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -12,7 +13,6 @@ import {
   Select,
   Space,
   Switch,
-  Table,
   Tag,
   Typography,
   message,

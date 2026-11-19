@@ -69,10 +69,12 @@ function view(user: UserRow) {
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
-  async findAll(actor: Actor, query: { page?: number; pageSize?: number; keyword?: string; status?: string }) {
+  async findAll(actor: Actor, query: { page?: number; pageSize?: number; keyword?: string; status?: string; sortBy?:string; sortOrder?:string }) {
     administrator(actor);
     if (query.status && !['active', 'inactive', 'resigned'].includes(query.status))
       throw new BadRequestException('无效用户状态');
+    const sortBy=query.sortBy??'id',sortOrder=(query.sortOrder??'asc') as Prisma.SortOrder;
+    if(!['id','name','username','employeeNo','createdAt','updatedAt','status'].includes(sortBy)||!['asc','desc'].includes(sortOrder))throw new BadRequestException('人员排序字段或方向无效');
     const page = Math.max(1, Math.min(100000, Math.trunc(query.page || 1))),
       pageSize = Math.max(1, Math.min(100, Math.trunc(query.pageSize || 20)));
     const where: Prisma.UserWhereInput = {
@@ -93,7 +95,7 @@ export class UserService {
         where,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: { id: 'asc' },
+        orderBy: [{[sortBy]:sortBy==='employeeNo'?{sort:sortOrder,nulls:'last'}:sortOrder},{id:sortOrder}],
         include,
       }),
       this.prisma.system.user.count({ where }),

@@ -1,4 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
+import { reportSortFields, sortBusinessRows } from './workspace-sort';
+import {ownTradeAmount} from './trade-policy';
 import {salesForecastEligible,knownSalesAmount} from './sales-intake-policy';
 import { Prisma, type Opportunity, type Contract, type PaymentPlan, type Receipt } from '@prisma/client';
 export type ForecastRow = Pick<
@@ -64,8 +66,13 @@ export function reportQuery(q: Record<string, string>, now = new Date()) {
     'bucket',
     'from',
     'to',
+    'sortBy',
+    'sortOrder','metric',
   ];
   if (Object.keys(q).some((k) => !allowed.includes(k))) throw new BadRequestException('存在未定义的报表参数');
+  const metric=q.metric??'contracts';if(!['contracts','contractReceived','invoiceReceived','unpaid','invoiced','invoiceUnpaid','construction','commission','projection'].includes(metric))throw new BadRequestException('业务统计口径无效');
+  const sortBy=q.sortBy??'id',sortOrder=q.sortOrder??'desc';
+  if (!(reportSortFields as readonly string[]).includes(sortBy)||!['asc','desc'].includes(sortOrder)) throw new BadRequestException('报表排序字段或方向无效');
   const integer = (key: string, fallback: number, min: number, max: number) => {
     if (q[key] === undefined) return fallback;
     if (typeof q[key] !== 'string' || !/^\d+$/.test(q[key])) throw new BadRequestException(`${key}必须为整数`);
@@ -93,6 +100,7 @@ export function reportQuery(q: Record<string, string>, now = new Date()) {
   if (end <= start) throw new BadRequestException('结束日期不能早于开始日期');
   return {
     year,
+    metric,sortBy,sortOrder:sortOrder as 'asc'|'desc',
     month,
     ownerId: integer('ownerId', 0, 1, 2147483647),
     deptId: integer('deptId', 0, 1, 2147483647),
@@ -123,7 +131,7 @@ export function closedDay(d: Date | null) {
 }
 export function pageRows<T>(rows: T[], q: ReportQuery) {
   return {
-    items: rows.slice((q.page - 1) * q.pageSize, q.page * q.pageSize),
+    items: sortBusinessRows(rows,q.sortBy,q.sortOrder).slice((q.page - 1) * q.pageSize, q.page * q.pageSize),
     meta: { page: q.page, pageSize: q.pageSize, total: rows.length },
   };
 }
@@ -132,7 +140,7 @@ export function forecastReport(
   stages: { code: string; name: string; probability: number; isActive: boolean }[],
   q: ReportQuery,
 ) {
-  const forecastAmount=(r:ForecastRow)=>salesForecastEligible(r)?r.amount:decimal(0);
+  const forecastAmount=(r:ForecastRow)=>(r.status==='won'?knownSalesAmount(r):salesForecastEligible(r))?ownTradeAmount(r)??decimal(0):decimal(0);
   const definitions = new Map(stages.map((s) => [s.code, s]));
   const open = rows.filter((r) => r.status === 'open' && inPeriod(r.expectedCloseDate, q));
   const won = rows.filter((r) => r.status === 'won' && inPeriod(closedDay(r.closedAt), q));
@@ -141,7 +149,7 @@ export function forecastReport(
     if (r.status !== 'open'||!salesForecastEligible(r)) return null;
     const s = definitions.get(r.stage);
     return s?.isActive && s.probability >= 0 && s.probability <= 100
-      ? decimal(r.amount).mul(s.probability).div(100).toDecimalPlaces(2)
+      ? forecastAmount(r).mul(s.probability).div(100).toDecimalPlaces(2)
       : null;
   };
   const groups = [...new Set(open.map((r) => r.stage))].map((stage) => {
@@ -223,7 +231,7 @@ export function forecastReport(
               : open
       ).map((r) => ({
         ...r,
-        amount: knownSalesAmount(r)?r.amount.toFixed(2):null,
+        amount: knownSalesAmount(r)?ownTradeAmount(r)?.toFixed(2)??null:null,
         weighted: weight(r)?.toFixed(2) ?? null,
         stageName: definitions.get(r.stage)?.name ?? '未知阶段',
         risk:

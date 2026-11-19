@@ -1,3 +1,5 @@
+import { readUpgradeFixture } from './upgrade-fixture.mjs';
+const prior = 'fd56b998d3a7488285804bb6846cd06a5e51af2d';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
@@ -14,7 +16,6 @@ assert.match(new URL(process.env.DATABASE_URL).pathname, /^\/tb_crm_test_[a-z0-9
 const require = createRequire(new URL('../packages/database/package.json', import.meta.url));
 const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient();
-const prior = 'fd56b998d3a7488285804bb6846cd06a5e51af2d';
 const scratch = await mkdtemp(join(tmpdir(), 'crm-receipt-upgrade-'));
 let api,
   cloneApi,
@@ -60,7 +61,7 @@ const auditColumns = async (add) => {
     : 'ALTER TABLE customers DROP COLUMN customer_category, DROP COLUMN channel_brand');
 };
 try {
-  const archive = run('git', ['archive', prior, 'packages/database/prisma'], { encoding: null }).stdout;
+  const archive = readUpgradeFixture('receipt');
   run('tar', ['-xf', '-', '-C', scratch], { input: archive });
   run('pnpm', [
     '--filter',

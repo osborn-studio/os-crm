@@ -1,0 +1,12 @@
+{
+  "agent": {
+    "commit": "769588a10f73582061ff7ec6a7058cb75f9d5766",
+    "sha256": "688ba5da69c584780dba0d0ec990c7a7e458cea9940673b355c3a2692c668324",
+    "file": "agent.tar.gz"
+  },
+  "receipt": {
+    "commit": "fd56b998d3a7488285804bb6846cd06a5e51af2d",
+    "sha256": "20949c850d77a209458b6a6e1f565fdf4c47f2faee51661338a1f4e409547f07",
+    "file": "receipt.tar.gz"
+  }
+}

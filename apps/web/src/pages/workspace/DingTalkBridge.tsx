@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Descriptions, Modal, Select, Space, Switch, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Descriptions, Modal, Select, Space, Switch, Tag, Typography, message } from 'antd';
 import { errorText, get, post, key } from '../../services/workspace';
 interface Department {
   externalId: string;

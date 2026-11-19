@@ -1,3 +1,5 @@
+import { readUpgradeFixture } from './upgrade-fixture.mjs';
+const prior = '769588a10f73582061ff7ec6a7058cb75f9d5766';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
@@ -13,7 +15,6 @@ const require = createRequire(new URL('../packages/database/package.json', impor
 const { PrismaClient } = require('@prisma/client');
 const db = new PrismaClient(),
   scratch = await mkdtemp(join(tmpdir(), 'crm-agent-upgrade-'));
-const prior = '769588a10f73582061ff7ec6a7058cb75f9d5766';
 let api,
   log = '',
   checks = 0;
@@ -97,7 +98,7 @@ const auditColumns = async (add) => {
     : 'ALTER TABLE customers DROP COLUMN customer_category, DROP COLUMN channel_brand');
 };
 try {
-  const archive = run('git', ['archive', prior, 'packages/database/prisma'], { encoding: null }).stdout;
+  const archive = readUpgradeFixture('agent');
   run('tar', ['-xf', '-', '-C', scratch], { input: archive });
   run('pnpm', [
     '--filter',

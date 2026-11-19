@@ -1,8 +1,9 @@
+import Table from '../../components/BusinessTable';
 import NativeApprovalPanel from './NativeApprovalPanel';
 import ActivitySyncPanel from './ActivitySyncPanel';
 import DingTalkBridge from './DingTalkBridge';
 import { useState, useEffect } from 'react';
-import { Alert, Button, Card, Input, Space, Table, Tag, Tabs, Typography, message } from 'antd';
+import { Alert, Button, Card, Input, Space, Tag, Tabs, Typography, message } from 'antd';
 import { get, post, errorText, type RecordRow } from '../../services/workspace';
 interface Platform {
   code: string;

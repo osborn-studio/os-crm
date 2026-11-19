@@ -71,7 +71,7 @@ node deploy/bind-dingtalk-person.mjs COMPANY CRM_USERNAME EXACT_PROFILE --apply
 
 `GET /calendar/schema`及`GET /integrations/dingtalk-activities/schema`提供版本1.0能力契约。个人日程、配置、预览、预备、派发、停止、恢复核对、归档和历史均有明确权限/效果/状态限制；网页调用同一服务。公司、执行人、profile不能来自请求体。后台仅使用有界的DingTalk系统策略，不能借此调用续费、锁期或其他系统命令。本批未开放独立智能体自主写日历或替人处理审批。
 
-实际工程与真实MySQL、浏览器、町萌本人的外部联调结果以[当前进度](PROGRESS.md)和本批PR为准。本人验证不代表全部员工已授权、实体手机已验收或外网已联通。
+实际工程与真实MySQL、浏览器、已授权正式公司本人的外部联调结果以[当前进度](PROGRESS.md)和本批PR为准。本人验证不代表全部员工已授权、实体手机已验收或外网已联通。
 
 ## 本批页面验证
 

@@ -3,6 +3,7 @@ import { PrismaService } from '../../database/prisma.service';
 import type { Actor } from '../../common/types/actor';
 import { checkVersion, id, object, runCommand, text, validateActor } from '../workspace/command-runner';
 import { allowWrite, requirePermission } from '../workspace/access';
+import { statisticsScope } from '../workspace/statistics-scope';
 export function exactFields(body: Record<string, unknown>, fields: string[]) {
   object(body);
   if (Object.keys(body).some((key) => !fields.includes(key))) throw new BadRequestException('不允许的日程或同步字段');
@@ -25,7 +26,7 @@ export function calendarDate(value: unknown) {
 @Injectable()
 export class CalendarService {
   constructor(private prisma: PrismaService) {}
-  async list(a: Actor, from: unknown, until: unknown) {
+  async list(a: Actor, from: unknown, until: unknown, query: Record<string,string> = {}) {
     requirePermission(a, 'actions', 'read');
     const start = calendarDate(from),
       end = calendarDate(until);
@@ -33,13 +34,16 @@ export class CalendarService {
       throw new BadRequestException('日程查询范围须为1—93天');
     return this.prisma.system.$transaction(async (tx) => {
       await validateActor(tx, a);
+      const audience=await statisticsScope(tx,a,query);
+      const includeOwn=audience.ownerIds===null||audience.ownerIds.includes(a.userId);
       const items = await tx.calendarEntry.findMany({
-        where: { tenantId: a.tenantId, ownerId: a.userId, OR: [{ startsAt: { gte: start, lt: end } }, { startsAt: { lt: start }, endsAt: { gt: start } }] },
+        where: { tenantId: a.tenantId, AND:[{OR:[...(includeOwn?[{ownerId:a.userId}]:[]),{origin:'crm_plan',...(audience.ownerIds!==null?{ownerId:{in:audience.ownerIds}}:{})}]}], OR: [{ startsAt: { gte: start, lt: end } }, { startsAt: { lt: start }, endsAt: { gt: start } }] },
         orderBy: { startsAt: 'asc' },
-        take: 1001,
+        take: 5001,
       });
-      if (items.length > 1000) throw new BadRequestException('日程超过1000条，请缩小时间范围');
-      return { items, timeZone: 'Asia/Shanghai' };
+      if (items.length > 5000) throw new BadRequestException('日程超过5000条，请缩小时间或人员范围');
+      const people=await tx.user.findMany({where:{tenantId:a.tenantId,id:{in:[...new Set(items.map(e=>e.ownerId))]}},select:{id:true,name:true}});
+      return { items:items.map(e=>({...e,ownerName:people.find(p=>p.id===e.ownerId)?.name??'历史负责人'})), audience, timeZone: 'Asia/Shanghai' };
     });
   }
   save(a: Actor, entryId: number | null, body: Record<string, unknown>) {

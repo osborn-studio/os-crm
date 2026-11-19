@@ -1,6 +1,7 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button, Card, Form, Input, Space, Table, Tag, message } from 'antd';
+import { Alert, Button, Card, Form, Input, Space, Tag, message } from 'antd';
 import { get, post, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
 interface Session {

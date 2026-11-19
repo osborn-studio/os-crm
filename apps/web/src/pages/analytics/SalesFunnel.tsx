@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Drawer, Input, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Checkbox, Drawer, Input, Tag, Typography, message } from 'antd';
 import type { StatisticsPeopleRange } from '../../components/StatisticsPeople';
 import { get, money, errorText } from '../../services/workspace';
 type Item = {
@@ -36,7 +37,7 @@ type Result = {
     undatedCount: number;
   };
 };
-type Group = { key: string; name: string; rows: Item[] };
+type Group = { key: string; name: string; rows: Item[]; count?:number; amount?:string };
 export default function SalesFunnel({
   period,
   people,
@@ -119,7 +120,7 @@ export default function SalesFunnel({
         rowKey="key"
         pagination={false}
         size="small"
-        dataSource={groups}
+        dataSource={groups.map(g=>({...g,count:g.rows.length,amount:g.rows.filter(r=>r.amount!==null&&r.forecastEligible&&r.lossGroup!=='identity_pending').reduce((n,r)=>n+BigInt(r.amount!.replace('.','')),0n).toString()}))}
         columns={[
           {
             title: '销售阶段 / 结果',
@@ -138,6 +139,7 @@ export default function SalesFunnel({
           },
           {
             title: '数量',
+            dataIndex:'count',
             render: (_, r) => (
               <Button
                 type="link"
@@ -150,7 +152,7 @@ export default function SalesFunnel({
               </Button>
             ),
           },
-          { title: '已核总价合计', render: (_, r) => '¥' + total(r.rows) },
+          { title: '已核总价合计', dataIndex:'amount', render: (_, r) => '¥' + total(r.rows) },
           {
             title: '说明',
             render: (_, r) =>

@@ -1,3 +1,4 @@
+import Table from '../../components/BusinessTable';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -11,7 +12,6 @@ import {
   Modal,
   Select,
   Space,
-  Table,
   Tabs,
   Tag,
   Typography,
@@ -23,6 +23,8 @@ import timezone from 'dayjs/plugin/timezone';
 import ActivitySyncPanel from './ActivitySyncPanel';
 import { get, post, put, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
+import StatisticsPeople, { defaultStatisticsPeople } from '../../components/StatisticsPeople';
+import { useNavigate } from 'react-router-dom';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 interface Entry {
@@ -37,9 +39,12 @@ interface Entry {
   revision: number;
   updatedAt: string;
   origin?: string;
+  ownerId: number;
+  ownerName?: string;
 }
 const local = (value?: string) => dayjs(value).tz('Asia/Shanghai');
 export default function CalendarPage() {
+  const [people,setPeople]=useState(defaultStatisticsPeople), navigate=useNavigate();
   const user = useAuthStore((s) => s.user),
     permissions = user?.permissions ?? [];
   const has = (point: string) => permissions.some((p) => [point, '*', point.split(':')[0] + ':*'].includes(p));
@@ -75,7 +80,7 @@ export default function CalendarPage() {
     const request = ++loadSequence.current;
     setLoading(true);
     try {
-      const r = await get<{ items: Entry[] }>('/calendar', { from, until });
+      const r = await get<{ items: Entry[] }>('/calendar', { from, until, ...people });
       if (request === loadSequence.current) {
         setRows(r.items);
         setError('');
@@ -85,7 +90,7 @@ export default function CalendarPage() {
     } finally {
       if (request === loadSequence.current) setLoading(false);
     }
-  }, [hasRead, from, until]);
+  }, [hasRead, from, until, people.personRange,people.ownerId,people.deptId]);
   useEffect(() => {
     void load();
     return () => {
@@ -170,11 +175,14 @@ export default function CalendarPage() {
       {local(r.startsAt).format('HH:mm')} {r.status === 'cancelled' ? '[已取消] ' : ''}
       {r.title}
       {r.origin==='dingtalk'&&<Tag color="blue">钉钉</Tag>}
+      {r.origin==='crm_plan'&&<Tag>业务计划 · {r.ownerName}</Tag>}
     </button>
   );
   const calendar = (
     <Space direction="vertical" size={16} style={{ width: '100%' }}>
       {error && <Alert showIcon type="error" message={error} />}
+      <StatisticsPeople value={people} onChange={setPeople}/>
+      <Typography.Text type="secondary">业务计划按当前数据权限展示；个人及钉钉日程仅本人可见。拟定推进时段不等于客户已确认的会议。</Typography.Text>
       <Card>
         <Space wrap>
           <Button onClick={() => setSelected(selected.subtract(1, view === 'week' ? 'week' : 'month'))}>
@@ -202,6 +210,7 @@ export default function CalendarPage() {
             options={[
               { value: 'scheduled', label: '已安排' },
               { value: 'cancelled', label: '已取消' },
+              { value: 'completed', label: '行动已完成' },
               { value: 'all', label: '全部状态' },
             ]}
           />
@@ -284,11 +293,12 @@ export default function CalendarPage() {
               },
               { title: '开始', dataIndex: 'startsAt', render: (v) => local(v).format('MM-DD HH:mm') },
               { title: '结束', dataIndex: 'endsAt', render: (v) => local(v).format('MM-DD HH:mm') },
+              { title:'负责人',dataIndex:'ownerName' },
               {
                 title: '状态',
                 dataIndex: 'status',
                 render: (v) => (
-                  <Tag color={v === 'scheduled' ? 'blue' : 'default'}>{v === 'scheduled' ? '已安排' : '已取消'}</Tag>
+                  <Tag color={v === 'scheduled' ? 'blue' : v==='completed'?'green':'default'}>{v === 'scheduled' ? '已安排' : v==='completed'?'行动已完成':'已取消'}</Tag>
                 ),
               },
               { title: '忙闲', dataIndex: 'freeBusy', render: (v) => (v === 'free' ? '空闲' : '忙碌') },
@@ -298,18 +308,18 @@ export default function CalendarPage() {
       )}
     </Space>
   );
-  const readOnly = editing ? !canUpdate || editing.origin === 'dingtalk' : !canCreate;
+  const readOnly = editing ? !canUpdate || editing.origin === 'dingtalk' || editing.ownerId!==user?.id || editing.status==='completed' : !canCreate;
   return (
     <div>
       <div className="page-heading">
         <div>
           <div className="eyebrow">PERSONAL CALENDAR & SYNC</div>
-          <h1>我的日程与钉钉同步</h1>
+          <h1>日程与业务推进</h1>
         </div>
       </div>
       <Tabs
         items={[
-          ...(hasRead ? [{ key: 'calendar', label: '我的日程', children: calendar }] : []),
+          ...(hasRead ? [{ key: 'calendar', label: '日程与行动', children: calendar }] : []),
           { key: 'sync', label: '本人钉钉同步', children: <ActivitySyncPanel /> },
         ]}
       />
@@ -332,6 +342,7 @@ export default function CalendarPage() {
         destroyOnHidden
       >
         <Form form={form} layout="vertical" disabled={readOnly}>
+          {editing?.origin==='crm_plan'&&<Button disabled={false} type="link" onClick={()=>navigate('/actions?keyword='+encodeURIComponent(editing.title))}>查看对应行动计划</Button>}
           <Form.Item name="title" label="主题" rules={[{ required: true, message: '请填写主题' }]}>
             <Input maxLength={200} />
           </Form.Item>

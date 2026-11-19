@@ -14,7 +14,7 @@ const STATUS_MAP: Record<string, { text: string; color: string }> = {
   executing: { text: '执行中', color: 'green' },
   completed: { text: '已完成', color: 'success' },
   terminated: { text: '已终止', color: 'red' },
-  expired: { text: '已到期', color: 'warning' },
+  expired: { text: '服务已结束', color: 'warning' },
 };
 
 const TYPE_MAP: Record<string, string> = {
@@ -37,7 +37,7 @@ export default function ContractListPage() {
       return <Progress percent={pct} size="small" strokeColor={pct >= 100 ? '#16a34a' : pct > 0 ? '#3b82f6' : '#e2e8f0'} format={() => `${pct}%`} />;
     }},
     { title: '签约日', dataIndex: 'signDate', width: 100, search: false, valueType: 'date' },
-    { title: '到期日', dataIndex: 'endDate', width: 100, search: false, render: (_, r) => {
+    { title: '合同结束日期', dataIndex: 'endDate', width: 100, search: false, render: (_, r) => {
       if (!r.endDate) return '—';
       const days = dayjs(r.endDate).diff(dayjs(), 'day');
       return days <= 90 && days >= 0 ? <Tag color="orange">{dayjs(r.endDate).format('YYYY-MM-DD')}（{days}天）</Tag> : dayjs(r.endDate).format('YYYY-MM-DD');

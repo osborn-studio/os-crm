@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../database/prisma.service';
 import type { Actor } from '../../common/types/actor';
-import { admin } from '../workspace/access';
+import { admin, companyWide, teamIds } from '../workspace/access';
 import { checkVersion, id, json, object, runCommand, text, type Tx } from '../workspace/command-runner';
 import { allApprovers, anySignature, condition, flowInput, type FlowField } from './flow-rules';
 import { applyContractChange } from '../workspace/contract-change-policy';
@@ -55,18 +55,18 @@ export class ApprovalService {
       },
     });
   }
-  private visible(a: Actor): Prisma.ApprovalWhereInput {
+  private async visible(a: Actor): Promise<Prisma.ApprovalWhereInput> {
     return {
       tenantId: a.tenantId,
-      ...(!admin(a)
-        ? { OR: [{ applicantId: a.userId }, { nodes: { some: { tenantId: a.tenantId, approverId: a.userId } } }] }
+      ...(!companyWide(a)
+        ? { OR: [{ applicantId: { in: await teamIds(this.prisma.system, a) } }, { nodes: { some: { tenantId: a.tenantId, approverId: a.userId } } }] }
         : {}),
     };
   }
   async history(a: Actor, after?: string) {
     const cursor = pageCursor(after);
     const rows = await this.prisma.system.approval.findMany({
-      where: { ...this.visible(a), ...(cursor ? { id: { lt: cursor } } : {}) },
+      where: { ...await this.visible(a), ...(cursor ? { id: { lt: cursor } } : {}) },
       orderBy: { id: 'desc' },
       take: 51,
       select: {
@@ -83,7 +83,7 @@ export class ApprovalService {
   }
   async detail(a: Actor, approvalId: number) {
     const approval = await this.prisma.system.approval.findFirst({
-      where: { ...this.visible(a), id: approvalId },
+      where: { ...await this.visible(a), id: approvalId },
       include: { nodes: { orderBy: [{ nodeOrder: 'asc' }, { id: 'asc' }] } },
     });
     if (!approval) throw new NotFoundException('审批不存在或不可见');

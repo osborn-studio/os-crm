@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Form, Input, Select, Space, Table, Tabs, Upload, message } from 'antd';
+import { Alert, Button, Card, Form, Input, Select, Space, Tabs, Upload, message } from 'antd';
 import { get, post, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
 interface Preview {

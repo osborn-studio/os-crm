@@ -18,6 +18,9 @@ import {
 import { salesIntakeMeta, salesForecastEligible } from './sales-intake-policy';
 import { reportQuery } from './analytics-policy';
 import { statisticsScope } from './statistics-scope';
+import { salesActivityBody, contractPlanBody, actionCalendarBody, followupTime } from './sales-activity-policy';
+import {ownTradeAmount,currentTrade} from './trade-policy';
+import { pendingCustomerName } from './pending-customer';
 const provider = 'crm-sales-intake';
 const identifier = z.string().uuid();
 const requestKey = z.string().min(1).max(80);
@@ -59,6 +62,22 @@ export class SalesIntakeService {
   ) {}
   schema() {
     return [
+      {
+        id:'sales.action.calendar',version:'1.0',route:'POST /sales-intake/action-calendar',permission:'super_admin',effect:'local-business-calendar-write',agentWritesEnabled:false,
+        inputSchema:z.toJSONSchema(actionCalendarBody),outputSchema:{type:'object',required:['entries','externalEffects']},
+        guards:['current company administrator','active action owner and current action version','future work slot without overlap','one local proposal per action','business calendar origin excluded from external sync'],evidence:['action/customer links','planned work slot','idempotent receipt and audit'],
+      },
+      {
+        id:'sales.contract.plan',version:'1.0',route:'POST /sales-intake/contract-plans',permission:'super_admin',effect:'local-action-write',agentWritesEnabled:false,
+        inputSchema:z.toJSONSchema(contractPlanBody),outputSchema:{type:'object',required:['actions','externalEffects']},
+        guards:['current company administrator','signed contract current version','contract owner assignment','one lifecycle form per contract','planned dates are not actual business facts','no financial or external effects'],evidence:['contract and financial record references','planned milestones','idempotent command and audit'],
+      },
+      {
+        id: 'sales.intake.activities', version: '1.0', route: 'POST /sales-intake/activities', permission: 'super_admin', effect: 'local-business-write', agentWritesEnabled: false,
+        inputSchema: z.toJSONSchema(salesActivityBody), outputSchema: { type: 'object', required: ['updated', 'followups', 'externalEffects'] },
+        guards: ['current company administrator', 'existing reviewed case and source IDs', 'live object and action versions', 'atomic idempotent command', 'estimated dates explicitly retained', 'no financial, approval or external effects'],
+        evidence: ['date basis and estimates', 'existing action IDs', 'source followup IDs', 'command audit'],
+      },
       {
         id: 'sales.intake.preview',
         version: '1.0',
@@ -125,10 +144,127 @@ export class SalesIntakeService {
           },
         },
         outputSchema: { type: 'object', required: ['items', 'summary', 'audience'] },
-        guards: ['defaults to self', 'live current object scopes', 'source-date range with explicit undated pool'],
+        guards: ['defaults to current authorized role scope', 'live current object scopes', 'source-date range with explicit undated pool'],
         evidence: ['current formal business object IDs'],
       },
     ];
+  }
+  async actionCalendar(a:Actor,body:unknown){
+    admin(a);const b=parse(actionCalendarBody,body);
+    return runCommand(this.prisma,a,'sales.action.calendar@1.0',b,async tx=>{
+      const entries:{actionId:number;id:number;reused:boolean}[]=[];
+      for(const x of b.items){
+        const action=await tx.actionPlan.findFirst({where:{...(await this.workspace.scope(tx,a,'actions')),id:x.id}});
+        if(!action||!['pending','in_progress','overdue'].includes(action.status))throw new ConflictException('行动不可排期');
+        checkVersion(action,x.expectedUpdatedAt);
+        const owner=await tx.user.findFirst({where:{tenantId:a.tenantId,id:action.assigneeId,deletedAt:null,status:'active'}});
+        if(!owner)throw new ConflictException('行动负责人不可用');
+        const externalId='crm-action-plan:'+action.id;
+        const old=await tx.calendarEntry.findUnique({where:{tenantId_ownerId_externalId:{tenantId:a.tenantId,ownerId:owner.id,externalId}}});
+        if(old){entries.push({actionId:action.id,id:old.id,reused:true});continue;}
+        const startsAt=new Date(x.startsAt),endsAt=new Date(startsAt.getTime()+30*60000);
+        if(startsAt<=new Date()||startsAt.getUTCFullYear()>2060)throw new BadRequestException('日程须为今后至2060年的拟定工作时段');
+        if(await tx.calendarEntry.count({where:{tenantId:a.tenantId,ownerId:owner.id,status:'scheduled',freeBusy:'busy',startsAt:{lt:endsAt},endsAt:{gt:startsAt}}}))throw new ConflictException('工作时段冲突，请重新排期');
+        const row=await tx.calendarEntry.create({data:{tenantId:a.tenantId,ownerId:owner.id,title:action.title,description:('【拟定业务推进时段】\n行动#'+action.id+'；本时段不是客户确认的会议或付款承诺。\n'+(action.content??'')).slice(0,2000),location:'业务推进安排',startsAt,endsAt,freeBusy:'busy',status:'scheduled',origin:'crm_plan',externalId,externalSnapshot:json({actionId:action.id,customerId:action.targetType==='customer'?action.targetId:null,proposed:true,source:'sales.action.calendar@1.0'})}});
+        entries.push({actionId:action.id,id:row.id,reused:false});
+      }
+      return {entries,externalEffects:0};
+    });
+  }
+  async contractPlans(a: Actor, body: unknown) {
+    admin(a);
+    const b=parse(contractPlanBody,body);
+    return runCommand(this.prisma,a,'sales.contract.plan@1.0',b,async tx=>{
+      const actions:{contractId:number;id:number;reused:boolean}[]=[];
+      for(const x of b.contracts){
+        const c=await tx.contract.findFirst({where:{...(await this.workspace.scope(tx,a,'contracts')),id:x.id}});
+        if(!c||!['signed','executing','completed'].includes(c.status))throw new ConflictException('仅整理本帐套已签合同');
+        checkVersion(c,x.expectedUpdatedAt);
+        if(x.sourceIds && !x.sourceIds.includes('crm:contract:'+c.id))throw new ConflictException('行动依据缺少对应合同引用');
+        const owner=await tx.user.findFirst({where:{tenantId:a.tenantId,id:c.ownerId,status:'active',deletedAt:null}});
+        if(!owner)throw new ConflictException('合同负责人已停用，请先完成交接');
+        const title=('成交路径｜'+c.contractNo+'｜'+c.name).slice(0,200);
+        const old=await tx.actionPlan.findFirst({where:{tenantId:a.tenantId,deletedAt:null,targetType:'customer',targetId:c.customerId,actionType:'contract_lifecycle',title}});
+        if(old){actions.push({contractId:c.id,id:old.id,reused:true});continue;}
+        const plans=await tx.paymentPlan.findMany({where:{tenantId:a.tenantId,contractId:c.id},select:{id:true,planNo:true,amount:true,outstandingAmount:true,dueDate:true,status:true},take:501});
+        const invoices=await tx.invoice.findMany({where:{tenantId:a.tenantId,contractId:c.id,deletedAt:null},select:{id:true,invoiceNo:true},take:501});
+        const receipts=await tx.receipt.findMany({where:{tenantId:a.tenantId,contractId:c.id,deletedAt:null},select:{id:true,receiptNo:true,status:true},take:501});
+        if([plans,invoices,receipts].some(r=>r.length>500))throw new BadRequestException('单合同关联单据超过整理预算');
+        const due=new Date(x.dueDate+'T00:00:00Z');
+        const open=c.totalOutstanding.gt(0);
+        const content=[
+          '【成交项目行动路径表单】',
+          '合同ID：'+c.id+'；版本：'+c.updatedAt.toISOString(),
+          '签约主体：'+(c.signingCompany??'待核对')+'；负责人：'+owner.name,
+          '合同金额：'+c.amount.toFixed(2)+'；台账已开票：'+c.totalInvoiced.toFixed(2)+'；台账已回款：'+c.totalReceived.toFixed(2)+'；合同未收：'+c.totalOutstanding.toFixed(2),
+          '【已知事实】合同状态：'+c.status+'；签约日期：'+(c.signDate?.toISOString().slice(0,10)??'原始日期待确认'),
+          '关联回款计划：'+plans.map(p=>p.planNo+'（未收'+p.outstandingAmount.toFixed(2)+'；约定日期'+(p.dueDate?.toISOString().slice(0,10)??'待核')+'）').join('；'),
+          '关联开票：'+invoices.map(i=>i.invoiceNo+'#'+i.id).join('；'),
+          '关联回款：'+receipts.map(r=>r.receiptNo+'#'+r.id+'('+r.status+')').join('；'),
+          '【拟定行动路径，非已发生事实】',
+          ...(x.nextAction?['【具体下一步】'+x.nextAction,'【行动依据】'+x.sourceIds!.join('；')]:[]),
+          '1. 核对原合同、范围、签约主体及付款条件；附件和历史来源齐备后留痕。',
+          '2. 核对实施/供货进度、交付及验收凭证；缺少证明标待核，不代填已验收。',
+          '3. 对齐合同分期、已开票及已收单据；合同未收和开票未收为同一债权的不同视角，不相加。',
+          open?'4. 按未收分期逐项确认付款触发条件、联系人及预计付款日；未明确到期日不擅自判逾期。':'4. 核对已收与核销结果，金额一致后办理结案；复核质保或续约义务。',
+          '5. 记录实际联系及反馈，更新行动；需审批的变更另发申请，不由此表单自动批准。',
+          '6. 留存实际到账/验收证据后再完成相关行动；续约、增购或质保事项另行跟进。',
+          '【计划安排】'+x.dueDate+'进行第一轮资料/进度及'+(open?'回款条件':'结案续约')+'核对；后续步骤按核对结果排期。本日期为拟定工作日期，不是客户承诺、交付或收款事实。',
+        ].join('\n');
+        const row=await tx.actionPlan.create({data:{tenantId:a.tenantId,targetType:'customer',targetId:c.customerId,title,content,actionType:'contract_lifecycle',assigneeId:owner.id,priority:open?'high':'medium',dueDate:due,source:'system',status:'pending',createdBy:a.userId}});
+        actions.push({contractId:c.id,id:row.id,reused:false});
+      }
+      return {actions,externalEffects:0};
+    });
+  }
+  async activities(a: Actor, body: unknown) {
+    admin(a);
+    const b = parse(salesActivityBody, body);
+    return runCommand(this.prisma, a, 'sales.intake.activities@1.0', b, async tx => {
+      const updated: { kind: string; id: number; actionId: number; followCount: number }[] = [], followups: number[] = [];
+      for (const x of b.items) {
+        const row = x.kind === 'opportunities'
+          ? await tx.opportunity.findFirst({ where: { ...(await this.workspace.scope(tx,a,x.kind)), id:x.id } })
+          : await tx.lead.findFirst({ where: { ...(await this.workspace.scope(tx,a,x.kind)), id:x.id } });
+        if (!row) throw new ForbiddenException('历史事项不存在或不可见');
+        checkVersion(row, x.expectedUpdatedAt);
+        const metadata = 'healthFactors' in row ? row.healthFactors : row.aiEnrichment;
+        const meta = salesIntakeMeta(metadata);
+        if (meta.caseKey !== x.caseKey) throw new ConflictException('历史事项来源不匹配');
+        const customerId = 'customerId' in row ? row.customerId : Number(meta.customerId);
+        if (!Number.isSafeInteger(customerId) || customerId <= 0) throw new ConflictException('历史事项缺少客户关联');
+        if(x.identityStage){
+          const customer=await tx.customer.findFirst({where:{tenantId:a.tenantId,id:customerId,deletedAt:null},select:{name:true}});
+          if(x.kind!=='opportunities'||row.status==='won'||!pendingCustomerName(customer?.name))throw new ConflictException('仅身份待核的非成交商机可回归发现阶段');
+          if(!await tx.opportunityStage.findFirst({where:{tenantId:a.tenantId,code:x.identityStage,isActive:true}}))throw new ConflictException('发现阶段未启用');
+          await tx.opportunity.update({where:{id:x.id},data:{stage:x.identityStage,stageHistory:json([...('stageHistory'in row&&Array.isArray(row.stageHistory)?row.stageHistory:[]),{stage:x.identityStage,previousStage:'stage'in row?row.stage:null,changedAt:new Date().toISOString(),reason:'客户名字待核实，当前管理阶段回归发现/需求确认；原商务历史、报价及掉单结果保留'}])}});
+        }
+        const action = await tx.actionPlan.findFirst({ where:{tenantId:a.tenantId,id:x.actionId,deletedAt:null,targetType:'customer',targetId:customerId} });
+        if (!action || !['pending','in_progress','overdue'].includes(action.status)) throw new ConflictException('行动已结束或客户不匹配');
+        checkVersion(action,x.actionVersion);
+        if (x.followup) {
+          const sourceIds = Array.isArray(meta.sourceIds) ? meta.sourceIds : [];
+          if (x.followup.sourceIds.some(s=>!sourceIds.includes(s))) throw new ConflictException('跟进来源不属于该事项');
+          const f = await tx.followUp.create({data:{tenantId:a.tenantId,targetType:x.kind==='opportunities'?'opportunity':'lead',targetId:x.id,customerId,method:'other',content:x.followup.content,result:'历史资料整理',nextAction:x.nextAction,nextFollowAt:date(x.nextActionDate),createdBy:a.userId,aiStructured:json({salesIntake:{caseKey:x.caseKey,sourceIds:x.followup.sourceIds,occurredAt:x.followup.occurredAt,dateEstimated:x.followup.estimated,activityType:'evidence_review',note:'历史资料整理，不代表新增客户联系'}})}});
+          followups.push(f.id);
+        }
+        const history = await tx.followUp.findMany({where:{tenantId:a.tenantId,deletedAt:null,customerId,OR:[{targetType:x.kind==='opportunities'?'opportunity':'lead',targetId:x.id},{aiStructured:{path:'$.salesIntake.caseKey',equals:x.caseKey}}]},take:1001});
+        if (history.length>1000) throw new BadRequestException('单事项跟进超过整理预算');
+        const times=history.flatMap(f=>{const t=followupTime(f);return t?[t]:[];});
+        const lastFollowAt=times.length?new Date(Math.max(...times.map(t=>t.getTime()))):null;
+        // A signed source contract establishes a won business day, never an invented event time.
+        const signedSource='status' in row && row.status==='won' && 'contractId' in row && row.contractId
+          ? await tx.contract.findFirst({where:{tenantId:a.tenantId,id:row.contractId,status:{in:['signed','executing','completed']},deletedAt:null},select:{signDate:true}}) : null;
+        const wonDay=signedSource?.signDate??null;
+        const plan={dateBasis:x.dateBasis,expectedCloseDate:x.expectedCloseDate??null,closeDateEstimated:x.closeDateEstimated??null,nextActionDate:x.nextActionDate,plannedBy:a.userId,plannedAt:new Date().toISOString()};
+        const remark=(row.remark??'')+'\n[日期'+(x.closeDateEstimated?'估算':'计划')+'] '+x.dateBasis+'；下一步拟定 '+x.nextActionDate;
+        if(x.kind==='opportunities') await tx.opportunity.update({where:{id:x.id},data:{...(x.expectedCloseDate?{expectedCloseDate:date(x.expectedCloseDate)}:{}),...('closedAt' in row && !row.closedAt && wonDay?{closedAt:wonDay,winDate:wonDay}:{}),nextAction:x.nextAction,nextActionDate:date(x.nextActionDate),lastFollowAt,followCount:history.length,healthFactors:json({...('healthFactors' in row && row.healthFactors && typeof row.healthFactors==='object'?row.healthFactors:{}),activityPlan:{...plan,...(wonDay?{wonBusinessDayBasis:'source_contract_sign_date',wonBusinessDay:wonDay.toISOString().slice(0,10),eventTimeKnown:false}:{})}}),remark,updatedBy:a.userId}});
+        else await tx.lead.update({where:{id:x.id},data:{lastFollowAt,followCount:history.length,aiEnrichment:json({...('aiEnrichment' in row && row.aiEnrichment && typeof row.aiEnrichment==='object'?row.aiEnrichment:{}),activityPlan:plan}),remark,updatedBy:a.userId}});
+        if (!action.dueDate) await tx.actionPlan.update({where:{id:action.id},data:{dueDate:date(x.nextActionDate),content:(action.content??'')+'\n[拟定计划日期] '+x.nextActionDate+'；'+x.dateBasis}});
+        updated.push({kind:x.kind,id:x.id,actionId:action.id,followCount:history.length});
+      }
+      return {updated,followups,externalEffects:0};
+    });
   }
   async archive(a: Actor, body: unknown) {
     admin(a);
@@ -341,8 +477,8 @@ export class SalesIntakeService {
             code: code('KH'),
             name: c.name,
             ...identity,
-            customerCategory: c.channel === 'direct' ? 'direct' : 'sales_channel',
-            channelBrand: c.channel === 'direct' ? null : c.channel,
+            customerCategory: c.customerCategory??'direct',
+            channelBrand: c.customerCategory==='sales_channel'&&c.channel!=='direct'?c.channel:null,
             source: 'historical_intake',
             ownerId: a.userId,
             ownerDeptId: a.deptId,
@@ -350,7 +486,7 @@ export class SalesIntakeService {
             protectUntil: new Date(Date.now() + 30 * 86400000),
             createdBy: a.userId,
             remark: c.notes,
-            tags: json({ salesIntake: { identityStatus: c.identityStatus, batchKey: m.batchKey } }),
+            tags: json({ salesIntake: { identityStatus: c.identityStatus, batchKey: m.batchKey,sourceChannel:c.channel } }),
           },
         });
         ids.customers[c.key] = row.id;
@@ -409,7 +545,7 @@ export class SalesIntakeService {
             batchKey: m.batchKey,
             identityStatus: customer.identityStatus,
           };
-          const stage = c.outcome === 'lost' ? 'negotiation' : c.kind === 'contract' ? 'signing' : 'proposal';
+          const stage = pendingCustomerName(customer.name)&&c.outcome!=='won'?'qualified':c.outcome === 'lost' ? 'negotiation' : c.kind === 'contract' ? 'signing' : 'proposal';
           if (!(await tx.opportunityStage.findFirst({ where: { tenantId: a.tenantId, code: stage, isActive: true } })))
             throw new ConflictException('所需商机阶段未启用');
           const row = await tx.opportunity.create({
@@ -689,9 +825,9 @@ export class SalesIntakeService {
             name: o.name,
             stage: o.stage,
             outcome: o.status,
-            amount: knownSalesAmount(o) ? o.amount.toFixed(2) : null,
+            amount: knownSalesAmount(o) ? ownTradeAmount(o)?.toFixed(2)??null : null,
             forecastEligible: salesForecastEligible(o),
-            amountBasis: typeof m.amountBasis === 'string' ? m.amountBasis : '当前商机金额',
+            amountBasis: currentTrade(o).reason??(typeof m.amountBasis === 'string' ? m.amountBasis : '当前商机金额'),
             sourceDate,
             channel: typeof m.channel === 'string' ? m.channel : (o.source ?? 'direct'),
             ownerId: o.ownerId,

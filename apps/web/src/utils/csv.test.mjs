@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { csvCell } from './csv.ts';
 test('normal names, blanks and trusted numeric values remain unchanged', () => {
-  assert.equal(csvCell('町萌网络'), '"町萌网络"');
+  assert.equal(csvCell('示例经营公司'), '"示例经营公司"');
   assert.equal(csvCell(null), '""');
   assert.equal(csvCell(undefined), '""');
   assert.equal(csvCell(0), '"0"');

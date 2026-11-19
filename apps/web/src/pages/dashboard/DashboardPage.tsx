@@ -1,13 +1,17 @@
+import Table from '../../components/BusinessTable';
+import BusinessSort,{type BusinessSortValue} from '../../components/BusinessSort';
 import StatisticsPeople, { statisticsPeopleFromParams, statisticsQuery } from '../../components/StatisticsPeople';
 import { menuAccess } from '../../services/access';
 import { useEffect, useRef, useState } from 'react';
 import StatisticsPeriod, { defaultStatisticsRange } from '../../components/StatisticsPeriod';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button, Card, Col, Empty, Progress, Row, Space, Spin, Statistic, Table, Tag, Typography } from 'antd';
+import { Alert, Button, Card, Col, Empty, Progress, Row, Space, Spin, Statistic, Tag, Typography } from 'antd';
 import { ArrowRightOutlined, ReloadOutlined } from '@ant-design/icons';
 import { get, errorText, money, type RecordRow } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
 interface Overview {
+  businessSummary?:{signed:string;contractReceived:string;invoiceReceived:string|null;unpaid:string;invoiced:string;invoiceUnpaid:string|null;construction:string}|null;
+  businessProjectAccess?:boolean;
   restrictedModules?: string[];
   role: string;
   customers: number;
@@ -27,6 +31,7 @@ interface Overview {
 export default function DashboardPage() {
   const [people, setPeople] = useState(() => statisticsPeopleFromParams(new URLSearchParams(window.location.search)));
   const [period, setPeriod] = useState(() => { const p = new URLSearchParams(window.location.search); return { from: p.get('from') ?? defaultStatisticsRange().from, to: p.get('to') ?? defaultStatisticsRange().to }; });
+  const [funnelSort,setFunnelSort]=useState<BusinessSortValue>({sortBy:'name',sortOrder:'asc'});
   const revision = useRef(0);
   const [data, setData] = useState<Overview>(),
     [error, setError] = useState(''),
@@ -57,7 +62,7 @@ export default function DashboardPage() {
       string,
       string
     >
-  )[data?.role ?? 'sales'];
+  )[data?.role ?? (user?.roles.includes('super_admin')?'admin':user?.roles.includes('gm')?'boss':user?.roles.includes('sales_manager')?'manager':'sales')];
   const can = (path: string) => menuAccess(path, user?.permissions ?? [], user?.roles.includes('super_admin') ?? false);
   const maxCount = Math.max(1, ...(data?.funnel.map((s) => s.count) ?? [1]));
   return (
@@ -81,7 +86,7 @@ export default function DashboardPage() {
       </div>
       <StatisticsPeriod value={period} onChange={setPeriod} />
       <StatisticsPeople value={people} onChange={setPeople} />
-      <Alert type="info" showIcon style={{ marginBottom: 16 }} message="客户/项目按建档日，管道按预计成交日，合同按签约日，回款/开票按实际日期，未收和逾期限定所选到期计划。不是历史期末余额快照。" />
+      <Alert type="info" showIcon style={{ marginBottom: 16 }} message="客户按建档日，商机按预计成交日。合同及相关开票、未收、在建金额按所选签约日期归集，展示这批合同当前累计值；实际回款另按到账日期统计。软件返佣单列。" />
       {error && <Alert message={error} type="error" showIcon />}
       {!!data?.restrictedModules?.length && (
         <Alert
@@ -92,21 +97,27 @@ export default function DashboardPage() {
         />
       )}
       <Spin spinning={loading}>
+        <div style={{visibility:data?'visible':'hidden',minHeight:300}}>
         <Row gutter={[16, 16]}>
           {[
-            { title: '期间建档客户', value: data?.customers, path: '/customers' },
-            { title: '期间预计成交商机', value: data?.openOpportunities, path: '/opportunities' },
-            { title: '期间销售管道金额', value: money(data?.pipeline), prefix: '¥', path: '/opportunities/board' },
-            { title: '期间签约合同额', value: money(data?.signedAmount), prefix: '¥', path: '/contracts' },
-            { title: '期间立项项目', value: data?.projects, path: '/projects' },
-            { title: '期间到期计划 · 当前未收', value: money(data?.outstanding), prefix: '¥', path: '/finance/payment-plans' },
-            { title: '期间实际回款', value: money(data?.received), prefix: '¥', path: '/receipts' },
-            { title: '期间实际开票', value: money(data?.invoiced), prefix: '¥', path: '/invoices' },
+            { title: '新增客户', value: data?.customers, path: '/customers' },
+            { title: '跟进中商机', value: data?.openOpportunities, path: '/opportunities' },
+            { title: '我方待签业务报价', value: money(data?.pipeline), prefix: '¥', path: '/opportunities/board' },
+            ...(data?.businessSummary?[
+              {title:'合同总金额',value:money(data.businessSummary.signed),prefix:'¥',path:'/analytics',metric:'contracts'},
+              {title:'合同已收款',value:money(data.businessSummary.contractReceived),prefix:'¥',path:'/analytics',metric:'contractReceived'},
+              {title:'合同待收款',value:money(data.businessSummary.unpaid),prefix:'¥',path:'/analytics',metric:'unpaid'},
+              {title:'已开票金额',value:money(data.businessSummary.invoiced),prefix:'¥',path:'/analytics',metric:'invoiced'},
+              {title:'已开票已收款',value:data.businessSummary.invoiceReceived===null?'待核实':money(data.businessSummary.invoiceReceived),prefix:data.businessSummary.invoiceReceived===null?undefined:'¥',path:'/analytics',metric:'invoiceReceived'},
+              {title:'已开票待收款',value:data.businessSummary.invoiceUnpaid===null?'待核实':money(data.businessSummary.invoiceUnpaid),prefix:data.businessSummary.invoiceUnpaid===null?undefined:'¥',path:'/analytics',metric:'invoiceUnpaid'},
+              ...(data.businessProjectAccess?[{title:'在建项目金额',value:money(data.businessSummary.construction),prefix:'¥',path:'/analytics',metric:'construction'}]:[]),
+            ]:[{ title: '合同总金额', value: money(data?.signedAmount), prefix: '¥', path: '/contracts' }]),
+            { title: '按收款日期查看的已收款', value: money(data?.received), prefix: '¥', path: '/receipts' },
           ]
             .filter((k) => can(k.path))
             .map((k) => (
               <Col xs={24} sm={12} xl={8} key={k.title}>
-                <Card className="metric-card" onClick={() => navigate(`${k.path}?${statisticsQuery(period, people)}`)} hoverable>
+                <Card className="metric-card" onClick={() => navigate(`${k.path}?${statisticsQuery(period, people)}${'metric'in k?'&metric='+String(k.metric):''}`)} hoverable>
                   <Statistic title={k.title} value={k.value ?? '—'} prefix={k.prefix} />
                   <div style={{ marginTop: 16, color: '#64748b' }}>
                     查看明细 <ArrowRightOutlined />
@@ -126,7 +137,8 @@ export default function DashboardPage() {
                   </Button>
                 }
               >
-                {data?.funnel?.map((f, i) => (
+                <BusinessSort value={funnelSort} fields={[{key:'name',label:'阶段名称'},{key:'count',label:'商机数量'},{key:'amount',label:'商机金额'}]} onChange={setFunnelSort}/>
+                {[...(data?.funnel??[])].sort((a,b)=>(funnelSort.sortBy==='name'?a.name.localeCompare(b.name,'zh-CN'):Number(a[funnelSort.sortBy as 'count'|'amount'])-Number(b[funnelSort.sortBy as 'count'|'amount']))*(funnelSort.sortOrder==='asc'?1:-1)).map((f, i) => (
                   <div key={f.code} style={{ marginBottom: 14 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span>
@@ -190,8 +202,8 @@ export default function DashboardPage() {
                 </Card>
               )}
               {can('/finance/payment-plans') && (
-                <Card title="区间到期计划余额" style={{ marginTop: 20 }}>
-                  <Statistic title="所选计划当前逾期未收" prefix="¥" value={money(data?.overdue)} />
+                <Card title="需要跟催的收款" style={{ marginTop: 20 }}>
+                  <Statistic title="已过预计收款日，仍未收到的钱" prefix="¥" value={money(data?.overdue)} />
                   <Alert
                     type="info"
                     message="收款与核销使用本地业务台账"
@@ -203,6 +215,7 @@ export default function DashboardPage() {
             </Col>
           )}
         </Row>
+        </div>
       </Spin>
     </div>
   );

@@ -2,6 +2,8 @@ import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/com
 import { createHash, randomUUID } from 'node:crypto';
 import type { Actor } from '../../common/types/actor';
 import { PrismaService } from '../../database/prisma.service';
+import {BusinessReportService} from '../workspace/business-report.service';
+import {reportSortFields} from '../workspace/workspace-sort';
 import { AnalyticsService } from '../workspace/analytics.service';
 import { allowedReportCapabilities } from '../workspace/analytics.contract';
 import { json, validateActor } from '../workspace/command-runner';
@@ -13,6 +15,7 @@ export function reportInput(input: unknown): Record<string, string> {
     contractId: [1, 2147483647], page: [1, 1000000], pageSize: [1, 100],
   };
   const enums: Record<string, readonly string[]> = {
+    sortBy:reportSortFields,sortOrder:['asc','desc'],metric:['contracts','contractReceived','invoiceReceived','unpaid','invoiced','invoiceUnpaid','construction','commission','projection'],
     personRange: ['self','person','company','department'],
     source: ['managed', 'legacy'], detail: ['contracts', 'plans', 'receipts', 'balances', 'overdue'],
     bucket: ['open', 'won', 'lost', 'closed', 'undated'],
@@ -31,7 +34,7 @@ export function reportInput(input: unknown): Record<string, string> {
 }
 @Injectable()
 export class ReportCapabilityService {
-  constructor(private readonly analytics: AnalyticsService, private readonly prisma: PrismaService) {}
+  constructor(private readonly analytics: AnalyticsService, private readonly prisma: PrismaService, private readonly business:BusinessReportService) {}
   async invoke(actor: Actor, id: string, input: unknown, trace?: { grantId: string; agentExecutionId: string }) {
     const definition = allowedReportCapabilities(actor).find(c => c.id === id);
     if (!definition) throw new ForbiddenException('无权调用此报表能力');
@@ -39,7 +42,7 @@ export class ReportCapabilityService {
     const evidence = { capabilityId: id, version: definition.version, effect: 'read', executor: trace ? 'agent' : 'human', ...trace };
     try {
       const query = reportInput(input);
-      const result = id === 'report.sales.forecast' ? await this.analytics.forecast(actor, query) : await this.analytics.collections(actor, query);
+      const result = id === 'report.business.cash' ? await this.business.read(actor,query) : id === 'report.sales.forecast' ? await this.analytics.forecast(actor, query) : await this.analytics.collections(actor, query);
       await this.prisma.system.auditLog.create({ data: {
         tenantId: actor.tenantId, userId: actor.userId, action: 'capability.succeeded', objectType: 'capability', objectNo: executionId,
         afterData: json({ ...evidence, inputHash: createHash('sha256').update(JSON.stringify(query)).digest('hex'), generatedAt: result.generatedAt }),

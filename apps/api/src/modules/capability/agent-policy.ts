@@ -3,7 +3,7 @@ import { createHash, createHmac } from 'node:crypto';
 import type { Actor } from '../../common/types/actor';
 import { object, text } from '../workspace/command-runner';
 
-export const AGENT_CAPABILITIES = ['customer.search', 'customer.get', 'action.propose', 'action.execute', 'report.sales.forecast', 'report.cash.collections'] as const;
+export const AGENT_CAPABILITIES = ['customer.search', 'customer.get', 'action.propose', 'action.execute', 'report.sales.forecast', 'report.cash.collections', 'report.business.cash'] as const;
 export function only(body: Record<string, unknown>, keys: string[]) {
   object(body);
   if (Object.keys(body).some((k) => !keys.includes(k))) throw new BadRequestException('存在未定义参数');

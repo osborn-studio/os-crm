@@ -16,8 +16,9 @@ export class CalendarController {
     @CurrentUser() a: Actor,
     @Query('from') from: string,
     @Query('until') until: string,
+    @Query() query: Record<string,string>,
   ) {
-    return this.service.list(a, from, until);
+    return this.service.list(a, from, until,query);
   }
   @Post() @Permissions('action:create') create(@CurrentUser() a: Actor, @Body() b: Record<string, unknown>) {
     return this.service.save(a, null, b);

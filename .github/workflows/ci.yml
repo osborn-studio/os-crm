@@ -40,8 +40,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fault-injection client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/access-policy-smoke.mjs
   reviewed-sales-intake:
     runs-on: ubuntu-latest
@@ -140,8 +139,7 @@ jobs:
       - run: pnpm build
       - name: Install recovery and fault-injection clients
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/dingtalk-activities-smoke.mjs
   dingtalk-directory:
     runs-on: ubuntu-latest
@@ -208,8 +206,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture and recovery clients
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/attachment-smoke.mjs
   approval-countersign:
     runs-on: ubuntu-latest
@@ -244,8 +241,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture and recovery clients
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/countersign-smoke.mjs
   service-ticket-lifecycle:
     runs-on: ubuntu-latest
@@ -280,8 +276,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture and recovery clients
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/service-ticket-smoke.mjs
   agent-populated-upgrade:
     runs-on: ubuntu-latest
@@ -349,8 +344,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture and recovery clients
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/agent-smoke.mjs
   approval-transfer:
     runs-on: ubuntu-latest
@@ -385,8 +379,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/approval-transfer-smoke.mjs
   verify:
     runs-on: ubuntu-latest
@@ -539,8 +532,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/finance-smoke.mjs
 
   receipt-populated-upgrade:
@@ -577,8 +569,7 @@ jobs:
       - run: pnpm build
       - name: Install SQL fixture client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/receipt-upgrade-smoke.mjs
 
   analytics-reporting:
@@ -614,8 +605,7 @@ jobs:
       - run: pnpm build
       - name: Install report fault-injection SQL client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/analytics-smoke.mjs
 
   company-isolation:
@@ -686,6 +676,5 @@ jobs:
       - run: pnpm build
       - name: Install native SQL backup client
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mysql-client
+          bash scripts/ensure-ci-mysql-client.sh
       - run: node scripts/local-recovery-smoke.mjs

@@ -31,7 +31,14 @@ import { statisticsResourceFilter, statisticsOptions, statisticsScope, statistic
 import { businessDay, reportQuery } from './analytics-policy';
 import { businessPolicy, notifyOpportunity } from './business-policy';
 import { recalculateCustomerContracts } from './contract-change-policy';
+import {businessReport} from './business-report-policy';
+import {contractTrades} from './trade-store';
+import {ownTradeAmount} from './trade-policy';
 import { salesAmountProjection, salesIntakeMeta, salesForecastEligible } from './sales-intake-policy';
+import { followupTime } from './sales-activity-policy';
+import { opportunityFollowInput, opportunityFollowSchema } from './opportunity-follow-policy';
+import { pendingCustomerName } from './pending-customer';
+import { workspaceSortFields, defaultWorkspaceSort, workspaceOrderBy } from './workspace-sort';
 import { paymentSchedule, paymentScheduleSchema } from './payment-schedule';
 import { financeEventsForActor, hideReceiptCorrectionFields } from './finance-policy';
 import { deliveryPeople, handoverProjectManager } from './delivery-staff-policy';
@@ -122,6 +129,7 @@ export class WorkspaceService {
           version: '1.0',
           canCreate,
           canEdit,
+          sortFields:workspaceSortFields(key), defaultSort:defaultWorkspaceSort(key),
           actions,
           operations: [
             ...(key === 'customers' && canCreate
@@ -245,11 +253,12 @@ export class WorkspaceService {
                   page: { type: 'integer', minimum: 1 },
                   pageSize: { type: 'integer', minimum: 1, maximum: 100 },
                   keyword: { type: 'string', maxLength: 100 },
+                  sortBy:{enum:workspaceSortFields(key).map(f=>f.key)},sortOrder:{enum:['asc','desc']},
                   ...statisticsProperties,
                   from: { type:'string',format:'date',description:'Inclusive 2010..2060 business date; provide to together' },
                   to: { type:'string',format:'date' },
                   dateField:{type:'string',description:'Resource-specific server allowlisted date axis'},
-                  ...(key==='customers'?{customerCategory:{enum:['direct','sales_channel']},channelBrand:{enum:['钉钉','用友','其他']}}:{}),
+                  ...(key==='customers'?{customerCategory:{enum:['direct','sales_channel']},channelBrand:{enum:['钉钉','用友','阿里','其他']}}:{}),
                 },
               },
               outputSchema: { type: 'object', required: ['items', 'meta'] },
@@ -330,6 +339,7 @@ export class WorkspaceService {
                 required: [
                   'requestKey',
                   'expectedUpdatedAt',
+                  ...(key==='opportunities'&&action==='follow'?['followup']:[]),
                   ...(key === 'contracts' && action === 'sign' ? ['paymentSchedule'] : []),
                   ...((key === 'projects' &&
                     ['advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'].includes(action)) ||
@@ -355,6 +365,7 @@ export class WorkspaceService {
                     : {}),
                   ...(action === 'quote' ? { items: { type: 'array', minItems: 1, maxItems: 20 } } : {}),
                   ...(action === 'lose' ? { reason: { type: 'string', minLength: 1 } } : {}),
+                  ...(key==='opportunities'&&action==='follow'?{followup:opportunityFollowSchema.toJSONSchema()}:{}),
                   ...((key === 'projects' &&
                     ['advance', 'request_acceptance', 'reject_acceptance', 'accept', 'handover_pm'].includes(action)) ||
                   key === 'tasks'
@@ -369,6 +380,7 @@ export class WorkspaceService {
                 'record scope',
                 'expectedUpdatedAt',
                 'business state preconditions',
+                  ...(key==='opportunities'&&action==='follow'?['follow_up:create and visible customer','optional action:create with active opportunity owner','followup and optional action/calendar share one transaction','no external notifications']:[]),
                 ...(key === 'opportunities' && action === 'advance' ? ['next active stage only'] : []),
                 ...(key === 'opportunities' && action === 'lose'
                   ? ['open opportunity; closedAt and zero weightedAmount atomically']
@@ -434,7 +446,11 @@ export class WorkspaceService {
           },
         ],
       };
-    else if (kind === 'followups' || kind === 'receipts')
+    else if (kind === 'receipts') visibility = { OR: [
+      { contractId: { in: (await tx.contract.findMany({where:{tenantId:a.tenantId,deletedAt:null,...(await ownerScope(tx,a))},select:{id:true}})).map(c=>c.id) } },
+      { contractId: null, customerId: { in: (await tx.customer.findMany({ where: {tenantId:a.tenantId,deletedAt:null,...(await customerScope(tx,a,false))},select:{id:true} })).map(c=>c.id) } },
+    ] };
+    else if (kind === 'followups')
       visibility = {
         customerId: {
           in: (
@@ -495,13 +511,13 @@ export class WorkspaceService {
       if (!['public', 'private', 'dept'].includes(query.poolType)) throw new BadRequestException('客户池无效');
       where.poolType = query.poolType;
     }
-    if (kind === 'customers' && query.ownerId) where.ownerId = id(Number(query.ownerId));
+    if (kind === 'customers' && query.ownerId && query.personRange===undefined) where.ownerId = id(Number(query.ownerId));
     if (kind === 'customers' && query.customerCategory) {
       if (!['direct','sales_channel'].includes(query.customerCategory)) throw new BadRequestException('客户标记无效');
       where.customerCategory = query.customerCategory;
     }
     if (kind === 'customers' && query.channelBrand) {
-      if (!['钉钉','用友','其他'].includes(query.channelBrand)) throw new BadRequestException('渠道标记无效');
+      if (!['钉钉','用友','阿里','其他'].includes(query.channelBrand)) throw new BadRequestException('渠道标记无效');
       where.channelBrand = query.channelBrand;
     }
     if (query.from || query.to) {
@@ -517,7 +533,7 @@ export class WorkspaceService {
     const [items, total] = await Promise.all([
       this.db(tx, kind).findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: workspaceOrderBy(kind,query),
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -551,7 +567,7 @@ export class WorkspaceService {
     );
     for (const row of items) {
       if(kind==='opportunities')Object.assign(row,salesAmountProjection(row));
-      if(kind==='followups' && salesIntakeMeta(row.aiStructured).sourceId) row.activityAt=salesIntakeMeta(row.aiStructured).occurredAt??null;
+      if(kind==='followups') row.activityAt=followupTime({createdAt:row.createdAt as Date,aiStructured:row.aiStructured});
       if (kind === 'receipts') hideReceiptCorrectionFields(a, row);
       if (typeof row.ownerId === 'number') row.ownerName = names.get(row.ownerId) ?? '未分配';
       if (typeof row.assigneeId === 'number') row.assigneeName = names.get(row.assigneeId) ?? '未分配';
@@ -580,6 +596,8 @@ export class WorkspaceService {
       row = await this.require(tx, a, kind, recordId);
     if (kind === 'receipts') hideReceiptCorrectionFields(a, row);
     if(kind==='opportunities')Object.assign(row,salesAmountProjection(row));
+    if(typeof row.customerId==='number') row.customerName=(await tx.customer.findFirst({where:{tenantId:a.tenantId,id:row.customerId},select:{name:true}}))?.name??'—';
+    if(typeof row.ownerId==='number') row.ownerName=(await tx.user.findFirst({where:{tenantId:a.tenantId,id:row.ownerId},select:{name:true}}))?.name??'历史负责人';
     if (kind === 'customers' && row.poolType === 'public' && !admin(a) && !boss(a))
       return {
         id: row.id,
@@ -593,13 +611,26 @@ export class WorkspaceService {
     const related: Record<string, unknown> = {};
     if (kind === 'customers') {
       for (const child of ['contacts', 'opportunities', 'contracts', 'projects', 'followups'])
+        if (hasPermission(a, resourcePermission(child, 'read')))
         related[child] = (await this.db(tx, child).findMany({
           where: { ...(await this.scope(tx, a, child)), customerId: recordId },
           take: 30,
           orderBy: { createdAt: 'desc' },
         })).map(r=>child==='opportunities'?salesAmountProjection(r):r);
+      if (hasPermission(a, 'action:read')) related.actions = await tx.actionPlan.findMany({
+        where: { ...(await this.scope(tx, a, 'actions')), targetType: 'customer', targetId: recordId },
+        take: 30, orderBy: { dueDate: 'asc' },
+      });
     }
     if (kind === 'opportunities') {
+      if (hasPermission(a, 'follow_up:read')) related.followups = await tx.followUp.findMany({
+        where: { ...(await this.scope(tx, a, 'followups')), targetType: 'opportunity', targetId: recordId },
+        take: 30, orderBy: { createdAt: 'desc' },
+      });
+      if (hasPermission(a, 'action:read')) related.actions = await tx.actionPlan.findMany({
+        where: { ...(await this.scope(tx, a, 'actions')), targetType: 'customer', targetId: row.customerId as number },
+        take: 30, orderBy: { dueDate: 'asc' },
+      });
       if(typeof row.contractId==='number'&&hasPermission(a,'contract:read'))related.linkedContract=await tx.contract.findMany({where:{...(await this.scope(tx,a,'contracts')),id:row.contractId}});
       related.quote = await tx.opportunityProduct.findMany({
         where: { tenantId: a.tenantId, opportunityId: recordId },
@@ -611,19 +642,23 @@ export class WorkspaceService {
       });
     }
     if (kind === 'contracts') {
+      if (hasPermission(a,'action:read')) related.actions = await tx.actionPlan.findMany({
+        where:{...(await this.scope(tx,a,'actions')),targetType:'customer',targetId:row.customerId as number,actionType:'contract_lifecycle',title:('成交路径｜'+String(row.contractNo)+'｜'+String(row.name)).slice(0,200)},take:30,
+      });
+      if (hasPermission(a,'opportunity:read')) related.opportunities = (await tx.opportunity.findMany({
+        where: { AND: [await this.scope(tx,a,'opportunities'), { OR: [{contractId:recordId}, ...(typeof row.opportunityId==='number'?[{id:row.opportunityId}]:[])] }] }, take:30,
+      })).map(r=>salesAmountProjection(r));
       related.items=await tx.contractItem.findMany({where:{tenantId:a.tenantId,contractId:recordId},orderBy:{sortOrder:'asc'}});
       related.changes = await tx.contractChange.findMany({
         where: { tenantId: a.tenantId, contractId: recordId },
         orderBy: { createdAt: 'desc' },
         take: 30,
       });
-      related.orders = await tx.order.findMany({
+      if (hasPermission(a, 'order:read')) related.orders = await tx.order.findMany({
         where: { ...(await this.scope(tx, a, 'orders')), contractId: recordId },
       });
-      related['payment-plans'] = await tx.paymentPlan.findMany({
-        where: { tenantId: a.tenantId, contractId: recordId },
-      });
       if (hasPermission(a, 'finance:read')) {
+        related['payment-plans'] = await tx.paymentPlan.findMany({ where: { ...(await this.scope(tx, a, 'payment-plans')), contractId: recordId } });
         related.invoices = await tx.invoice.findMany({ where: { ...(await this.scope(tx, a, 'invoices')), contractId: recordId }, orderBy: { invoiceDate: 'asc' } });
         related.receipts = await tx.receipt.findMany({ where: { ...(await this.scope(tx, a, 'receipts')), contractId: recordId }, orderBy: { receiptDate: 'asc' } });
       }
@@ -654,7 +689,7 @@ export class WorkspaceService {
       });
     if (kind === 'receipts') {
       related.allocations = await tx.receiptAllocation.findMany({
-        where: { tenantId: a.tenantId, receiptId: recordId },
+        where: { tenantId: a.tenantId, receiptId: recordId, paymentPlan: { contract: { tenantId:a.tenantId,deletedAt:null,...(await ownerScope(tx,a)) } } },
         orderBy: { id: 'desc' },
         take: 100,
       });
@@ -1221,6 +1256,10 @@ export class WorkspaceService {
   async command(a: Actor, kind: string, recordId: number, action: string, body: Record<string, unknown>) {
     allowWrite(a);
     requirePermission(a, kind, 'update');
+    if(kind==='opportunities'&&action==='follow'){
+      requirePermission(a,'followups','create');
+      if(opportunityFollowInput(body.followup).createAction)requirePermission(a,'actions','create');
+    }
     if (
       Object.keys(body).some(
         (k) =>
@@ -1233,6 +1272,7 @@ export class WorkspaceService {
             'items',
             'form',
             'actualHours',
+            ...(kind==='opportunities'&&action==='follow'?['followup']:[]),
             ...(kind === 'contracts' && action === 'sign' ? ['paymentSchedule'] : []),
           ].includes(k),
       )
@@ -1350,6 +1390,28 @@ export class WorkspaceService {
             });
             return { id: c.id, kind: 'customers' };
           } else if (kind === 'opportunities') {
+            if(action==='follow'){
+              requirePermission(a,'followups','create');
+              const f=opportunityFollowInput(body.followup);
+              await this.require(tx,a,'customers',id(row.customerId));
+              const now=new Date(),due=f.nextFollowAt?new Date(f.nextFollowAt+'T00:00:00Z'):null;
+              const follow=await tx.followUp.create({data:{tenantId:a.tenantId,targetType:'opportunity',targetId:recordId,customerId:id(row.customerId),method:f.method,content:f.content,nextAction:f.nextAction,nextFollowAt:due,createdBy:a.userId}});
+              await tx.opportunity.update({where,data:{lastFollowAt:now,followCount:{increment:1},...(f.nextAction?{nextAction:f.nextAction}:{}),...(due?{nextActionDate:due}:{})}});
+              await tx.customer.update({where:{id:id(row.customerId),tenantId:a.tenantId},data:{lastFollowAt:now,lastFollowBy:a.userId}});
+              let actionId:number|undefined,calendarId:number|undefined;
+              if(f.createAction){
+                requirePermission(a,'actions','create');
+                if(!due||due.toISOString().slice(0,10)<new Date(Date.now()+8*3600000).toISOString().slice(0,10))throw new BadRequestException('下一步行动须安排今天或今后日期');
+                if(!await tx.user.findFirst({where:{tenantId:a.tenantId,id:id(row.ownerId),status:'active',deletedAt:null}}))throw new ConflictException('商机负责人已停用，请先交接');
+                let startsAt:Date|undefined;
+                for(const minute of [600,630,660,690,780,810,840,870,900,930]){const start=new Date(due.getTime()+(minute-480)*60000);if(start<=now)continue;if(!await tx.calendarEntry.count({where:{tenantId:a.tenantId,ownerId:id(row.ownerId),status:'scheduled',freeBusy:'busy',startsAt:{lt:new Date(start.getTime()+1800000)},endsAt:{gt:start}}})){startsAt=start;break;}}
+                if(!startsAt)throw new ConflictException('该日工作时段已满，请选择其他跟进日期');
+                const actionPlan=await tx.actionPlan.create({data:{tenantId:a.tenantId,targetType:'customer',targetId:id(row.customerId),title:('商机跟进｜'+String(row.code)+'｜'+f.nextAction).slice(0,200),content:'商机#'+recordId+' '+String(row.name)+'\n本次记录：'+f.content+'\n下一步：'+f.nextAction,assigneeId:id(row.ownerId),dueDate:due,source:'manual',createdBy:a.userId}});
+                actionId=actionPlan.id;
+                const entry=await tx.calendarEntry.create({data:{tenantId:a.tenantId,ownerId:id(row.ownerId),title:actionPlan.title,description:'【拟定业务推进时段】行动#'+actionId+'；非客户确认会议。\n'+f.nextAction,location:'业务推进安排',startsAt,endsAt:new Date(startsAt.getTime()+1800000),origin:'crm_plan',externalId:'crm-action-plan:'+actionId,externalSnapshot:json({actionId,customerId:row.customerId,opportunityId:recordId,proposed:true})}});calendarId=entry.id;
+              }
+              return {id:recordId,kind,action,followupId:follow.id,actionId,calendarId};
+            }
             if (row.status !== 'open') throw new BadRequestException('仅开放商机可操作');
             if (action === 'advance') {
               // Keep the current stage as an ordering anchor even if it was deactivated.
@@ -1362,6 +1424,8 @@ export class WorkspaceService {
                 orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
               });
               if (!next || next.isWon) throw new BadRequestException('下一步需通过合同签约完成赢单');
+              const customer=await tx.customer.findFirst({where:{tenantId:a.tenantId,id:id(row.customerId),deletedAt:null},select:{name:true}});
+              if(pendingCustomerName(customer?.name)&&!['new','qualified'].includes(next.code))throw new BadRequestException('客户名字待核实，请先确认客户身份，再进入方案或商务阶段');
               if (new Prisma.Decimal(String(row.amount)).lte(0) || !row.demandSummary)
                 throw new BadRequestException('请先填写有效金额和需求摘要');
               await tx.opportunity.update({
@@ -1606,6 +1670,7 @@ export class WorkspaceService {
             if (!['pending', 'in_progress', 'overdue'].includes(String(row.status)))
               throw new ConflictException('行动已完成或取消');
             await this.db(tx, kind).update({ where, data: { status: 'completed', completedAt: new Date() } });
+            await tx.calendarEntry.updateMany({where:{tenantId:a.tenantId,origin:'crm_plan',externalId:'crm-action-plan:'+recordId,status:'scheduled'},data:{status:'completed',revision:{increment:1}}});
           }
           return {
             id: recordId,
@@ -1627,6 +1692,10 @@ export class WorkspaceService {
       },
       async (tx) => {
         if (kind === 'customers' && action === 'assign') await this.require(tx, a, kind, recordId);
+        if(kind==='opportunities'&&action==='follow'){
+          const opportunity=await this.require(tx,a,kind,recordId);
+          await this.require(tx,a,'customers',id(opportunity.customerId));
+        }
       },
     );
   }
@@ -1750,8 +1819,21 @@ export class WorkspaceService {
       where: { tenantId: a.tenantId, isActive: true },
       orderBy: { sortOrder: 'asc' },
     });
+    const allFinancialContractIds=[...new Set([...contracts.map(c=>c.id),...plans.map(p=>p.contractId),...invoices.map(i=>i.contractId),...receipts.flatMap(r=>r.contractId?[r.contractId]:[])])];
+    const trades=await contractTrades(tx,a.tenantId,allFinancialContractIds),commissionIds=new Set([...trades].filter(([,t])=>t.category==='software_commission').map(([id])=>id));
+    let businessSummary:ReturnType<typeof businessReport>['summary']|null=null;
+    const businessProjectAccess=hasPermission(a,'project:read');
+    if(hasPermission(a,'finance:read')&&hasPermission(a,'contract:read')){
+      const cids=contracts.filter(c=>c.currency==='CNY'&&['signed','executing','completed'].includes(c.status)).map(c=>c.id);
+      const bp=await tx.paymentPlan.findMany({where:{AND:[await scoped('payment-plans'),{contractId:{in:cids}}]}});
+      const bi=await tx.invoice.findMany({where:{AND:[await scoped('invoices'),{contractId:{in:cids}}]}});
+      const bj=businessProjectAccess?await tx.project.findMany({where:{AND:[await this.scope(tx,a,'projects'),{contractId:{in:cids}}]}}):[];
+      if([contracts,bp,bi,bj].some(rows=>rows.length>10000))throw new BadRequestException('统计超过10000条，请缩小日期或人员范围');
+      const bc=await tx.customer.findMany({where:{tenantId:a.tenantId,id:{in:contracts.map(c=>c.customerId)}},select:{id:true,name:true,customerCategory:true,channelBrand:true}});
+      businessSummary=businessReport(contracts,bp,bi,bj,trades,new Map(bc.map(c=>[c.id,c])),period??reportQuery({from:'2010-01-01',to:'2060-12-31'})).summary;
+    }
     const today = new Date(businessDay(new Date()) + 'T00:00:00.000Z');
-    return {
+    return {businessSummary,businessProjectAccess,
       audience,
       restrictedModules: ['customers', 'opportunities', 'contracts', 'projects', 'payment-plans', 'actions'].filter(
         (kind) => !hasPermission(a, resourcePermission(kind, 'read')),
@@ -1759,12 +1841,12 @@ export class WorkspaceService {
       role: admin(a) ? 'admin' : boss(a) ? 'boss' : manager(a) ? 'manager' : 'sales',
       customers: customers.length,
       openOpportunities: opps.filter((o) => o.status === 'open').length,
-      pipeline: sum(opps.filter((o) => o.status === 'open' && salesForecastEligible(o)).map((o) => o.amount)),
+      pipeline: sum(opps.filter((o) => o.status === 'open' && salesForecastEligible(o)).map((o) => ownTradeAmount(o)??new Prisma.Decimal(0))),
       signedAmount: sum(
-        contracts.filter((c) => ['signed', 'executing', 'completed'].includes(c.status)).map((c) => c.amount),
+        contracts.filter((c) => ['signed', 'executing', 'completed'].includes(c.status)&&!commissionIds.has(c.id)).map((c) => c.amount),
       ),
-      received: period ? sum(receipts.map(r=>r.amount)) : sum(plans.map((p) => p.receivedAmount)),
-      invoiced: sum(invoices.map(i=>i.amount)),
+      received: period ? sum(receipts.filter(r=>!r.contractId||!commissionIds.has(r.contractId)).map(r=>r.amount)) : sum(plans.map((p) => p.receivedAmount)),
+      invoiced: sum(invoices.filter(i=>!commissionIds.has(i.contractId)).map(i=>i.amount)),
       outstanding: sum(plans.map((p) => p.outstandingAmount)),
       overdue: sum(plans.filter((p) => p.dueDate && p.dueDate < today && p.status !== 'cancelled').map((p) => p.outstandingAmount)),
       projects: projects.length,
@@ -1772,7 +1854,7 @@ export class WorkspaceService {
         name: s.name,
         code: s.code,
         count: opps.filter((o) => o.status === 'open' && o.stage === s.code).length,
-        amount: sum(opps.filter((o) => o.status === 'open' && o.stage === s.code && salesForecastEligible(o)).map((o) => o.amount)),
+        amount: sum(opps.filter((o) => o.status === 'open' && o.stage === s.code && salesForecastEligible(o)).map((o) => ownTradeAmount(o)??new Prisma.Decimal(0))),
       })),
       actions,
       users,

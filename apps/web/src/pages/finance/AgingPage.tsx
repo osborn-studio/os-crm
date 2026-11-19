@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Progress, Typography, Space } from 'antd';
+import { Card, Row, Col, Statistic, Tag, Progress, Typography, Space } from 'antd';
 import { AlertOutlined } from '@ant-design/icons';
 import request from '../../services/request';
 

@@ -1,3 +1,5 @@
+import Table from '../../components/BusinessTable';
+import BusinessSort,{type BusinessSortValue} from '../../components/BusinessSort';
 import AccessPolicyPanel from './AccessPolicyPanel';
 import { useEffect, useState, useRef } from 'react';
 import {
@@ -10,7 +12,6 @@ import {
   Modal,
   Select,
   Space,
-  Table,
   Tag,
   Tabs,
   Typography,
@@ -52,6 +53,7 @@ function departmentTree(rows: RecordRow[]): DepartmentNode[] {
 }
 export default function SystemPage() {
   const navigate = useNavigate();
+  const [sorting,setSorting]=useState<BusinessSortValue>({sortBy:'id',sortOrder:'asc'});
   const [activeTab, setActiveTab] = useState('users'),
     [personPolicy, setPersonPolicy] = useState<PersonPolicy>(),
     [policyTarget, setPolicyTarget] = useState<number>(),
@@ -87,7 +89,7 @@ export default function SystemPage() {
   const load = async () => {
     try {
       const [u, r, d, a, active] = await Promise.all([
-        get<{ items: RecordRow[]; meta: { total: number } }>('/system/users', { page, pageSize: 20, keyword }),
+        get<{ items: RecordRow[]; meta: { total: number } }>('/system/users', { page, pageSize: 20, keyword, ...sorting }),
         get<RecordRow[]>('/system/roles'),
         get<RecordRow[]>('/system/departments/tree'),
         get<{ items: RecordRow[] }>('/system/audit-logs', { pageSize: 50 }),
@@ -106,7 +108,7 @@ export default function SystemPage() {
   };
   useEffect(() => {
     void load();
-  }, [page, keyword]);
+  }, [page, keyword,sorting.sortBy,sorting.sortOrder]);
   const edit = (u?: RecordRow) => {
     setEditing(u);
     userKey.current = key();
@@ -221,11 +223,12 @@ export default function SystemPage() {
             label: '用户账号',
             children: (
               <Card>
+                <BusinessSort value={sorting} fields={[{key:'id',label:'录入顺序'},{key:'createdAt',label:'录入日期'},{key:'name',label:'姓名'},{key:'username',label:'登录账号'},{key:'employeeNo',label:'人员编号'},{key:'status',label:'状态'}]} onChange={v=>{setPage(1);setSorting(v);}}/>
                 <Table
                   rowKey="id"
                   scroll={{ x: 1000 }}
                   dataSource={users}
-                  pagination={{ current: page, pageSize: 20, total, showSizeChanger: false, onChange: setPage }}
+                  serverSorted pagination={{ current: page, pageSize: 20, total, showSizeChanger: false, onChange: setPage }}
                   columns={[
                     { title: '人员编号', dataIndex: 'employeeNo' },
                     { title: '手机号', dataIndex: 'phone' },
@@ -322,7 +325,7 @@ export default function SystemPage() {
           },
           {
             key: 'audit',
-            label: '业务审计',
+            label: '业务审计（最近50条）',
             children: (
               <Card>
                 <Table

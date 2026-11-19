@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Modal, Select, Space, Table, Typography, message } from 'antd';
+import { Alert, Button, Card, Checkbox, Modal, Select, Space, Typography, message } from 'antd';
 import { errorText, get, key, post } from '../../services/workspace';
 interface PolicyRole {
   id: number;

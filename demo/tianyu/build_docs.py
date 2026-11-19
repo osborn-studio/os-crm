@@ -179,3 +179,7 @@ table(d,['移交内容','使用方式'],[['业务应用全景.docx','对外介�
 
 d.save(OUT/'天雨阀门CRM_演示账号与操作手册.docx')
 print('Created 2 Word files')
+
+# Apply current feature text while retaining the established document design.
+from update_delivery_docs import enhance_existing
+enhance_existing(OUT, OUT)

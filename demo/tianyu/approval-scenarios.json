@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "fictional": true,
+  "companyCode": "TIANYU",
+  "fields": [
+    {
+      "key": "customer",
+      "label": "客户名称",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "customerCode",
+      "label": "客户编号",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "relatedDocument",
+      "label": "关联单据",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "businessType",
+      "label": "标准件或定制件",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "channel",
+      "label": "渠道或直销",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "currentStage",
+      "label": "当前阶段",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "targetStage",
+      "label": "申请目标阶段或事项",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "reason",
+      "label": "申请说明与变更前后",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "evidence",
+      "label": "依据与附件说明",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "plannedDate",
+      "label": "拟定执行日期",
+      "type": "date",
+      "required": true
+    }
+  ],
+  "flows": [
+    {
+      "key": "stage-1",
+      "name": "天雨客户六步推进｜前期拜访",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "前期拜访"
+    },
+    {
+      "key": "stage-2",
+      "name": "天雨客户六步推进｜确定教练",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "确定教练"
+    },
+    {
+      "key": "stage-3",
+      "name": "天雨客户六步推进｜核心公关",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "核心公关"
+    },
+    {
+      "key": "stage-4",
+      "name": "天雨客户六步推进｜方案提供",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "方案提供"
+    },
+    {
+      "key": "stage-5",
+      "name": "天雨客户六步推进｜达成合作",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "达成合作"
+    },
+    {
+      "key": "stage-6",
+      "name": "天雨客户六步推进｜重复购买",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "重复购买"
+    },
+    {
+      "key": "new-customer",
+      "name": "天雨｜客户建档申请",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "public-claim",
+      "name": "天雨｜客户公海领取申请",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "customer-transfer",
+      "name": "天雨｜客户转移申请",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "value-customer",
+      "name": "天雨｜公司价值客户申请",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "account-change",
+      "name": "天雨｜户头资料变更",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "account-enable",
+      "name": "天雨｜户头启用申请",
+      "reviewers": [
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "account-disable",
+      "name": "天雨｜户头停用申请",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "buyer-change",
+      "name": "天雨｜购货单位资料变更",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "buyer-enable",
+      "name": "天雨｜购货单位启用",
+      "reviewers": [
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "buyer-disable",
+      "name": "天雨｜购货单位停用",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "project-amount",
+      "name": "天雨｜项目预计金额变更",
+      "reviewers": [
+        1010,
+        1001
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "project-claim",
+      "name": "天雨｜项目公海领取",
+      "reviewers": [
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "custom-review",
+      "name": "天雨｜定制阀门技术评审",
+      "reviewers": [
+        1200,
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "quote-discount",
+      "name": "天雨｜报价与折扣评审",
+      "reviewers": [
+        1010,
+        1001
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "credit-release",
+      "name": "天雨｜信用账期发运放行评审",
+      "reviewers": [
+        1400,
+        1001
+      ],
+      "nextStage": "申请事项确认"
+    },
+    {
+      "key": "collection-adjust",
+      "name": "天雨｜分期回款行动调整",
+      "reviewers": [
+        1400,
+        1010
+      ],
+      "nextStage": "申请事项确认"
+    }
+  ],
+  "states": [
+    "pending",
+    "approved",
+    "rejected",
+    "withdrawn"
+  ],
+  "note": "虚构阀门业务流程模板及审批实例；通用事项表单保留审批决定，业务对象的实际状态修改仍走其受控业务命令。"
+}

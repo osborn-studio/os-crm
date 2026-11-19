@@ -52,8 +52,8 @@ export default function BasicLayout() {
           : '销售';
   const items = [
     { key: '/dashboard', icon: <DashboardOutlined />, label: '经营工作台' },
-    { key: '/calendar', icon: <AuditOutlined />, label: '我的日程与同步' },
-    { key: '/analytics', icon: <DashboardOutlined />, label: '销售预测与回款分析' },
+    { key: '/calendar', icon: <AuditOutlined />, label: '日程与业务推进' },
+    { key: '/analytics', icon: <DashboardOutlined />, label: '合同与收款统计' },
     {
       key: 'customer',
       icon: <TeamOutlined />,
@@ -111,7 +111,7 @@ export default function BasicLayout() {
       label: '财务中心',
       children: [
         { key: '/finance/ledger', label: '收款登记与核销' },
-        { key: '/finance/payment-plans', label: '回款计划' },
+        { key: '/finance/payment-plans', label: '收款计划' },
         { key: '/invoices', label: '发票记录' },
         { key: '/receipts', label: '历史收款记录' },
         { key: '/finance/aging', label: '财务服务' },

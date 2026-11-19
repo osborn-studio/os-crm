@@ -1,0 +1,12 @@
+import { Button, Checkbox, DatePicker, Form, Input, Modal, Select, message } from 'antd';
+import { useRef, useState } from 'react';
+import dayjs from 'dayjs';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { errorText, key, post, type RecordRow } from '../../services/workspace';
+export default function OpportunityFollowup({row,onChanged}:{row:RecordRow;onChanged:()=>void}){
+ const user=useAuthStore(s=>s.user),[open,setOpen]=useState(false),[busy,setBusy]=useState(false),[form]=Form.useForm(),request=useRef('');
+ const has=(p:string)=>user?.roles.includes('super_admin')||user?.permissions?.some(x=>[p,'*',p.split(':')[0]+':*'].includes(x));
+ if(!user?.roles.some(r=>['super_admin','sales_manager','sales'].includes(r))||!has('opportunity:update')||!has('follow_up:create'))return null;
+ async function save(){try{const data=await form.validateFields();setBusy(true);await post('/workspace/opportunities/'+row.id+'/follow',{requestKey:request.current,expectedUpdatedAt:row.updatedAt,followup:{...data,nextAction:typeof data.nextAction==='string'?data.nextAction.trim()||undefined:undefined,nextFollowAt:data.nextFollowAt?data.nextFollowAt.format('YYYY-MM-DD'):undefined}});message.success('跟进已保存，相关商机、客户及下一步安排已更新');setOpen(false);onChanged();}catch(e){if(e&&typeof e==='object'&&'errorFields'in e)return;message.error(errorText(e));}finally{setBusy(false);}}
+ return <><Button type="primary" onClick={()=>{request.current=key();form.resetFields();form.setFieldsValue({method:'other',createAction:false,nextFollowAt:dayjs().add(3,'day')});setOpen(true);}}>新增商机跟进</Button><Modal title={'记录跟进 · '+String(row.name)} open={open} onCancel={()=>setOpen(false)} onOk={()=>void save()} confirmLoading={busy} destroyOnHidden><Form form={form} layout="vertical"><Form.Item label="跟进方式" name="method"><Select options={[['phone','电话'],['visit','拜访'],['wechat','即时沟通'],['email','邮件'],['meeting','会议'],['other','其他']].map(([value,label])=>({value,label}))}/></Form.Item><Form.Item label="本次实际沟通或工作记录" name="content" rules={[{required:true,message:'请填写实际跟进内容'}]}><Input.TextArea rows={5} maxLength={5000}/></Form.Item><Form.Item label="下一步行动" name="nextAction"><Input maxLength={200}/></Form.Item><Form.Item label="下次跟进日期" name="nextFollowAt"><DatePicker style={{width:'100%'}}/></Form.Item>{has('action:create')&&<Form.Item name="createAction" valuePropName="checked"><Checkbox>同时生成负责人行动计划和拟定本地日程</Checkbox></Form.Item>}</Form></Modal></>;
+}

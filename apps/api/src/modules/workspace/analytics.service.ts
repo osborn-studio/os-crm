@@ -10,7 +10,7 @@ import { reportQuery, forecastReport, collectionReport } from './analytics-polic
 const LIMIT = 10000;
 function bounded<T>(rows: T[]) {
   if (rows.length > LIMIT)
-    throw new BadRequestException('本次报表超过10000条查询预算，请缩小负责人或期间范围；系统未返回截断统计');
+    throw new BadRequestException('本次报表超过10000条查询预算，请缩小负责人或所选时间内范围；系统未返回截断统计');
   return rows;
 }
 @Injectable()
@@ -99,7 +99,7 @@ export class AnalyticsService {
             items: result.details.items.map((r) => ({ ...r, ownerName: names.get(r.ownerId) ?? '历史负责人' })),
           },
           notices: [
-            '阶段加权是规则预测，不是销售承诺或AI预测。',
+            '按进度折算是规则预测，不是销售承诺或AI预测。',
             '停用/未知阶段不计加权额；已赢单与开放商机互斥。',
             '未知总价和未明确期限的月费不混入预测金额；金额使用当前值，尚无历史快照/预测提报及锁定。',
           ],
@@ -246,8 +246,8 @@ export class AnalyticsService {
             ...(result.summary.undatedPlanCount ? [`有${result.summary.undatedPlanCount}条计划未填预计回款日，余额${result.summary.undatedOutstanding}元${q.explicitRange ? '待补日期后纳入所选区间余额' : '仍计入全部应收并单列日期待补'}；不编造月度计划或逾期。`] : []),
             '到账按收款日期归期，仅包含当前已复核或有来源的历史导入且未作废记录；不是银行核验。',
             '已核销/未核销及应收余额为当前值，不是历史月末余额；不与到账重复相加。',
-            '计划按到期日统计，不能代替客户承诺日期；旧签约规则生成的30天计划需核对付款条款。',
-            q.explicitRange ? '起止日期同时筛选计划、到账及对应到期计划的当前余额/账龄；不是所选结束日的历史余额快照。按销售筛选排除未绑定合同款。' : '旧版年份/月参数仅筛选期间计划/到账；当前余额和账龄不受期间限制。按销售筛选排除未绑定合同款。',
+            '计划按预计收款日期统计，不能代替客户承诺日期；旧签约规则生成的30天计划需核对付款条款。',
+            q.explicitRange ? '起止日期同时筛选计划、到账及对应收款计划的当前余额/账龄；不是所选结束日的历史余额快照。按销售筛选排除未绑定合同款。' : '旧版年份/月参数仅筛选计划收款/到账；当前余额和账龄不受所选时间内限制。按销售筛选排除未绑定合同款。',
             q.source === 'legacy'
               ? '当前为历史只读记录，不计入正式台账实绩。'
               : '当前为本地管理台账；未绑定合同到账单列，不强行归销售。',

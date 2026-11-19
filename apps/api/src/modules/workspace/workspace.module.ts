@@ -18,6 +18,9 @@ import { SourceArchiveService } from './source-archive.service';
 import { BusinessRulesController } from './business-rules.controller';
 import { SalesIntakeController } from './sales-intake.controller';
 import { SalesIntakeService } from './sales-intake.service';
+import {TradeController} from './trade.controller';
+import {TradeService} from './trade.service';
+import {BusinessReportService} from './business-report.service';
 @Module({
   imports: [ApprovalModule],
   controllers: [
@@ -31,6 +34,7 @@ import { SalesIntakeService } from './sales-intake.service';
     SourceArchiveController,
     BusinessRulesController,
     SalesIntakeController,
+    TradeController,
   ],
   providers: [
     AnalyticsService,
@@ -41,7 +45,9 @@ import { SalesIntakeService } from './sales-intake.service';
     AttachmentService,
     SourceArchiveService,
     SalesIntakeService,
+    TradeService,
+    BusinessReportService,
   ],
-  exports: [WorkspaceService, AnalyticsService],
+  exports: [WorkspaceService, AnalyticsService,BusinessReportService],
 })
 export class WorkspaceModule {}

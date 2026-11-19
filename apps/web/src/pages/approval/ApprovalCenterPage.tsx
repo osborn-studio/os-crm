@@ -572,7 +572,12 @@ export default function ApprovalCenterPage() {
             .filter(
               ([k]) => k !== 'flowSnapshot' && !(detail?.bizType === 'contract_change' && k === 'businessSnapshot'),
             )
-            .map(([k, v]) => ({ key: k, label: k, children: typeof v === 'object' ? JSON.stringify(v) : String(v) }))}
+            .map(([k, v]) => {
+              const snapshot=detail?.formData.flowSnapshot;
+              const fields=snapshot && typeof snapshot==='object' && !Array.isArray(snapshot) ? (snapshot as Record<string,unknown>).fields : undefined;
+              const field=Array.isArray(fields) ? fields.find((f:unknown)=>f && typeof f==='object' && !Array.isArray(f) && (f as Record<string,unknown>).key===k) as Record<string,unknown>|undefined : undefined;
+              return { key:k,label:typeof field?.label==='string'?field.label:k,children:typeof v==='object'?JSON.stringify(v):String(v) };
+            })}
         />
         <Card title="流程版本快照" style={{ marginTop: 20 }}>
           <pre style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(detail?.formData?.flowSnapshot, null, 2)}</pre>

@@ -1,5 +1,7 @@
+import Table from '../../components/BusinessTable';
+import BusinessSort, {type BusinessSortValue} from '../../components/BusinessSort';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Input, Modal, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Input, Modal, Select, Space, Tag, Typography, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { errorText, get, key, post } from '../../services/workspace';
 interface Customer {
@@ -27,6 +29,7 @@ interface History {
   items: { id: number; name: string; toName: string }[];
 }
 export default function CustomerAllocationPage() {
+  const [sorting,setSorting]=useState<BusinessSortValue>({sortBy:'createdAt',sortOrder:'desc'});
   const [rows, setRows] = useState<Customer[]>([]),
     [people, setPeople] = useState<Person[]>([]),
     [owners, setOwners] = useState<Person[]>([]),
@@ -58,6 +61,7 @@ export default function CustomerAllocationPage() {
         get<{ items: Customer[]; meta: { total: number } }>('/workspace/customers', {
           page,
           pageSize: 50,
+          ...sorting,
           keyword,
           ...(owner ? { ownerId: owner } : {}),
           ...(pool ? { poolType: pool } : {}),
@@ -82,7 +86,7 @@ export default function CustomerAllocationPage() {
   };
   useEffect(() => {
     void refresh();
-  }, [page, owner, pool]);
+  }, [page, owner, pool,sorting.sortBy,sorting.sortOrder]);
   const prepare = async () => {
     if (!target || !reason.trim() || !selected.length) {
       message.warning('请选择客户、接收销售并填写分配原因');
@@ -138,6 +142,7 @@ export default function CustomerAllocationPage() {
       />
       {error && <Alert type="error" showIcon message={error} />}
       <Card>
+        <BusinessSort value={sorting} fields={[{key:'createdAt',label:'录入日期'},{key:'updatedAt',label:'更新日期'},{key:'name',label:'客户名称'},{key:'lastFollowAt',label:'最近跟进日期'}]} onChange={v=>{setPage(1);setSorting(v);}}/>
         <Space wrap>
           <Input.Search
             aria-label="搜索待分配客户"
@@ -185,7 +190,7 @@ export default function CustomerAllocationPage() {
           <Button onClick={() => void refresh()}>刷新</Button>
         </Space>
       </Card>
-      <Table<Customer>
+      <Table<Customer> serverSorted
         loading={loading}
         rowKey="id"
         size="small"

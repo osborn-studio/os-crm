@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Checkbox, Form, Input, Modal, Space, Table, Tag, message } from 'antd';
+import { Alert, Button, Card, Checkbox, Form, Input, Modal, Space, Tag, message } from 'antd';
 import { get, post, key, errorText } from '../../services/workspace';
 import { useAuthStore } from '../../stores/useAuthStore';
 type Attachment = {

@@ -16,7 +16,7 @@ describe('delegated report contract', () => {
     expect(allowedReportCapabilities(actor(['opportunity:read'])).map(c=>c.id)).toEqual(['report.sales.forecast']);
     expect(allowedReportCapabilities(actor(['finance:read']))).toHaveLength(0);
     expect(allowedReportCapabilities(actor(['contract:read']))).toHaveLength(0);
-    expect(allowedReportCapabilities(actor(['finance:read','contract:read'])).map(c=>c.id)).toEqual(['report.cash.collections']);
+    expect(allowedReportCapabilities(actor(['finance:read','contract:read'])).map(c=>c.id)).toEqual(['report.business.cash','report.cash.collections']);
     expect(agentCatalog(actor(['opportunity:read'])).tools.map(c=>c.id)).toEqual(['report.sales.forecast']);
   });
   it('converts typed transport parameters without accepting identity or arbitrary objects', () => {

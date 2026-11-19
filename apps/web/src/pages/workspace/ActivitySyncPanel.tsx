@@ -1,5 +1,6 @@
+import Table from '../../components/BusinessTable';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Button, Card, Descriptions, Input, Modal, Space, Switch, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Descriptions, Input, Modal, Space, Switch, Tag, Typography, message } from 'antd';
 import { get, post, key, errorText } from '../../services/workspace';
 interface CalendarPayload {
   title: string;

@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import {reportSortFields} from '../workspace/workspace-sort';
 export const statisticsDate = z.string().regex(/^20[0-9]{2}-[0-9]{2}-[0-9]{2}$/).refine(v => v >= '2010-01-01' && v <= '2060-12-31' && Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0,10)===v);
 export const reportMcpInput = z.object({
+  sortBy:z.enum(reportSortFields).optional(),sortOrder:z.enum(['asc','desc']).optional(),metric:z.enum(['contracts','contractReceived','invoiceReceived','unpaid','invoiced','invoiceUnpaid','construction','commission','projection']).optional(),
   personRange: z.enum(['self','person','company','department']).optional(),
   from: statisticsDate.optional(),
   to: statisticsDate.optional(),

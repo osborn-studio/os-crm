@@ -17,6 +17,8 @@ export interface Resource {
   canCreate: boolean;
   canEdit: boolean;
   readonly?: boolean;
+  sortFields?:{key:string;label:string}[];
+  defaultSort?:{sortBy:string;sortOrder:'asc'|'desc'};
 }
 export const get = <T>(path: string, params?: Record<string, unknown>) => request.get<never, T>(path, { params });
 export const post = <T>(path: string, data: unknown) => request.post<never, T>(path, data);

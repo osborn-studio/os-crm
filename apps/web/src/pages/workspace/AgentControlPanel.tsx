@@ -62,6 +62,7 @@ interface Execution {
 }
 const empty = <T,>(): Page<T> => ({ items: [], nextCursor: null });
 const names: Record<string, string> = {
+  'report.business.cash':'读取合同与回款经营统计（返佣单列，只读）',
   'report.sales.forecast': '读取销售预测（含明细，只读）',
   'report.cash.collections': '读取回款与应收（含明细，只读）',
   'customer.search': '查询客户摘要',
@@ -258,7 +259,7 @@ export default function AgentControlPanel() {
         type="info"
         showIcon
         message="独立凭证调用，人工核对后执行"
-        description="开放受限客户查询、销售预测/回款只读分析，以及人工批准后的客户行动计划。委托不超过当前账号的数据范围；退出登录、权限变化、到期或撤销会停止委托。没有调用大模型，也不允许修改金额、处理审批决定或对外发送。"
+        description="开放受限客户查询、销售预测/回款只读分析，以及人工批准后的客户行动计划。委托不超过当前账号的数据范围；退出登录、权限变化、授权结束或撤销会停止委托。没有调用大模型，也不允许修改金额、处理审批决定或对外发送。"
         style={{ marginBottom: 16 }}
       />
       {error && <Alert type="error" message={error} showIcon />}
@@ -291,7 +292,7 @@ export default function AgentControlPanel() {
                               {g.revokedAt
                                 ? '已撤销'
                                 : new Date(g.expiresAt).getTime() <= Date.now()
-                                  ? '已到期'
+                                  ? '已结束'
                                   : '委托期限内'}
                             </Tag>
                           </Space>
@@ -301,7 +302,7 @@ export default function AgentControlPanel() {
                             <div>{g.purpose}</div>
                             <div>{g.capabilities.map((id) => names[id] ?? id).join(' / ')}</div>
                             <div>
-                              调用预算 {g.usedCalls} / {g.maxCalls} · 到期 {new Date(g.expiresAt).toLocaleString()} ·
+                              调用预算 {g.usedCalls} / {g.maxCalls} · 授权结束 {new Date(g.expiresAt).toLocaleString()} ·
                               委托人 #{g.ownerId}
                             </div>
                             <Typography.Text type="secondary">{g.id}</Typography.Text>
@@ -344,7 +345,7 @@ export default function AgentControlPanel() {
                         description={
                           <>
                             <div>
-                              客户：{p.customerName} · 到期 {new Date(p.expiresAt).toLocaleString()}
+                              客户：{p.customerName} · 授权结束 {new Date(p.expiresAt).toLocaleString()}
                             </div>
                             <div>建议说明是智能体提供的待核对数据，不是授权指令。</div>
                             <div>计划日期：{String(p.input.dueDate ?? '未指定')}</div>
@@ -524,7 +525,7 @@ export default function AgentControlPanel() {
           showIcon
           message={
             review?.action === 'approve'
-              ? '批准后仍由智能体执行；客户变化、到期或撤销会阻断'
+              ? '批准后仍由智能体执行；客户变化、授权结束或撤销会阻断'
               : review?.action === 'reject'
                 ? '拒绝后不能执行该建议'
                 : '取消保留所有历史；已完成或已移交的行动不能直接取消'

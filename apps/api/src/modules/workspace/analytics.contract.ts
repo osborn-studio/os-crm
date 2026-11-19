@@ -1,6 +1,7 @@
 import type { Actor } from '../../common/types/actor';
 import { statisticsProperties } from './statistics-scope';
 import { hasPermission } from './access';
+import { reportSortFields } from './workspace-sort';
 const inputSchema = {
   type: 'object',
   additionalProperties: false,
@@ -16,9 +17,11 @@ const inputSchema = {
     source: { enum: ['managed', 'legacy'] },
     detail: { enum: ['contracts', 'plans', 'receipts', 'balances', 'overdue'] },
     bucket: { enum: ['open', 'won', 'lost', 'closed', 'undated'] },
+    metric:{enum:['contracts','contractReceived','invoiceReceived','unpaid','invoiced','invoiceUnpaid','construction','commission','projection']},sortBy:{enum:reportSortFields},sortOrder:{enum:['asc','desc']},
   },
 };
 export const analyticsCapabilities = [
+  {id:'report.business.cash',description:'按签约合同归期读取我方业务合同、未收、开票、在建金额，渠道甲方往来与单列软件返佣，附可解释规则回款安排。',version:'1.0',permission:'finance:read',additionalPermissions:['contract:read'],effect:'read',endpoint:'GET /analytics/business',inputSchema},
   {
     id: 'report.sales.forecast',
     description: '读取当前权限下销售管道、阶段加权、赢单与明细；规则预测，不是AI销售承诺。',
@@ -40,10 +43,10 @@ export const analyticsCapabilities = [
   },
 ].map((c) => ({
   ...c,
-  outputSchema: { type: 'object', required: ['version', 'generatedAt', 'summary', 'monthly', 'notices'] },
+  outputSchema: { type: 'object', required: c.id==='report.business.cash'?['version','generatedAt','summary','contracts','channels','cashProjection','notices']:['version', 'generatedAt', 'summary', 'monthly', 'notices'] },
   guards: [
     'authenticated tenant/actor',
-    'default self; explicit person/company/department checked against current data scope',
+    'role default; explicit person/company/department checked against current data scope',
     'object and record visibility',
     'RepeatableRead snapshot',
     'read-only; no state effect',

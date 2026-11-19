@@ -1,3 +1,4 @@
+import { statisticsProperties } from '../workspace/statistics-scope';
 const str = { type: 'string' },
   requestKey = { type: 'string', minLength: 1, maxLength: 80 },
   version = { type: 'string', format: 'date-time' };
@@ -28,12 +29,12 @@ export const activityCapabilities = [
       type: 'object',
       additionalProperties: false,
       required: ['from', 'until'],
-      properties: { from: version, until: version },
+      properties: { from: version, until: version, ...statisticsProperties },
     },
     outputSchema: {
       type: 'object',
       required: ['items', 'timeZone'],
-      properties: { items: { type: 'array', maxItems: 1000, items: { type: 'object' } }, timeZone: str },
+      properties: { items: { type: 'array', maxItems: 5000, items: { type: 'object' } }, timeZone: str },
     },
   },
   ...[false, true].map((update) => ({

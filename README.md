@@ -60,7 +60,11 @@
 
 新增[日期筛选、渠道标记与通用或签操作说明](docs/operations/BUSINESS_WORKFLOW_DATES.md)。
 
-新增[统计人员范围与数据权限](docs/operations/STATISTICS_DATA_SCOPE.md)：全部现行统计默认本人，指定人员、部门、全公司由实时后端权限控制，钻取、导出及MCP保持相同范围。
+新增[统计人员范围与数据权限](docs/operations/STATISTICS_DATA_SCOPE.md)：统计按角色默认本人、部门及下属团队或全公司，指定人员、部门、全公司由实时后端权限控制，钻取、导出及MCP保持相同范围。
+
+新增[业务和统计正反序排序](docs/operations/BUSINESS_SORTING.md)：日期、金额、名称等排序，分页列表在服务端排序后分页，保留现有数据权限。
+
+新增[合同、回款与渠道业绩口径](docs/operations/BUSINESS_CASH_METRICS.md)：五项实际金额、渠道甲方往来与单列软件返佣、保留原报价的我方金额拆分、透明规则回款安排及同权限智能体只读报表。
 
 ## 本地安装与访问
 

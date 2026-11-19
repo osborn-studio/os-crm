@@ -22,7 +22,7 @@ export async function verifyAgentReports({ db, url, actors, owner, outsider, pas
     eq(cash.executor,'agent');eq(cash.result.capabilityId,'report.cash.collections');
   }
   for (let i=0;i<grants.length;i++) {
-    eq((await invoke(grants[i],'report.sales.forecast',{year:2059})).result.result.summary.open,i===0?'100.01':'0.00','delegated default self');
+    eq((await invoke(grants[i],'report.sales.forecast',{year:2059})).result.result.summary.open,i<2?'100.01':'1000099.01','delegated role default');
     if(i<2)await invoke(grants[i],'report.sales.forecast',{year:2059,personRange:'company'},403);
     else eq((await invoke(grants[i],'report.sales.forecast',{year:2059,personRange:'company'})).result.result.summary.open,'1000099.01','authorized delegated company');
   }

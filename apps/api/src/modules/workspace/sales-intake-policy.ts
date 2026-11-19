@@ -1,6 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
+import {Prisma} from '@prisma/client';
+import {ownTradeAmount,currentTrade} from './trade-policy';
 const key = z
   .string()
   .min(1)
@@ -25,7 +27,8 @@ const customer = z
     name: z.string().min(1).max(200),
     existingId: z.number().int().positive().optional(),
     expectedUpdatedAt: stamp.optional(),
-    channel: z.enum(['direct', '用友', '钉钉', '其他']),
+    channel: z.enum(['direct', '用友', '钉钉', '阿里', '其他']),
+    customerCategory:z.enum(['direct','sales_channel']).optional(),
     identityStatus: z.string().max(100),
     notes: z.string().max(3000),
   })
@@ -201,14 +204,18 @@ export function salesIntakeMeta(value: unknown): Record<string, unknown> {
   return r && typeof r === 'object' && !Array.isArray(r) ? (r as Record<string, unknown>) : {};
 }
 /** SQL Decimal's zero placeholder is never exposed as a known price. Metadata preserves unknown/basis. */
-export function knownSalesAmount(row: { healthFactors?: unknown }) {
-  return salesIntakeMeta(row.healthFactors).amountKnown !== false;
+export function knownSalesAmount(row: { healthFactors?: unknown; amount?:Prisma.Decimal.Value }) {
+  return salesIntakeMeta(row.healthFactors).amountKnown !== false && (row.amount===undefined || ownTradeAmount({...row,amount:row.amount})!==null);
 }
-export function salesForecastEligible(row: { healthFactors?: unknown }) {
-  return knownSalesAmount(row) && salesIntakeMeta(row.healthFactors).forecastEligible !== false;
+export function salesForecastEligible(row: { healthFactors?: unknown; amount?:Prisma.Decimal.Value }) {
+  return knownSalesAmount(row) && (row.amount===undefined||currentTrade({...row,amount:row.amount}).category!=='software_commission') && salesIntakeMeta(row.healthFactors).forecastEligible !== false;
 }
 export function salesAmountProjection<T extends Record<string, unknown>>(row: T): T {
   if (Object.hasOwn(row, 'healthFactors') && !knownSalesAmount(row))
     return { ...row, amount: null, weightedAmount: null, amountStatus: '待确认金额' };
+  if(Object.hasOwn(row,'healthFactors')&&row.amount!==undefined&&row.amount!==null){
+    const original=new Prisma.Decimal(String(row.amount)),trade=currentTrade({healthFactors:row.healthFactors,amount:original});
+    if(trade.category){const own=ownTradeAmount({healthFactors:row.healthFactors,amount:original});return {...row,projectQuoteAmount:original.toFixed(2),vendorProductAmount:trade.vendorProductAmount??'0.00',tradeCategory:trade.category,amountBasis:trade.reason,amount:own,weightedAmount:own!==null&&typeof row.probability==='number'?own.mul(row.probability).div(100).toDecimalPlaces(2):null};}
+  }
   return row;
 }

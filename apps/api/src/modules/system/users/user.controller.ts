@@ -19,8 +19,10 @@ export class UserController {
     @Query('pageSize') pageSize?: string,
     @Query('keyword') keyword?: string,
     @Query('status') status?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
-    return this.service.findAll(actor, { page: Number(page), pageSize: Number(pageSize), keyword, status });
+    return this.service.findAll(actor, { page: Number(page), pageSize: Number(pageSize), keyword, status, sortBy, sortOrder });
   }
   @Get(':id')
   get(@CurrentUser() actor: Actor, @Param('id', ParseIntPipe) id: number) {

@@ -81,7 +81,7 @@ function BasicInfo({ customer }: { customer: any }) {
       <Descriptions.Item label="用友编码">{customer.yonyouCode || '—'}</Descriptions.Item>
       <Descriptions.Item label="用友产品">{customer.yonyouProduct || '—'}</Descriptions.Item>
       <Descriptions.Item label="用友模块" span={2}>{customer.yonyouModules || '—'}</Descriptions.Item>
-      <Descriptions.Item label="服务到期">{customer.serviceExpiry ? dayjs(customer.serviceExpiry).format('YYYY-MM-DD') : '—'}</Descriptions.Item>
+      <Descriptions.Item label="服务结束日期">{customer.serviceExpiry ? dayjs(customer.serviceExpiry).format('YYYY-MM-DD') : '—'}</Descriptions.Item>
       <Descriptions.Item label="信用代码">{customer.creditCode || '—'}</Descriptions.Item>
       <Descriptions.Item label="法人代表">{customer.legalPerson || '—'}</Descriptions.Item>
       <Descriptions.Item label="池类型"><Tag>{customer.poolType}</Tag></Descriptions.Item>

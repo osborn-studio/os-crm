@@ -1,4 +1,5 @@
-import { Table } from 'antd';
+import Table from '../../components/BusinessTable';
+import {} from 'antd';
 import { money, type RecordRow } from '../../services/workspace';
 export function QuoteLines({ items }: { items: unknown }) {
   const rows = Array.isArray(items)

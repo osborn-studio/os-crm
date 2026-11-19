@@ -131,7 +131,7 @@ describe('sales forecast accounting', () => {
     expect(r.summary.wonCount).toBe(0);
   });
   it('summary is independent of detail pagination', () => {
-    const r = forecastReport([opp(), opp({ id: 2 })], [stage], { ...q(), pageSize: 1, page: 2 });
+    const r = forecastReport([opp(), opp({ id: 2 })], [stage], { ...q(), sortBy:'id', sortOrder:'asc', pageSize: 1, page: 2 });
     expect(r.summary.openCount).toBe(2);
     expect(r.details.meta.total).toBe(2);
     expect(r.details.items[0].id).toBe(2);
