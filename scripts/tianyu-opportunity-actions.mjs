@@ -1,27 +1,196 @@
 /** Fixed fictional fixture enrichment, not an HTTP/agent database tool. No financial or external effects. */
-import assert from'node:assert/strict';import fs from'node:fs';import{createRequire}from'node:module';import{pathToFileURL}from'node:url';import{resolve}from'node:path';import{VERSION}from'../demo/tianyu/generate.mjs';
-export async function installOpportunityActions(db,env){
- assert.equal(env.TENANT_CODE,'TIANYU');assert.equal(env.ACCOUNT_PURPOSE,'test');assert.equal(env.TIANYU_ALLOW_ACTIVITY_SEED,'true');const u=new URL(env.DATABASE_URL);assert(['127.0.0.1','localhost'].includes(u.hostname));assert.match(u.pathname,/^\/(tbcrm_c_[a-f0-9]{16}|tb_crm_test_tianyu_[a-z0-9_]+)$/);
- const tenant=await db.tenant.findUniqueOrThrow({where:{code:'TIANYU'}});assert.equal(await db.tenant.count(),1);assert.equal(tenant.config?.tianyuDemoVersion,VERSION);
- return db.$transaction(async tx=>{
-  const opps=await tx.opportunity.findMany({where:{tenantId:tenant.id,status:'open',deletedAt:null},include:{customer:true},orderBy:{id:'asc'},take:9001});assert(opps.length<=9000);
-  for(const o of opps){assert.match(o.code,/^TY-SJ-\d{5}$/);assert(/（(?:天雨示例|示例)）$/.test(o.customer.name));}
-  const ownerIds=[...new Set(opps.map(o=>o.ownerId))];assert.equal(await tx.user.count({where:{tenantId:tenant.id,id:{in:ownerIds},status:'active',deletedAt:null}}),ownerIds.length);
-  const already=await tx.actionPlan.findMany({where:{tenantId:tenant.id,actionType:'opportunity_next',deletedAt:null},select:{title:true}}),titles=new Set(already.map(a=>a.title));
-  const stageActions={new:'核实应用工况、终端项目、预算和关键联系人，区分直销/渠道；安排需求交流并确认下一步决策人。',qualified:'补齐介质、温压、口径、材质、数量和图纸版本，与技术确认标准件/定制选型及交期。',proposal:'核对报价范围、技术图纸、税费运输与付款条款，收集报价反馈并安排下一轮商务；变价另留报价版本。',negotiation:'复核折扣、交期资源、竞争及付款条件，必要时提交技术/商务评审，确认决策及签约计划。',signing:'核对签约主体、技术商务附件和回款分期，按合同审批办理；没有签署依据不记成交或应收。'};
-  const today=new Date(new Date(Date.now()+8*3600000).toISOString().slice(0,10)+'T00:00:00Z'),rows=[];
-  for(const[i,o]of opps.entries()){const title=('商机推进｜'+o.code+'｜'+o.name).slice(0,200);if(titles.has(title))continue;const due=new Date(today);due.setUTCDate(due.getUTCDate()+1+i%360);while([0,6].includes(due.getUTCDay()))due.setUTCDate(due.getUTCDate()+1);const next=stageActions[o.stage]??'核对当前阶段和下一步所需依据，记录实际反馈后再推进。';rows.push({tenantId:tenant.id,targetType:'customer',targetId:o.customerId,title,content:'【虚构业务推进计划】商机#'+o.id+' '+o.code+'；客户#'+o.customerId+'\n'+next+'\n预计成交日：'+(o.expectedCloseDate?.toISOString().slice(0,10)??'待确认')+'。行动日期为拟定工作安排，先核实实际进度；不代表客户已同意、验收或付款。',actionType:'opportunity_next',assigneeId:o.ownerId,priority:['negotiation','signing'].includes(o.stage)?'high':'medium',dueDate:due,source:'system',status:'pending',createdBy:1});}
-  for(let i=0;i<rows.length;i+=300)await tx.actionPlan.createMany({data:rows.slice(i,i+300)});
-  const actions=await tx.actionPlan.findMany({where:{tenantId:tenant.id,actionType:'opportunity_next',status:{in:['pending','in_progress','overdue']},deletedAt:null},orderBy:{id:'asc'}});
-  const existing=await tx.calendarEntry.findMany({where:{tenantId:tenant.id,ownerId:{in:ownerIds},status:'scheduled'}}),linked=new Set(existing.map(e=>e.externalId).filter(Boolean));
-  const slots=new Map();for(const e of existing.filter(e=>e.freeBusy==='busy')){const list=slots.get(e.ownerId)??[];list.push([e.startsAt.getTime(),e.endsAt.getTime()]);slots.set(e.ownerId,list);}
-  const calendars=[];for(const a of actions){const externalId='crm-action-plan:'+a.id;if(linked.has(externalId))continue;let date=new Date(Math.max(a.dueDate?.getTime()??today.getTime()+86400000,today.getTime()+86400000)),start;
-   for(let tries=0;tries<500;tries++){while([0,6].includes(date.getUTCDay()))date.setUTCDate(date.getUTCDate()+1);const busy=slots.get(a.assigneeId)??[];for(const minute of [600,630,660,690,780,810,840,870,900,930]){const candidate=date.getTime()+(minute-480)*60000;if(!busy.some(([s,e])=>s<candidate+1800000&&e>candidate)){start=candidate;busy.push([start,start+1800000]);slots.set(a.assigneeId,busy);break;}}if(start)break;date.setUTCDate(date.getUTCDate()+1);}
-   assert(start,'No free fictional work slot');calendars.push({tenantId:tenant.id,ownerId:a.assigneeId,title:a.title,description:a.content,location:'业务推进安排',startsAt:new Date(start),endsAt:new Date(start+1800000),freeBusy:'busy',status:'scheduled',origin:'crm_plan',externalId,externalSnapshot:{actionId:a.id,customerId:a.targetId,proposed:true,source:'fixed-tianyu-opportunity-fixture-v1'}});
-  }
-  for(let i=0;i<calendars.length;i+=300)await tx.calendarEntry.createMany({data:calendars.slice(i,i+300)});
-  await tx.auditLog.create({data:{tenantId:tenant.id,userId:1,action:'installation.tianyu.opportunity_actions',objectType:'installation',afterData:{version:1,fictional:true,openOpportunities:opps.length,newActions:rows.length,newCalendarEntries:calendars.length,externalEffects:0}}});
-  return {status:'PASS',openOpportunities:opps.length,newActions:rows.length,newCalendarEntries:calendars.length,externalEffects:0};
- },{timeout:60000,isolationLevel:'Serializable'});
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+import { VERSION, SCALE } from '../demo/tianyu/generate.mjs';
+export async function installOpportunityActions(db, env) {
+  assert.equal(env.TENANT_CODE, 'TIANYU');
+  assert.equal(env.ACCOUNT_PURPOSE, 'test');
+  assert.equal(env.TIANYU_ALLOW_ACTIVITY_SEED, 'true');
+  const u = new URL(env.DATABASE_URL);
+  assert(['127.0.0.1', 'localhost'].includes(u.hostname));
+  assert.match(u.pathname, /^\/(tbcrm_c_[a-f0-9]{16}|tb_crm_test_tianyu_[a-z0-9_]+)$/);
+  const tenant = await db.tenant.findUniqueOrThrow({ where: { code: 'TIANYU' } });
+  assert.equal(await db.tenant.count(), 1);
+  assert.equal(tenant.config?.tianyuDemoVersion, VERSION);
+  return db.$transaction(
+    async (tx) => {
+      const opps = await tx.opportunity.findMany({
+        where: { tenantId: tenant.id, status: 'open', deletedAt: null, code: { startsWith: 'TY-SJ-' } },
+        include: { customer: true },
+        orderBy: { id: 'asc' },
+        take: SCALE.opportunities + 1,
+      });
+      assert(opps.length <= SCALE.opportunities);
+      for (const o of opps) {
+        assert.match(o.code, /^TY-SJ-\d{5}$/);
+        assert(/（(?:天雨示例|示例)）$/.test(o.customer.name));
+      }
+      const ownerIds = [...new Set(opps.map((o) => o.ownerId))];
+      assert.equal(
+        await tx.user.count({
+          where: { tenantId: tenant.id, id: { in: ownerIds }, status: 'active', deletedAt: null },
+        }),
+        ownerIds.length,
+      );
+      const already = await tx.actionPlan.findMany({
+          where: { tenantId: tenant.id, actionType: 'opportunity_next', deletedAt: null },
+          select: { title: true },
+        }),
+        titles = new Set(already.map((a) => a.title));
+      const stageActions = {
+        new: '核实应用工况、终端项目、预算和关键联系人，区分直销/渠道；安排需求交流并确认下一步决策人。',
+        qualified: '补齐介质、温压、口径、材质、数量和图纸版本，与技术确认标准件/定制选型及交期。',
+        proposal: '核对报价范围、技术图纸、税费运输与付款条款，收集报价反馈并安排下一轮商务；变价另留报价版本。',
+        negotiation: '复核折扣、交期资源、竞争及付款条件，必要时提交技术/商务评审，确认决策及签约计划。',
+        signing: '核对签约主体、技术商务附件和回款分期，按合同审批办理；没有签署依据不记成交或应收。',
+      };
+      const today = new Date(new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10) + 'T00:00:00Z'),
+        rows = [];
+      for (const [i, o] of opps.entries()) {
+        const title = ('商机推进｜' + o.code + '｜' + o.name).slice(0, 200);
+        if (titles.has(title)) continue;
+        const due = new Date(today);
+        due.setUTCDate(due.getUTCDate() + 1 + (i % 360));
+        while ([0, 6].includes(due.getUTCDay())) due.setUTCDate(due.getUTCDate() + 1);
+        const next = stageActions[o.stage] ?? '核对当前阶段和下一步所需依据，记录实际反馈后再推进。';
+        rows.push({
+          tenantId: tenant.id,
+          targetType: 'customer',
+          targetId: o.customerId,
+          title,
+          content:
+            '【虚构业务推进计划】商机#' +
+            o.id +
+            ' ' +
+            o.code +
+            '；客户#' +
+            o.customerId +
+            '\n' +
+            next +
+            '\n预计成交日：' +
+            (o.expectedCloseDate?.toISOString().slice(0, 10) ?? '待确认') +
+            '。行动日期为拟定工作安排，先核实实际进度；不代表客户已同意、验收或付款。',
+          actionType: 'opportunity_next',
+          assigneeId: o.ownerId,
+          priority: ['negotiation', 'signing'].includes(o.stage) ? 'high' : 'medium',
+          dueDate: due,
+          source: 'system',
+          status: 'pending',
+          createdBy: 1,
+        });
+      }
+      for (let i = 0; i < rows.length; i += 300) await tx.actionPlan.createMany({ data: rows.slice(i, i + 300) });
+      const actions = await tx.actionPlan.findMany({
+        where: {
+          tenantId: tenant.id,
+          actionType: 'opportunity_next',
+          status: { in: ['pending', 'in_progress', 'overdue'] },
+          deletedAt: null,
+        },
+        orderBy: { id: 'asc' },
+      });
+      const existing = await tx.calendarEntry.findMany({
+          where: { tenantId: tenant.id, ownerId: { in: ownerIds }, status: 'scheduled' },
+        }),
+        linked = new Set(existing.map((e) => e.externalId).filter(Boolean));
+      const slots = new Map();
+      for (const e of existing.filter((e) => e.freeBusy === 'busy')) {
+        const list = slots.get(e.ownerId) ?? [];
+        list.push([e.startsAt.getTime(), e.endsAt.getTime()]);
+        slots.set(e.ownerId, list);
+      }
+      const calendars = [];
+      for (const a of actions) {
+        const externalId = 'crm-action-plan:' + a.id;
+        if (linked.has(externalId)) continue;
+        let date = new Date(Math.max(a.dueDate?.getTime() ?? today.getTime() + 86400000, today.getTime() + 86400000)),
+          start;
+        for (let tries = 0; tries < 500; tries++) {
+          while ([0, 6].includes(date.getUTCDay())) date.setUTCDate(date.getUTCDate() + 1);
+          const busy = slots.get(a.assigneeId) ?? [];
+          for (const minute of [600, 630, 660, 690, 780, 810, 840, 870, 900, 930]) {
+            const candidate = date.getTime() + (minute - 480) * 60000;
+            if (!busy.some(([s, e]) => s < candidate + 1800000 && e > candidate)) {
+              start = candidate;
+              busy.push([start, start + 1800000]);
+              slots.set(a.assigneeId, busy);
+              break;
+            }
+          }
+          if (start) break;
+          date.setUTCDate(date.getUTCDate() + 1);
+        }
+        assert(start, 'No free fictional work slot');
+        calendars.push({
+          tenantId: tenant.id,
+          ownerId: a.assigneeId,
+          title: a.title,
+          description: a.content,
+          location: '业务推进安排',
+          startsAt: new Date(start),
+          endsAt: new Date(start + 1800000),
+          freeBusy: 'busy',
+          status: 'scheduled',
+          origin: 'crm_plan',
+          externalId,
+          externalSnapshot: {
+            actionId: a.id,
+            customerId: a.targetId,
+            proposed: true,
+            source: 'fixed-tianyu-opportunity-fixture-v1',
+          },
+        });
+      }
+      for (let i = 0; i < calendars.length; i += 300)
+        await tx.calendarEntry.createMany({ data: calendars.slice(i, i + 300) });
+      await tx.auditLog.create({
+        data: {
+          tenantId: tenant.id,
+          userId: 1,
+          action: 'installation.tianyu.opportunity_actions',
+          objectType: 'installation',
+          afterData: {
+            version: 1,
+            fictional: true,
+            openOpportunities: opps.length,
+            newActions: rows.length,
+            newCalendarEntries: calendars.length,
+            externalEffects: 0,
+          },
+        },
+      });
+      return {
+        status: 'PASS',
+        openOpportunities: opps.length,
+        newActions: rows.length,
+        newCalendarEntries: calendars.length,
+        externalEffects: 0,
+      };
+    },
+    { timeout: 60000, isolationLevel: 'Serializable' },
+  );
 }
-if(import.meta.url===pathToFileURL(resolve(process.argv[1]??'')).href){const args=process.argv.slice(2),i=args.indexOf('--company-config');assert(args.includes('--confirm-fictional-tianyu'));assert(i>=0&&args[i+1]);const cfg=JSON.parse(fs.readFileSync(resolve(args[i+1]))),req=createRequire(new URL('../packages/database/package.json',import.meta.url)),{PrismaClient}=req('@prisma/client');const db=new PrismaClient({datasourceUrl:cfg.DATABASE_URL});try{const result=await installOpportunityActions(db,{...cfg,TIANYU_ALLOW_ACTIVITY_SEED:'true'});if(args.includes('--receipt')){const p=args[args.indexOf('--receipt')+1];fs.mkdirSync(resolve(p,'..'),{recursive:true});fs.writeFileSync(p,JSON.stringify(result,null,2),{mode:0o600});}console.log(JSON.stringify(result));}finally{await db.$disconnect();}}
+if (import.meta.url === pathToFileURL(resolve(process.argv[1] ?? '')).href) {
+  const args = process.argv.slice(2),
+    i = args.indexOf('--company-config');
+  assert(args.includes('--confirm-fictional-tianyu'));
+  assert(i >= 0 && args[i + 1]);
+  const cfg = JSON.parse(fs.readFileSync(resolve(args[i + 1]))),
+    req = createRequire(new URL('../packages/database/package.json', import.meta.url)),
+    { PrismaClient } = req('@prisma/client');
+  const db = new PrismaClient({ datasourceUrl: cfg.DATABASE_URL });
+  try {
+    const result = await installOpportunityActions(db, { ...cfg, TIANYU_ALLOW_ACTIVITY_SEED: 'true' });
+    if (args.includes('--receipt')) {
+      const p = args[args.indexOf('--receipt') + 1];
+      fs.mkdirSync(resolve(p, '..'), { recursive: true });
+      fs.writeFileSync(p, JSON.stringify(result, null, 2), { mode: 0o600 });
+    }
+    console.log(JSON.stringify(result));
+  } finally {
+    await db.$disconnect();
+  }
+}

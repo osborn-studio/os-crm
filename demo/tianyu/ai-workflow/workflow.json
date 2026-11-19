@@ -1,0 +1,5587 @@
+{
+  "format": "tianyu.ai-workflow@2.0",
+  "version": "2.0-ai-20261116",
+  "baseVersion": "2.0",
+  "asOf": "2026-11-16",
+  "companyCode": "TIANYU",
+  "companyName": "天雨阀门",
+  "fictional": true,
+  "containsRealCompanyData": false,
+  "description": "AI基于授权资料整理客户历史并拟定未来计划的合成业务样例；所有输入及数据独立虚构，未读取真实客户资料。",
+  "cases": [
+    {
+      "key": "TYAI-01",
+      "name": "泵站扩建初步选型",
+      "customerKey": "TY-KH-000001",
+      "customerId": 10000,
+      "customerName": "清源装备（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "lead",
+      "amount": null,
+      "amountBasis": "金额待核，不填0，不年化",
+      "forecastEligible": false,
+      "issue": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。",
+      "steps": [
+        "收齐工况参数和设备位照片",
+        "确认设计院与采购决策人",
+        "形成选型建议后再评估报价"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-01-SRC-01",
+        "TYAI-01-SRC-02",
+        "TYAI-01-SRC-03",
+        "TYAI-01-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-01-SRC-01",
+          "caseKey": "TYAI-01",
+          "customerKey": "TY-KH-000001",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-11T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "泵站扩建初步选型；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-01-SRC-02",
+          "caseKey": "TYAI-01",
+          "customerKey": "TY-KH-000001",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-28T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕泵站扩建初步选型沟通：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步需核对：收齐工况参数和设备位照片。"
+        },
+        {
+          "id": "TYAI-01-SRC-03",
+          "caseKey": "TYAI-01",
+          "customerKey": "TY-KH-000001",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-10-04T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：泵站扩建初步选型。当前问题：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 会议待办：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-01-SRC-04",
+          "caseKey": "TYAI-01",
+          "customerKey": "TY-KH-000001",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-14T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 AI整理结论：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-02",
+      "name": "耐腐蚀调节阀三轮报价",
+      "customerKey": "TY-KH-000002",
+      "customerId": 10001,
+      "customerName": "云澜化工（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "quote",
+      "amount": "152600.00",
+      "amountBasis": "本次独立事项的虚构报价总额；不是已确认应收",
+      "forecastEligible": true,
+      "issue": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。",
+      "steps": [
+        "确认最终配置清单与图纸C版",
+        "核对152600元报价反馈及付款条件",
+        "技术确认后准备供货合同草稿"
+      ],
+      "versions": [
+        {
+          "amount": "144000.00",
+          "sourceId": "TYAI-02-SRC-04",
+          "sourceDate": "2026-10-10",
+          "basis": "虚构报价V1，金额144000.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        },
+        {
+          "amount": "156800.00",
+          "sourceId": "TYAI-02-SRC-05",
+          "sourceDate": "2026-10-14",
+          "basis": "虚构报价V2，金额156800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        },
+        {
+          "amount": "152600.00",
+          "sourceId": "TYAI-02-SRC-06",
+          "sourceDate": "2026-10-18",
+          "basis": "虚构报价V3，金额152600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        }
+      ],
+      "sourceIds": [
+        "TYAI-02-SRC-01",
+        "TYAI-02-SRC-02",
+        "TYAI-02-SRC-03",
+        "TYAI-02-SRC-04",
+        "TYAI-02-SRC-05",
+        "TYAI-02-SRC-06",
+        "TYAI-02-SRC-07"
+      ],
+      "events": [
+        {
+          "id": "TYAI-02-SRC-01",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-10T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "耐腐蚀调节阀三轮报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-02-SRC-02",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-27T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕耐腐蚀调节阀三轮报价沟通：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步需核对：确认最终配置清单与图纸C版。"
+        },
+        {
+          "id": "TYAI-02-SRC-03",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-10-03T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：耐腐蚀调节阀三轮报价。当前问题：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 会议待办：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-02-SRC-04",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "quotation",
+          "internalWork": true,
+          "title": "报价V1",
+          "occurredAt": "2026-10-10T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V1，金额144000.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "144000.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-02-SRC-05",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "quotation_revision",
+          "internalWork": true,
+          "title": "报价V2",
+          "occurredAt": "2026-10-14T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V2，金额156800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "156800.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-02-SRC-06",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "quotation_revision",
+          "internalWork": true,
+          "title": "报价V3",
+          "occurredAt": "2026-10-18T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V3，金额152600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "152600.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-02-SRC-07",
+          "caseKey": "TYAI-02",
+          "customerKey": "TY-KH-000002",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-13T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 AI整理结论：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-03",
+      "name": "高温阀组紧急改造资源掉单",
+      "customerKey": "TY-KH-000003",
+      "customerId": 10002,
+      "customerName": "慕源电力（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "lost",
+      "amount": "258600.00",
+      "amountBasis": "本次独立事项的虚构报价总额；不是已确认应收",
+      "forecastEligible": true,
+      "issue": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+      "steps": [
+        "归档报价与客户要求的交付窗口",
+        "补齐高温密封试验和控制联调资源",
+        "有新窗口后先做产能评审再决定重启"
+      ],
+      "versions": [
+        {
+          "amount": "231400.00",
+          "sourceId": "TYAI-03-SRC-04",
+          "sourceDate": "2026-10-09",
+          "basis": "虚构报价V1，金额231400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        },
+        {
+          "amount": "258600.00",
+          "sourceId": "TYAI-03-SRC-05",
+          "sourceDate": "2026-10-13",
+          "basis": "虚构报价V2，金额258600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        }
+      ],
+      "sourceIds": [
+        "TYAI-03-SRC-01",
+        "TYAI-03-SRC-02",
+        "TYAI-03-SRC-03",
+        "TYAI-03-SRC-04",
+        "TYAI-03-SRC-05",
+        "TYAI-03-SRC-06"
+      ],
+      "events": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-09T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "高温阀组紧急改造资源掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-26T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕高温阀组紧急改造资源掉单沟通：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步需核对：归档报价与客户要求的交付窗口。"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-10-02T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：高温阀组紧急改造资源掉单。当前问题：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 会议待办：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "quotation",
+          "internalWork": true,
+          "title": "报价V1",
+          "occurredAt": "2026-10-09T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V1，金额231400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "231400.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "quotation_revision",
+          "internalWork": true,
+          "title": "报价V2",
+          "occurredAt": "2026-10-13T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V2，金额258600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "258600.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "caseKey": "TYAI-03",
+          "customerKey": "TY-KH-000003",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-12T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 AI整理结论：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-04",
+      "name": "非标阀组试制服务合同草稿",
+      "customerKey": "TY-KH-000004",
+      "customerId": 10003,
+      "customerName": "溪原水利（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "draft",
+      "amount": "17400.00",
+      "amountBasis": "本次独立事项的虚构报价总额；不是已确认应收",
+      "forecastEligible": true,
+      "issue": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。",
+      "steps": [
+        "核对试制样件、测试标准及12人天范围",
+        "确认含税金额与两期付款约定",
+        "签章完成后另走正式签约与收款计划"
+      ],
+      "versions": [
+        {
+          "amount": "17400.00",
+          "sourceId": "TYAI-04-SRC-04",
+          "sourceDate": "2026-10-08",
+          "basis": "虚构报价V1，金额17400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        }
+      ],
+      "sourceIds": [
+        "TYAI-04-SRC-01",
+        "TYAI-04-SRC-02",
+        "TYAI-04-SRC-03",
+        "TYAI-04-SRC-04",
+        "TYAI-04-SRC-05"
+      ],
+      "events": [
+        {
+          "id": "TYAI-04-SRC-01",
+          "caseKey": "TYAI-04",
+          "customerKey": "TY-KH-000004",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-08T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "非标阀组试制服务合同草稿；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-04-SRC-02",
+          "caseKey": "TYAI-04",
+          "customerKey": "TY-KH-000004",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-25T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕非标阀组试制服务合同草稿沟通：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步需核对：核对试制样件、测试标准及12人天范围。"
+        },
+        {
+          "id": "TYAI-04-SRC-03",
+          "caseKey": "TYAI-04",
+          "customerKey": "TY-KH-000004",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-10-01T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：非标阀组试制服务合同草稿。当前问题：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 会议待办：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-04-SRC-04",
+          "caseKey": "TYAI-04",
+          "customerKey": "TY-KH-000004",
+          "fictional": true,
+          "sourceType": "quotation",
+          "internalWork": true,
+          "title": "报价V1",
+          "occurredAt": "2026-10-08T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V1，金额17400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "17400.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-04-SRC-05",
+          "caseKey": "TYAI-04",
+          "customerKey": "TY-KH-000004",
+          "fictional": true,
+          "sourceType": "contract_draft",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-11T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 AI整理结论：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-05",
+      "name": "水务阀组分期交付回款",
+      "customerKey": "TY-KH-000005",
+      "customerId": 10004,
+      "customerName": "澄源水务（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "reference",
+      "amount": null,
+      "amountBasis": "沿用既有演示合同；核对当前单据，不重复新增成交",
+      "forecastEligible": false,
+      "issue": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。",
+      "steps": [
+        "核对供货批次签收与付款触发条件",
+        "跟进已开票部分的付款审批",
+        "取得到账凭据后由另一管理员复核核销"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-05-SRC-01",
+        "TYAI-05-SRC-02",
+        "TYAI-05-SRC-03",
+        "TYAI-05-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-05-SRC-01",
+          "caseKey": "TYAI-05",
+          "customerKey": "TY-KH-000005",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-07T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "水务阀组分期交付回款；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-05-SRC-02",
+          "caseKey": "TYAI-05",
+          "customerKey": "TY-KH-000005",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-24T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕水务阀组分期交付回款沟通：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步需核对：核对供货批次签收与付款触发条件。"
+        },
+        {
+          "id": "TYAI-05-SRC-03",
+          "caseKey": "TYAI-05",
+          "customerKey": "TY-KH-000005",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-30T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：水务阀组分期交付回款。当前问题：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 会议待办：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-05-SRC-04",
+          "caseKey": "TYAI-05",
+          "customerKey": "TY-KH-000005",
+          "fictional": true,
+          "sourceType": "contract_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-10T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 AI整理结论：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": 10004,
+      "existingOpportunityId": 10004,
+      "sourceContractStatus": "signed"
+    },
+    {
+      "key": "TYAI-06",
+      "name": "长周期装置项目技术变更",
+      "customerKey": "TY-KH-000006",
+      "customerId": 10005,
+      "customerName": "沧海化工（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "reference",
+      "amount": null,
+      "amountBasis": "沿用既有演示合同；核对当前单据，不重复新增成交",
+      "forecastEligible": false,
+      "issue": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。",
+      "steps": [
+        "评审图纸D版对材料和交期的影响",
+        "形成变更前后范围及费用对照",
+        "按现有审批流程确认后再修改正式单据"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-06-SRC-01",
+        "TYAI-06-SRC-02",
+        "TYAI-06-SRC-03",
+        "TYAI-06-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-06-SRC-01",
+          "caseKey": "TYAI-06",
+          "customerKey": "TY-KH-000006",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-06T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "长周期装置项目技术变更；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-06-SRC-02",
+          "caseKey": "TYAI-06",
+          "customerKey": "TY-KH-000006",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-23T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕长周期装置项目技术变更沟通：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步需核对：评审图纸D版对材料和交期的影响。"
+        },
+        {
+          "id": "TYAI-06-SRC-03",
+          "caseKey": "TYAI-06",
+          "customerKey": "TY-KH-000006",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-29T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：长周期装置项目技术变更。当前问题：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 会议待办：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-06-SRC-04",
+          "caseKey": "TYAI-06",
+          "customerKey": "TY-KH-000006",
+          "fictional": true,
+          "sourceType": "contract_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-09T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 AI整理结论：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": 10005,
+      "existingOpportunityId": 10005,
+      "sourceContractStatus": "executing"
+    },
+    {
+      "key": "TYAI-07",
+      "name": "经销渠道甲方与终端项目",
+      "customerKey": "TY-KH-000007",
+      "customerId": 10006,
+      "customerName": "海岚流控经销商（天雨示例）",
+      "ownerId": 1300,
+      "ownerName": "渠道业务演示",
+      "kind": "reference",
+      "amount": null,
+      "amountBasis": "沿用既有演示合同；核对当前单据，不重复新增成交",
+      "forecastEligible": false,
+      "issue": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。",
+      "steps": [
+        "核对渠道甲方、终端业主与付款主体",
+        "按本公司合同核对开票和未收余额",
+        "产品奖励与服务供货收入分别记录"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-07-SRC-01",
+        "TYAI-07-SRC-02",
+        "TYAI-07-SRC-03",
+        "TYAI-07-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-07-SRC-01",
+          "caseKey": "TYAI-07",
+          "customerKey": "TY-KH-000007",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-05T02:00:00.000Z",
+          "authorizedBy": 1300,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "经销渠道甲方与终端项目；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-07-SRC-02",
+          "caseKey": "TYAI-07",
+          "customerKey": "TY-KH-000007",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-22T02:00:00.000Z",
+          "authorizedBy": 1300,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕经销渠道甲方与终端项目沟通：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步需核对：核对渠道甲方、终端业主与付款主体。"
+        },
+        {
+          "id": "TYAI-07-SRC-03",
+          "caseKey": "TYAI-07",
+          "customerKey": "TY-KH-000007",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-28T02:00:00.000Z",
+          "authorizedBy": 1300,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：经销渠道甲方与终端项目。当前问题：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 会议待办：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-07-SRC-04",
+          "caseKey": "TYAI-07",
+          "customerKey": "TY-KH-000007",
+          "fictional": true,
+          "sourceType": "contract_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-08T02:00:00.000Z",
+          "authorizedBy": 1300,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 AI整理结论：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": 10006,
+      "existingOpportunityId": 10006,
+      "sourceContractStatus": "completed"
+    },
+    {
+      "key": "TYAI-08",
+      "name": "维保续费价格冲突核对",
+      "customerKey": "TY-KH-000008",
+      "customerId": 10007,
+      "customerName": "远澜能源（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "quote",
+      "amount": null,
+      "amountBasis": "金额待核，不填0，不年化",
+      "forecastEligible": false,
+      "issue": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。",
+      "steps": [
+        "与采购确认两份版本的先后和适用范围",
+        "明确维保期间、备件及响应约定",
+        "确认最终金额后形成新版报价"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-08-SRC-01",
+        "TYAI-08-SRC-02",
+        "TYAI-08-SRC-03",
+        "TYAI-08-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-08-SRC-01",
+          "caseKey": "TYAI-08",
+          "customerKey": "TY-KH-000008",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-04T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "维保续费价格冲突核对；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-08-SRC-02",
+          "caseKey": "TYAI-08",
+          "customerKey": "TY-KH-000008",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-21T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕维保续费价格冲突核对沟通：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步需核对：与采购确认两份版本的先后和适用范围。"
+        },
+        {
+          "id": "TYAI-08-SRC-03",
+          "caseKey": "TYAI-08",
+          "customerKey": "TY-KH-000008",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-27T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：维保续费价格冲突核对。当前问题：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 会议待办：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-08-SRC-04",
+          "caseKey": "TYAI-08",
+          "customerKey": "TY-KH-000008",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-07T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 AI整理结论：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-09",
+      "name": "历史开票资料缺合同",
+      "customerKey": "TY-KH-000009",
+      "customerId": 10008,
+      "customerName": "星屿装备（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "lead",
+      "amount": null,
+      "amountBasis": "金额待核，不填0，不年化",
+      "forecastEligible": false,
+      "issue": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。",
+      "steps": [
+        "核对开票抬头与签约及付款主体",
+        "寻找订单、验收或历史协议依据",
+        "证据齐备后补合同草稿并按正常审批处理"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-09-SRC-01",
+        "TYAI-09-SRC-02",
+        "TYAI-09-SRC-03",
+        "TYAI-09-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-09-SRC-01",
+          "caseKey": "TYAI-09",
+          "customerKey": "TY-KH-000009",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-03T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "历史开票资料缺合同；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-09-SRC-02",
+          "caseKey": "TYAI-09",
+          "customerKey": "TY-KH-000009",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-20T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕历史开票资料缺合同沟通：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步需核对：核对开票抬头与签约及付款主体。"
+        },
+        {
+          "id": "TYAI-09-SRC-03",
+          "caseKey": "TYAI-09",
+          "customerKey": "TY-KH-000009",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-26T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：历史开票资料缺合同。当前问题：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 会议待办：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-09-SRC-04",
+          "caseKey": "TYAI-09",
+          "customerKey": "TY-KH-000009",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-06T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 AI整理结论：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-10",
+      "name": "成套阀门商务评估掉单",
+      "customerKey": "TY-KH-000010",
+      "customerId": 10009,
+      "customerName": "雁川冶金（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "lost",
+      "amount": "316800.00",
+      "amountBasis": "本次独立事项的虚构报价总额；不是已确认应收",
+      "forecastEligible": true,
+      "issue": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+      "steps": [
+        "整理低温测试与现场调试技能要求",
+        "复盘缺少的合格人员和排期窗口",
+        "建立合作资源清单，后续重新评审"
+      ],
+      "versions": [
+        {
+          "amount": "299400.00",
+          "sourceId": "TYAI-10-SRC-04",
+          "sourceDate": "2026-10-02",
+          "basis": "虚构报价V1，金额299400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        },
+        {
+          "amount": "316800.00",
+          "sourceId": "TYAI-10-SRC-05",
+          "sourceDate": "2026-10-06",
+          "basis": "虚构报价V2，金额316800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        }
+      ],
+      "sourceIds": [
+        "TYAI-10-SRC-01",
+        "TYAI-10-SRC-02",
+        "TYAI-10-SRC-03",
+        "TYAI-10-SRC-04",
+        "TYAI-10-SRC-05",
+        "TYAI-10-SRC-06"
+      ],
+      "events": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-02T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "成套阀门商务评估掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-19T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕成套阀门商务评估掉单沟通：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步需核对：整理低温测试与现场调试技能要求。"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-25T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：成套阀门商务评估掉单。当前问题：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 会议待办：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "quotation",
+          "internalWork": true,
+          "title": "报价V1",
+          "occurredAt": "2026-10-02T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V1，金额299400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "299400.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "quotation_revision",
+          "internalWork": true,
+          "title": "报价V2",
+          "occurredAt": "2026-10-06T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V2，金额316800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "316800.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "caseKey": "TYAI-10",
+          "customerKey": "TY-KH-000010",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-05T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 AI整理结论：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    },
+    {
+      "key": "TYAI-11",
+      "name": "验收尾款与质保收尾",
+      "customerKey": "TY-KH-000011",
+      "customerId": 10010,
+      "customerName": "临澜成套（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "reference",
+      "amount": null,
+      "amountBasis": "沿用既有演示合同；核对当前单据，不重复新增成交",
+      "forecastEligible": false,
+      "issue": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。",
+      "steps": [
+        "核对验收报告和遗留问题清单",
+        "逐笔核对开票、已收与合同未收金额",
+        "与客户确认尾款及质保释放条件"
+      ],
+      "versions": [],
+      "sourceIds": [
+        "TYAI-11-SRC-01",
+        "TYAI-11-SRC-02",
+        "TYAI-11-SRC-03",
+        "TYAI-11-SRC-04"
+      ],
+      "events": [
+        {
+          "id": "TYAI-11-SRC-01",
+          "caseKey": "TYAI-11",
+          "customerKey": "TY-KH-000011",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-09-01T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "验收尾款与质保收尾；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-11-SRC-02",
+          "caseKey": "TYAI-11",
+          "customerKey": "TY-KH-000011",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-18T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕验收尾款与质保收尾沟通：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步需核对：核对验收报告和遗留问题清单。"
+        },
+        {
+          "id": "TYAI-11-SRC-03",
+          "caseKey": "TYAI-11",
+          "customerKey": "TY-KH-000011",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-24T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：验收尾款与质保收尾。当前问题：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 会议待办：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-11-SRC-04",
+          "caseKey": "TYAI-11",
+          "customerKey": "TY-KH-000011",
+          "fictional": true,
+          "sourceType": "contract_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-04T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 AI整理结论：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": 10010,
+      "existingOpportunityId": 10010,
+      "sourceContractStatus": "completed"
+    },
+    {
+      "key": "TYAI-12",
+      "name": "渠道复购与现场服务报价",
+      "customerKey": "TY-KH-000012",
+      "customerId": 10011,
+      "customerName": "青屿水利（天雨示例）",
+      "ownerId": 1100,
+      "ownerName": "华东销售1",
+      "kind": "quote",
+      "amount": "44800.00",
+      "amountBasis": "本次独立事项的虚构报价总额；不是已确认应收",
+      "forecastEligible": true,
+      "issue": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。",
+      "steps": [
+        "核对现场服务地点和停机窗口",
+        "确认44800元报价、人员及差旅范围",
+        "客户接受后准备独立服务订单"
+      ],
+      "versions": [
+        {
+          "amount": "42600.00",
+          "sourceId": "TYAI-12-SRC-04",
+          "sourceDate": "2026-09-30",
+          "basis": "虚构报价V1，金额42600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        },
+        {
+          "amount": "44800.00",
+          "sourceId": "TYAI-12-SRC-05",
+          "sourceDate": "2026-10-04",
+          "basis": "虚构报价V2，金额44800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+        }
+      ],
+      "sourceIds": [
+        "TYAI-12-SRC-01",
+        "TYAI-12-SRC-02",
+        "TYAI-12-SRC-03",
+        "TYAI-12-SRC-04",
+        "TYAI-12-SRC-05",
+        "TYAI-12-SRC-06"
+      ],
+      "events": [
+        {
+          "id": "TYAI-12-SRC-01",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "presentation",
+          "internalWork": true,
+          "title": "选型与业务场景方案",
+          "occurredAt": "2026-08-31T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "渠道复购与现场服务报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+        },
+        {
+          "id": "TYAI-12-SRC-02",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "authorized_chat",
+          "internalWork": false,
+          "title": "获授权的客户沟通片段",
+          "occurredAt": "2026-09-17T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "客户围绕渠道复购与现场服务报价沟通：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步需核对：核对现场服务地点和停机窗口。"
+        },
+        {
+          "id": "TYAI-12-SRC-03",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "meeting_summary",
+          "internalWork": false,
+          "title": "需求澄清会议纪要",
+          "occurredAt": "2026-09-23T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "讨论主题：渠道复购与现场服务报价。当前问题：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 会议待办：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。未确认的签约、验收与到账不能当作已完成。"
+        },
+        {
+          "id": "TYAI-12-SRC-04",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "quotation",
+          "internalWork": true,
+          "title": "报价V1",
+          "occurredAt": "2026-09-30T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V1，金额42600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "42600.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-12-SRC-05",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "quotation_revision",
+          "internalWork": true,
+          "title": "报价V2",
+          "occurredAt": "2026-10-04T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "虚构报价V2，金额44800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+          "amount": "44800.00",
+          "currency": "CNY"
+        },
+        {
+          "id": "TYAI-12-SRC-06",
+          "caseKey": "TYAI-12",
+          "customerKey": "TY-KH-000012",
+          "fictional": true,
+          "sourceType": "work_review",
+          "internalWork": true,
+          "title": "证据整理与下一步判断",
+          "occurredAt": "2026-11-03T02:00:00.000Z",
+          "authorizedBy": 1100,
+          "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+          "text": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 AI整理结论：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+        }
+      ],
+      "existingContractId": null,
+      "existingOpportunityId": null,
+      "sourceContractStatus": null
+    }
+  ],
+  "sources": [
+    {
+      "id": "TYAI-01-SRC-01",
+      "caseKey": "TYAI-01",
+      "customerKey": "TY-KH-000001",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-11T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "泵站扩建初步选型；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-01-SRC-02",
+      "caseKey": "TYAI-01",
+      "customerKey": "TY-KH-000001",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-28T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕泵站扩建初步选型沟通：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步需核对：收齐工况参数和设备位照片。"
+    },
+    {
+      "id": "TYAI-01-SRC-03",
+      "caseKey": "TYAI-01",
+      "customerKey": "TY-KH-000001",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-10-04T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：泵站扩建初步选型。当前问题：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 会议待办：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-01-SRC-04",
+      "caseKey": "TYAI-01",
+      "customerKey": "TY-KH-000001",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-14T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 AI整理结论：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-02-SRC-01",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-10T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "耐腐蚀调节阀三轮报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-02-SRC-02",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-27T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕耐腐蚀调节阀三轮报价沟通：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步需核对：确认最终配置清单与图纸C版。"
+    },
+    {
+      "id": "TYAI-02-SRC-03",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-10-03T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：耐腐蚀调节阀三轮报价。当前问题：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 会议待办：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-02-SRC-04",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "quotation",
+      "internalWork": true,
+      "title": "报价V1",
+      "occurredAt": "2026-10-10T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V1，金额144000.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "144000.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-02-SRC-05",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "quotation_revision",
+      "internalWork": true,
+      "title": "报价V2",
+      "occurredAt": "2026-10-14T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V2，金额156800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "156800.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-02-SRC-06",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "quotation_revision",
+      "internalWork": true,
+      "title": "报价V3",
+      "occurredAt": "2026-10-18T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V3，金额152600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "152600.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-02-SRC-07",
+      "caseKey": "TYAI-02",
+      "customerKey": "TY-KH-000002",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-13T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 AI整理结论：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-03-SRC-01",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-09T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "高温阀组紧急改造资源掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-03-SRC-02",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-26T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕高温阀组紧急改造资源掉单沟通：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步需核对：归档报价与客户要求的交付窗口。"
+    },
+    {
+      "id": "TYAI-03-SRC-03",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-10-02T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：高温阀组紧急改造资源掉单。当前问题：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 会议待办：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-03-SRC-04",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "quotation",
+      "internalWork": true,
+      "title": "报价V1",
+      "occurredAt": "2026-10-09T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V1，金额231400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "231400.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-03-SRC-05",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "quotation_revision",
+      "internalWork": true,
+      "title": "报价V2",
+      "occurredAt": "2026-10-13T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V2，金额258600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "258600.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-03-SRC-06",
+      "caseKey": "TYAI-03",
+      "customerKey": "TY-KH-000003",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-12T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 AI整理结论：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-04-SRC-01",
+      "caseKey": "TYAI-04",
+      "customerKey": "TY-KH-000004",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-08T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "非标阀组试制服务合同草稿；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-04-SRC-02",
+      "caseKey": "TYAI-04",
+      "customerKey": "TY-KH-000004",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-25T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕非标阀组试制服务合同草稿沟通：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步需核对：核对试制样件、测试标准及12人天范围。"
+    },
+    {
+      "id": "TYAI-04-SRC-03",
+      "caseKey": "TYAI-04",
+      "customerKey": "TY-KH-000004",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-10-01T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：非标阀组试制服务合同草稿。当前问题：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 会议待办：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-04-SRC-04",
+      "caseKey": "TYAI-04",
+      "customerKey": "TY-KH-000004",
+      "fictional": true,
+      "sourceType": "quotation",
+      "internalWork": true,
+      "title": "报价V1",
+      "occurredAt": "2026-10-08T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V1，金额17400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "17400.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-04-SRC-05",
+      "caseKey": "TYAI-04",
+      "customerKey": "TY-KH-000004",
+      "fictional": true,
+      "sourceType": "contract_draft",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-11T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 AI整理结论：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-05-SRC-01",
+      "caseKey": "TYAI-05",
+      "customerKey": "TY-KH-000005",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-07T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "水务阀组分期交付回款；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-05-SRC-02",
+      "caseKey": "TYAI-05",
+      "customerKey": "TY-KH-000005",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-24T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕水务阀组分期交付回款沟通：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步需核对：核对供货批次签收与付款触发条件。"
+    },
+    {
+      "id": "TYAI-05-SRC-03",
+      "caseKey": "TYAI-05",
+      "customerKey": "TY-KH-000005",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-30T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：水务阀组分期交付回款。当前问题：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 会议待办：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-05-SRC-04",
+      "caseKey": "TYAI-05",
+      "customerKey": "TY-KH-000005",
+      "fictional": true,
+      "sourceType": "contract_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-10T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 AI整理结论：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-06-SRC-01",
+      "caseKey": "TYAI-06",
+      "customerKey": "TY-KH-000006",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-06T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "长周期装置项目技术变更；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-06-SRC-02",
+      "caseKey": "TYAI-06",
+      "customerKey": "TY-KH-000006",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-23T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕长周期装置项目技术变更沟通：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步需核对：评审图纸D版对材料和交期的影响。"
+    },
+    {
+      "id": "TYAI-06-SRC-03",
+      "caseKey": "TYAI-06",
+      "customerKey": "TY-KH-000006",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-29T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：长周期装置项目技术变更。当前问题：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 会议待办：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-06-SRC-04",
+      "caseKey": "TYAI-06",
+      "customerKey": "TY-KH-000006",
+      "fictional": true,
+      "sourceType": "contract_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-09T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 AI整理结论：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-07-SRC-01",
+      "caseKey": "TYAI-07",
+      "customerKey": "TY-KH-000007",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-05T02:00:00.000Z",
+      "authorizedBy": 1300,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "经销渠道甲方与终端项目；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-07-SRC-02",
+      "caseKey": "TYAI-07",
+      "customerKey": "TY-KH-000007",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-22T02:00:00.000Z",
+      "authorizedBy": 1300,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕经销渠道甲方与终端项目沟通：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步需核对：核对渠道甲方、终端业主与付款主体。"
+    },
+    {
+      "id": "TYAI-07-SRC-03",
+      "caseKey": "TYAI-07",
+      "customerKey": "TY-KH-000007",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-28T02:00:00.000Z",
+      "authorizedBy": 1300,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：经销渠道甲方与终端项目。当前问题：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 会议待办：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-07-SRC-04",
+      "caseKey": "TYAI-07",
+      "customerKey": "TY-KH-000007",
+      "fictional": true,
+      "sourceType": "contract_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-08T02:00:00.000Z",
+      "authorizedBy": 1300,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 AI整理结论：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-08-SRC-01",
+      "caseKey": "TYAI-08",
+      "customerKey": "TY-KH-000008",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-04T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "维保续费价格冲突核对；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-08-SRC-02",
+      "caseKey": "TYAI-08",
+      "customerKey": "TY-KH-000008",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-21T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕维保续费价格冲突核对沟通：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步需核对：与采购确认两份版本的先后和适用范围。"
+    },
+    {
+      "id": "TYAI-08-SRC-03",
+      "caseKey": "TYAI-08",
+      "customerKey": "TY-KH-000008",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-27T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：维保续费价格冲突核对。当前问题：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 会议待办：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-08-SRC-04",
+      "caseKey": "TYAI-08",
+      "customerKey": "TY-KH-000008",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-07T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 AI整理结论：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-09-SRC-01",
+      "caseKey": "TYAI-09",
+      "customerKey": "TY-KH-000009",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-03T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "历史开票资料缺合同；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-09-SRC-02",
+      "caseKey": "TYAI-09",
+      "customerKey": "TY-KH-000009",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-20T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕历史开票资料缺合同沟通：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步需核对：核对开票抬头与签约及付款主体。"
+    },
+    {
+      "id": "TYAI-09-SRC-03",
+      "caseKey": "TYAI-09",
+      "customerKey": "TY-KH-000009",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-26T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：历史开票资料缺合同。当前问题：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 会议待办：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-09-SRC-04",
+      "caseKey": "TYAI-09",
+      "customerKey": "TY-KH-000009",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-06T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 AI整理结论：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-10-SRC-01",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-02T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "成套阀门商务评估掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-10-SRC-02",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-19T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕成套阀门商务评估掉单沟通：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步需核对：整理低温测试与现场调试技能要求。"
+    },
+    {
+      "id": "TYAI-10-SRC-03",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-25T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：成套阀门商务评估掉单。当前问题：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 会议待办：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-10-SRC-04",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "quotation",
+      "internalWork": true,
+      "title": "报价V1",
+      "occurredAt": "2026-10-02T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V1，金额299400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "299400.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-10-SRC-05",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "quotation_revision",
+      "internalWork": true,
+      "title": "报价V2",
+      "occurredAt": "2026-10-06T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V2，金额316800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "316800.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-10-SRC-06",
+      "caseKey": "TYAI-10",
+      "customerKey": "TY-KH-000010",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-05T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 AI整理结论：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-11-SRC-01",
+      "caseKey": "TYAI-11",
+      "customerKey": "TY-KH-000011",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-09-01T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "验收尾款与质保收尾；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-11-SRC-02",
+      "caseKey": "TYAI-11",
+      "customerKey": "TY-KH-000011",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-18T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕验收尾款与质保收尾沟通：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步需核对：核对验收报告和遗留问题清单。"
+    },
+    {
+      "id": "TYAI-11-SRC-03",
+      "caseKey": "TYAI-11",
+      "customerKey": "TY-KH-000011",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-24T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：验收尾款与质保收尾。当前问题：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 会议待办：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-11-SRC-04",
+      "caseKey": "TYAI-11",
+      "customerKey": "TY-KH-000011",
+      "fictional": true,
+      "sourceType": "contract_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-04T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 AI整理结论：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    },
+    {
+      "id": "TYAI-12-SRC-01",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "presentation",
+      "internalWork": true,
+      "title": "选型与业务场景方案",
+      "occurredAt": "2026-08-31T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "渠道复购与现场服务报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+    },
+    {
+      "id": "TYAI-12-SRC-02",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "authorized_chat",
+      "internalWork": false,
+      "title": "获授权的客户沟通片段",
+      "occurredAt": "2026-09-17T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "客户围绕渠道复购与现场服务报价沟通：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步需核对：核对现场服务地点和停机窗口。"
+    },
+    {
+      "id": "TYAI-12-SRC-03",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "meeting_summary",
+      "internalWork": false,
+      "title": "需求澄清会议纪要",
+      "occurredAt": "2026-09-23T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "讨论主题：渠道复购与现场服务报价。当前问题：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 会议待办：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。未确认的签约、验收与到账不能当作已完成。"
+    },
+    {
+      "id": "TYAI-12-SRC-04",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "quotation",
+      "internalWork": true,
+      "title": "报价V1",
+      "occurredAt": "2026-09-30T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V1，金额42600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "42600.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-12-SRC-05",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "quotation_revision",
+      "internalWork": true,
+      "title": "报价V2",
+      "occurredAt": "2026-10-04T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "虚构报价V2，金额44800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。",
+      "amount": "44800.00",
+      "currency": "CNY"
+    },
+    {
+      "id": "TYAI-12-SRC-06",
+      "caseKey": "TYAI-12",
+      "customerKey": "TY-KH-000012",
+      "fictional": true,
+      "sourceType": "work_review",
+      "internalWork": true,
+      "title": "证据整理与下一步判断",
+      "occurredAt": "2026-11-03T02:00:00.000Z",
+      "authorizedBy": 1100,
+      "authorization": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号",
+      "text": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 AI整理结论：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+    }
+  ],
+  "knowledge": [
+    {
+      "key": "tianyu:ai:project:TYAI-01",
+      "kind": "project",
+      "title": "【演示数据】清源装备（天雨示例）｜泵站扩建初步选型",
+      "customerId": 10000,
+      "summary": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价",
+      "evidenceStatus": "pending",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-01-SRC-01"
+        },
+        {
+          "id": "TYAI-01-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-01-SRC-02"
+        },
+        {
+          "id": "TYAI-01-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-01-SRC-03"
+        },
+        {
+          "id": "TYAI-01-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-01-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000001",
+        "caseKey": "TYAI-01",
+        "事项": "泵站扩建初步选型",
+        "当前问题": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。",
+        "阶段": "潜在线索/需求确认",
+        "可能商机金额": null,
+        "金额口径": "金额待核，不填0，不年化",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-01-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-11T02:00:00.000Z",
+            "summary": "泵站扩建初步选型；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-01-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-28T02:00:00.000Z",
+            "summary": "客户围绕泵站扩建初步选型沟通：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步需核对：收齐工况参数和设备位照片。"
+          },
+          {
+            "sourceId": "TYAI-01-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-10-04T02:00:00.000Z",
+            "summary": "讨论主题：泵站扩建初步选型。当前问题：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 会议待办：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-01-SRC-04",
+            "type": "work_review",
+            "date": "2026-11-14T02:00:00.000Z",
+            "summary": "客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 AI整理结论：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "收齐工况参数和设备位照片",
+          "确认设计院与采购决策人",
+          "形成选型建议后再评估报价"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-01-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】清源装备（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10000,
+      "summary": "客户围绕泵站扩建初步选型沟通：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步需核对：收齐工况参数和设备位照片。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-01-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000001",
+        "caseKey": "TYAI-01",
+        "occurredAt": "2026-09-28T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕泵站扩建初步选型沟通：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 下一步需核对：收齐工况参数和设备位照片。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-01-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】清源装备（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10000,
+      "summary": "讨论主题：泵站扩建初步选型。当前问题：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 会议待办：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-01-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000001",
+        "caseKey": "TYAI-01",
+        "occurredAt": "2026-10-04T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：泵站扩建初步选型。当前问题：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。 会议待办：收齐工况参数和设备位照片；确认设计院与采购决策人；形成选型建议后再评估报价。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-02",
+      "kind": "project",
+      "title": "【演示数据】云澜化工（天雨示例）｜耐腐蚀调节阀三轮报价",
+      "customerId": 10001,
+      "summary": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-02-SRC-01"
+        },
+        {
+          "id": "TYAI-02-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-02-SRC-02"
+        },
+        {
+          "id": "TYAI-02-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-02-SRC-03"
+        },
+        {
+          "id": "TYAI-02-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-02-SRC-04"
+        },
+        {
+          "id": "TYAI-02-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-02-SRC-05"
+        },
+        {
+          "id": "TYAI-02-SRC-06",
+          "label": "报价V3",
+          "location": "demo://TIANYU/TYAI-02-SRC-06"
+        },
+        {
+          "id": "TYAI-02-SRC-07",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-02-SRC-07"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000002",
+        "caseKey": "TYAI-02",
+        "事项": "耐腐蚀调节阀三轮报价",
+        "当前问题": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。",
+        "阶段": "已报价或待核报价",
+        "可能商机金额": "152600.00",
+        "金额口径": "本次独立事项的虚构报价总额；不是已确认应收",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-02-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-10T02:00:00.000Z",
+            "summary": "耐腐蚀调节阀三轮报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-27T02:00:00.000Z",
+            "summary": "客户围绕耐腐蚀调节阀三轮报价沟通：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步需核对：确认最终配置清单与图纸C版。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-10-03T02:00:00.000Z",
+            "summary": "讨论主题：耐腐蚀调节阀三轮报价。当前问题：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 会议待办：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-04",
+            "type": "quotation",
+            "date": "2026-10-10T02:00:00.000Z",
+            "summary": "虚构报价V1，金额144000.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-05",
+            "type": "quotation_revision",
+            "date": "2026-10-14T02:00:00.000Z",
+            "summary": "虚构报价V2，金额156800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-06",
+            "type": "quotation_revision",
+            "date": "2026-10-18T02:00:00.000Z",
+            "summary": "虚构报价V3，金额152600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-02-SRC-07",
+            "type": "work_review",
+            "date": "2026-11-13T02:00:00.000Z",
+            "summary": "首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 AI整理结论：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "确认最终配置清单与图纸C版",
+          "核对152600元报价反馈及付款条件",
+          "技术确认后准备供货合同草稿"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-02-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】云澜化工（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10001,
+      "summary": "客户围绕耐腐蚀调节阀三轮报价沟通：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步需核对：确认最终配置清单与图纸C版。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-02-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000002",
+        "caseKey": "TYAI-02",
+        "occurredAt": "2026-09-27T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕耐腐蚀调节阀三轮报价沟通：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 下一步需核对：确认最终配置清单与图纸C版。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-02-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】云澜化工（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10001,
+      "summary": "讨论主题：耐腐蚀调节阀三轮报价。当前问题：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 会议待办：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-02-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000002",
+        "caseKey": "TYAI-02",
+        "occurredAt": "2026-10-03T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：耐腐蚀调节阀三轮报价。当前问题：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。 会议待办：确认最终配置清单与图纸C版；核对152600元报价反馈及付款条件；技术确认后准备供货合同草稿。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-03",
+      "kind": "project",
+      "title": "【演示数据】慕源电力（天雨示例）｜高温阀组紧急改造资源掉单",
+      "customerId": 10002,
+      "summary": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-03-SRC-01"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-03-SRC-04"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-03-SRC-05"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-03-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000003",
+        "caseKey": "TYAI-03",
+        "事项": "高温阀组紧急改造资源掉单",
+        "当前问题": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+        "阶段": "商务阶段掉单",
+        "可能商机金额": "258600.00",
+        "金额口径": "本次独立事项的虚构报价总额；不是已确认应收",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-03-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-09T02:00:00.000Z",
+            "summary": "高温阀组紧急改造资源掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-03-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-26T02:00:00.000Z",
+            "summary": "客户围绕高温阀组紧急改造资源掉单沟通：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步需核对：归档报价与客户要求的交付窗口。"
+          },
+          {
+            "sourceId": "TYAI-03-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-10-02T02:00:00.000Z",
+            "summary": "讨论主题：高温阀组紧急改造资源掉单。当前问题：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 会议待办：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-03-SRC-04",
+            "type": "quotation",
+            "date": "2026-10-09T02:00:00.000Z",
+            "summary": "虚构报价V1，金额231400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-03-SRC-05",
+            "type": "quotation_revision",
+            "date": "2026-10-13T02:00:00.000Z",
+            "summary": "虚构报价V2，金额258600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-03-SRC-06",
+            "type": "work_review",
+            "date": "2026-11-12T02:00:00.000Z",
+            "summary": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 AI整理结论：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "归档报价与客户要求的交付窗口",
+          "补齐高温密封试验和控制联调资源",
+          "有新窗口后先做产能评审再决定重启"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-03-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】慕源电力（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10002,
+      "summary": "客户围绕高温阀组紧急改造资源掉单沟通：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步需核对：归档报价与客户要求的交付窗口。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000003",
+        "caseKey": "TYAI-03",
+        "occurredAt": "2026-09-26T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕高温阀组紧急改造资源掉单沟通：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 下一步需核对：归档报价与客户要求的交付窗口。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-03-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】慕源电力（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10002,
+      "summary": "讨论主题：高温阀组紧急改造资源掉单。当前问题：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 会议待办：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000003",
+        "caseKey": "TYAI-03",
+        "occurredAt": "2026-10-02T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：高温阀组紧急改造资源掉单。当前问题：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。 会议待办：归档报价与客户要求的交付窗口；补齐高温密封试验和控制联调资源；有新窗口后先做产能评审再决定重启。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:capacity:TYAI-03",
+      "kind": "outsourcing",
+      "title": "【演示数据】慕源电力（天雨示例）｜资源与掉单复盘",
+      "customerId": 10002,
+      "summary": "客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-03-SRC-01"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-03-SRC-04"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-03-SRC-05"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-03-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000003",
+        "caseKey": "TYAI-03",
+        "最后到达阶段": "商务",
+        "报价总额": "258600.00",
+        "掉单原因": "项目窗口内人员和技能资源不足，主动放弃",
+        "模块技能": [
+          "高温密封验证",
+          "控制联调",
+          "现场实施"
+        ],
+        "永久能力不具备": null,
+        "重新承接条件": [
+          "归档报价与客户要求的交付窗口",
+          "补齐高温密封试验和控制联调资源",
+          "有新窗口后先做产能评审再决定重启"
+        ],
+        "说明": "这是虚构容量评估，不将人手不足自动写成永久不支持该功能。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-04",
+      "kind": "project",
+      "title": "【演示数据】溪原水利（天雨示例）｜非标阀组试制服务合同草稿",
+      "customerId": 10003,
+      "summary": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-04-SRC-01"
+        },
+        {
+          "id": "TYAI-04-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-04-SRC-02"
+        },
+        {
+          "id": "TYAI-04-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-04-SRC-03"
+        },
+        {
+          "id": "TYAI-04-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-04-SRC-04"
+        },
+        {
+          "id": "TYAI-04-SRC-05",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-04-SRC-05"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000004",
+        "caseKey": "TYAI-04",
+        "事项": "非标阀组试制服务合同草稿",
+        "当前问题": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。",
+        "阶段": "方案确认，合同未签",
+        "可能商机金额": "17400.00",
+        "金额口径": "本次独立事项的虚构报价总额；不是已确认应收",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-04-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-08T02:00:00.000Z",
+            "summary": "非标阀组试制服务合同草稿；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-04-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-25T02:00:00.000Z",
+            "summary": "客户围绕非标阀组试制服务合同草稿沟通：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步需核对：核对试制样件、测试标准及12人天范围。"
+          },
+          {
+            "sourceId": "TYAI-04-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-10-01T02:00:00.000Z",
+            "summary": "讨论主题：非标阀组试制服务合同草稿。当前问题：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 会议待办：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-04-SRC-04",
+            "type": "quotation",
+            "date": "2026-10-08T02:00:00.000Z",
+            "summary": "虚构报价V1，金额17400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-04-SRC-05",
+            "type": "contract_draft",
+            "date": "2026-11-11T02:00:00.000Z",
+            "summary": "12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 AI整理结论：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对试制样件、测试标准及12人天范围",
+          "确认含税金额与两期付款约定",
+          "签章完成后另走正式签约与收款计划"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-04-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】溪原水利（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10003,
+      "summary": "客户围绕非标阀组试制服务合同草稿沟通：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步需核对：核对试制样件、测试标准及12人天范围。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-04-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000004",
+        "caseKey": "TYAI-04",
+        "occurredAt": "2026-09-25T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕非标阀组试制服务合同草稿沟通：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 下一步需核对：核对试制样件、测试标准及12人天范围。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-04-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】溪原水利（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10003,
+      "summary": "讨论主题：非标阀组试制服务合同草稿。当前问题：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 会议待办：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-04-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000004",
+        "caseKey": "TYAI-04",
+        "occurredAt": "2026-10-01T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：非标阀组试制服务合同草稿。当前问题：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。 会议待办：核对试制样件、测试标准及12人天范围；确认含税金额与两期付款约定；签章完成后另走正式签约与收款计划。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-05",
+      "kind": "project",
+      "title": "【演示数据】澄源水务（天雨示例）｜水务阀组分期交付回款",
+      "customerId": 10004,
+      "summary": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-05-SRC-01"
+        },
+        {
+          "id": "TYAI-05-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-05-SRC-02"
+        },
+        {
+          "id": "TYAI-05-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-05-SRC-03"
+        },
+        {
+          "id": "TYAI-05-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-05-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000005",
+        "caseKey": "TYAI-05",
+        "事项": "水务阀组分期交付回款",
+        "当前问题": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。",
+        "阶段": "沿用签约合同履约",
+        "可能商机金额": null,
+        "金额口径": "沿用既有演示合同；核对当前单据，不重复新增成交",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-05-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-07T02:00:00.000Z",
+            "summary": "水务阀组分期交付回款；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-05-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-24T02:00:00.000Z",
+            "summary": "客户围绕水务阀组分期交付回款沟通：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步需核对：核对供货批次签收与付款触发条件。"
+          },
+          {
+            "sourceId": "TYAI-05-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-30T02:00:00.000Z",
+            "summary": "讨论主题：水务阀组分期交付回款。当前问题：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 会议待办：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-05-SRC-04",
+            "type": "contract_review",
+            "date": "2026-11-10T02:00:00.000Z",
+            "summary": "基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 AI整理结论：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对供货批次签收与付款触发条件",
+          "跟进已开票部分的付款审批",
+          "取得到账凭据后由另一管理员复核核销"
+        ],
+        "原合同引用": 10004,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-05-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】澄源水务（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10004,
+      "summary": "客户围绕水务阀组分期交付回款沟通：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步需核对：核对供货批次签收与付款触发条件。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-05-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000005",
+        "caseKey": "TYAI-05",
+        "occurredAt": "2026-09-24T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕水务阀组分期交付回款沟通：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 下一步需核对：核对供货批次签收与付款触发条件。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-05-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】澄源水务（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10004,
+      "summary": "讨论主题：水务阀组分期交付回款。当前问题：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 会议待办：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-05-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000005",
+        "caseKey": "TYAI-05",
+        "occurredAt": "2026-09-30T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：水务阀组分期交付回款。当前问题：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。 会议待办：核对供货批次签收与付款触发条件；跟进已开票部分的付款审批；取得到账凭据后由另一管理员复核核销。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-06",
+      "kind": "project",
+      "title": "【演示数据】沧海化工（天雨示例）｜长周期装置项目技术变更",
+      "customerId": 10005,
+      "summary": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-06-SRC-01"
+        },
+        {
+          "id": "TYAI-06-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-06-SRC-02"
+        },
+        {
+          "id": "TYAI-06-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-06-SRC-03"
+        },
+        {
+          "id": "TYAI-06-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-06-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000006",
+        "caseKey": "TYAI-06",
+        "事项": "长周期装置项目技术变更",
+        "当前问题": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。",
+        "阶段": "沿用签约合同履约",
+        "可能商机金额": null,
+        "金额口径": "沿用既有演示合同；核对当前单据，不重复新增成交",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-06-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-06T02:00:00.000Z",
+            "summary": "长周期装置项目技术变更；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-06-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-23T02:00:00.000Z",
+            "summary": "客户围绕长周期装置项目技术变更沟通：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步需核对：评审图纸D版对材料和交期的影响。"
+          },
+          {
+            "sourceId": "TYAI-06-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-29T02:00:00.000Z",
+            "summary": "讨论主题：长周期装置项目技术变更。当前问题：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 会议待办：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-06-SRC-04",
+            "type": "contract_review",
+            "date": "2026-11-09T02:00:00.000Z",
+            "summary": "18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 AI整理结论：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "评审图纸D版对材料和交期的影响",
+          "形成变更前后范围及费用对照",
+          "按现有审批流程确认后再修改正式单据"
+        ],
+        "原合同引用": 10005,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-06-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】沧海化工（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10005,
+      "summary": "客户围绕长周期装置项目技术变更沟通：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步需核对：评审图纸D版对材料和交期的影响。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-06-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000006",
+        "caseKey": "TYAI-06",
+        "occurredAt": "2026-09-23T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕长周期装置项目技术变更沟通：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 下一步需核对：评审图纸D版对材料和交期的影响。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-06-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】沧海化工（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10005,
+      "summary": "讨论主题：长周期装置项目技术变更。当前问题：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 会议待办：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-06-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000006",
+        "caseKey": "TYAI-06",
+        "occurredAt": "2026-09-29T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：长周期装置项目技术变更。当前问题：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。 会议待办：评审图纸D版对材料和交期的影响；形成变更前后范围及费用对照；按现有审批流程确认后再修改正式单据。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-07",
+      "kind": "project",
+      "title": "【演示数据】海岚流控经销商（天雨示例）｜经销渠道甲方与终端项目",
+      "customerId": 10006,
+      "summary": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-07-SRC-01"
+        },
+        {
+          "id": "TYAI-07-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-07-SRC-02"
+        },
+        {
+          "id": "TYAI-07-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-07-SRC-03"
+        },
+        {
+          "id": "TYAI-07-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-07-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000007",
+        "caseKey": "TYAI-07",
+        "事项": "经销渠道甲方与终端项目",
+        "当前问题": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。",
+        "阶段": "沿用签约合同履约",
+        "可能商机金额": null,
+        "金额口径": "沿用既有演示合同；核对当前单据，不重复新增成交",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-07-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-05T02:00:00.000Z",
+            "summary": "经销渠道甲方与终端项目；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-07-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-22T02:00:00.000Z",
+            "summary": "客户围绕经销渠道甲方与终端项目沟通：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步需核对：核对渠道甲方、终端业主与付款主体。"
+          },
+          {
+            "sourceId": "TYAI-07-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-28T02:00:00.000Z",
+            "summary": "讨论主题：经销渠道甲方与终端项目。当前问题：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 会议待办：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-07-SRC-04",
+            "type": "contract_review",
+            "date": "2026-11-08T02:00:00.000Z",
+            "summary": "渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 AI整理结论：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对渠道甲方、终端业主与付款主体",
+          "按本公司合同核对开票和未收余额",
+          "产品奖励与服务供货收入分别记录"
+        ],
+        "原合同引用": 10006,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-07-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】海岚流控经销商（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10006,
+      "summary": "客户围绕经销渠道甲方与终端项目沟通：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步需核对：核对渠道甲方、终端业主与付款主体。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-07-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000007",
+        "caseKey": "TYAI-07",
+        "occurredAt": "2026-09-22T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕经销渠道甲方与终端项目沟通：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 下一步需核对：核对渠道甲方、终端业主与付款主体。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-07-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】海岚流控经销商（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10006,
+      "summary": "讨论主题：经销渠道甲方与终端项目。当前问题：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 会议待办：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-07-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000007",
+        "caseKey": "TYAI-07",
+        "occurredAt": "2026-09-28T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：经销渠道甲方与终端项目。当前问题：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。 会议待办：核对渠道甲方、终端业主与付款主体；按本公司合同核对开票和未收余额；产品奖励与服务供货收入分别记录。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-08",
+      "kind": "project",
+      "title": "【演示数据】远澜能源（天雨示例）｜维保续费价格冲突核对",
+      "customerId": 10007,
+      "summary": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价",
+      "evidenceStatus": "pending",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-08-SRC-01"
+        },
+        {
+          "id": "TYAI-08-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-08-SRC-02"
+        },
+        {
+          "id": "TYAI-08-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-08-SRC-03"
+        },
+        {
+          "id": "TYAI-08-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-08-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000008",
+        "caseKey": "TYAI-08",
+        "事项": "维保续费价格冲突核对",
+        "当前问题": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。",
+        "阶段": "已报价或待核报价",
+        "可能商机金额": null,
+        "金额口径": "金额待核，不填0，不年化",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-08-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-04T02:00:00.000Z",
+            "summary": "维保续费价格冲突核对；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-08-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-21T02:00:00.000Z",
+            "summary": "客户围绕维保续费价格冲突核对沟通：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步需核对：与采购确认两份版本的先后和适用范围。"
+          },
+          {
+            "sourceId": "TYAI-08-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-27T02:00:00.000Z",
+            "summary": "讨论主题：维保续费价格冲突核对。当前问题：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 会议待办：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-08-SRC-04",
+            "type": "work_review",
+            "date": "2026-11-07T02:00:00.000Z",
+            "summary": "两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 AI整理结论：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "与采购确认两份版本的先后和适用范围",
+          "明确维保期间、备件及响应约定",
+          "确认最终金额后形成新版报价"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-08-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】远澜能源（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10007,
+      "summary": "客户围绕维保续费价格冲突核对沟通：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步需核对：与采购确认两份版本的先后和适用范围。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-08-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000008",
+        "caseKey": "TYAI-08",
+        "occurredAt": "2026-09-21T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕维保续费价格冲突核对沟通：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 下一步需核对：与采购确认两份版本的先后和适用范围。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-08-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】远澜能源（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10007,
+      "summary": "讨论主题：维保续费价格冲突核对。当前问题：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 会议待办：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-08-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000008",
+        "caseKey": "TYAI-08",
+        "occurredAt": "2026-09-27T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：维保续费价格冲突核对。当前问题：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。 会议待办：与采购确认两份版本的先后和适用范围；明确维保期间、备件及响应约定；确认最终金额后形成新版报价。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-09",
+      "kind": "project",
+      "title": "【演示数据】星屿装备（天雨示例）｜历史开票资料缺合同",
+      "customerId": 10008,
+      "summary": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理",
+      "evidenceStatus": "pending",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-09-SRC-01"
+        },
+        {
+          "id": "TYAI-09-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-09-SRC-02"
+        },
+        {
+          "id": "TYAI-09-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-09-SRC-03"
+        },
+        {
+          "id": "TYAI-09-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-09-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000009",
+        "caseKey": "TYAI-09",
+        "事项": "历史开票资料缺合同",
+        "当前问题": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。",
+        "阶段": "潜在线索/需求确认",
+        "可能商机金额": null,
+        "金额口径": "金额待核，不填0，不年化",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-09-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-03T02:00:00.000Z",
+            "summary": "历史开票资料缺合同；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-09-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-20T02:00:00.000Z",
+            "summary": "客户围绕历史开票资料缺合同沟通：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步需核对：核对开票抬头与签约及付款主体。"
+          },
+          {
+            "sourceId": "TYAI-09-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-26T02:00:00.000Z",
+            "summary": "讨论主题：历史开票资料缺合同。当前问题：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 会议待办：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-09-SRC-04",
+            "type": "work_review",
+            "date": "2026-11-06T02:00:00.000Z",
+            "summary": "模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 AI整理结论：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对开票抬头与签约及付款主体",
+          "寻找订单、验收或历史协议依据",
+          "证据齐备后补合同草稿并按正常审批处理"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-09-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】星屿装备（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10008,
+      "summary": "客户围绕历史开票资料缺合同沟通：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步需核对：核对开票抬头与签约及付款主体。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-09-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000009",
+        "caseKey": "TYAI-09",
+        "occurredAt": "2026-09-20T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕历史开票资料缺合同沟通：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 下一步需核对：核对开票抬头与签约及付款主体。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-09-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】星屿装备（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10008,
+      "summary": "讨论主题：历史开票资料缺合同。当前问题：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 会议待办：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-09-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000009",
+        "caseKey": "TYAI-09",
+        "occurredAt": "2026-09-26T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：历史开票资料缺合同。当前问题：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。 会议待办：核对开票抬头与签约及付款主体；寻找订单、验收或历史协议依据；证据齐备后补合同草稿并按正常审批处理。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-10",
+      "kind": "project",
+      "title": "【演示数据】雁川冶金（天雨示例）｜成套阀门商务评估掉单",
+      "customerId": 10009,
+      "summary": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-10-SRC-01"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-10-SRC-04"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-10-SRC-05"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-10-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000010",
+        "caseKey": "TYAI-10",
+        "事项": "成套阀门商务评估掉单",
+        "当前问题": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+        "阶段": "商务阶段掉单",
+        "可能商机金额": "316800.00",
+        "金额口径": "本次独立事项的虚构报价总额；不是已确认应收",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-10-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-02T02:00:00.000Z",
+            "summary": "成套阀门商务评估掉单；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-10-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-19T02:00:00.000Z",
+            "summary": "客户围绕成套阀门商务评估掉单沟通：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步需核对：整理低温测试与现场调试技能要求。"
+          },
+          {
+            "sourceId": "TYAI-10-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-25T02:00:00.000Z",
+            "summary": "讨论主题：成套阀门商务评估掉单。当前问题：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 会议待办：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-10-SRC-04",
+            "type": "quotation",
+            "date": "2026-10-02T02:00:00.000Z",
+            "summary": "虚构报价V1，金额299400.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-10-SRC-05",
+            "type": "quotation_revision",
+            "date": "2026-10-06T02:00:00.000Z",
+            "summary": "虚构报价V2，金额316800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-10-SRC-06",
+            "type": "work_review",
+            "date": "2026-11-05T02:00:00.000Z",
+            "summary": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 AI整理结论：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "整理低温测试与现场调试技能要求",
+          "复盘缺少的合格人员和排期窗口",
+          "建立合作资源清单，后续重新评审"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-10-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】雁川冶金（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10009,
+      "summary": "客户围绕成套阀门商务评估掉单沟通：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步需核对：整理低温测试与现场调试技能要求。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000010",
+        "caseKey": "TYAI-10",
+        "occurredAt": "2026-09-19T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕成套阀门商务评估掉单沟通：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 下一步需核对：整理低温测试与现场调试技能要求。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-10-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】雁川冶金（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10009,
+      "summary": "讨论主题：成套阀门商务评估掉单。当前问题：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 会议待办：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000010",
+        "caseKey": "TYAI-10",
+        "occurredAt": "2026-09-25T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：成套阀门商务评估掉单。当前问题：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。 会议待办：整理低温测试与现场调试技能要求；复盘缺少的合格人员和排期窗口；建立合作资源清单，后续重新评审。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:capacity:TYAI-10",
+      "kind": "outsourcing",
+      "title": "【演示数据】雁川冶金（天雨示例）｜资源与掉单复盘",
+      "customerId": 10009,
+      "summary": "客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-10-SRC-01"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-10-SRC-04"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-10-SRC-05"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-10-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000010",
+        "caseKey": "TYAI-10",
+        "最后到达阶段": "商务",
+        "报价总额": "316800.00",
+        "掉单原因": "项目窗口内人员和技能资源不足，主动放弃",
+        "模块技能": [
+          "耐低温测试",
+          "多现场调试",
+          "质量认证"
+        ],
+        "永久能力不具备": null,
+        "重新承接条件": [
+          "整理低温测试与现场调试技能要求",
+          "复盘缺少的合格人员和排期窗口",
+          "建立合作资源清单，后续重新评审"
+        ],
+        "说明": "这是虚构容量评估，不将人手不足自动写成永久不支持该功能。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-11",
+      "kind": "project",
+      "title": "【演示数据】临澜成套（天雨示例）｜验收尾款与质保收尾",
+      "customerId": 10010,
+      "summary": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-11-SRC-01"
+        },
+        {
+          "id": "TYAI-11-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-11-SRC-02"
+        },
+        {
+          "id": "TYAI-11-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-11-SRC-03"
+        },
+        {
+          "id": "TYAI-11-SRC-04",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-11-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000011",
+        "caseKey": "TYAI-11",
+        "事项": "验收尾款与质保收尾",
+        "当前问题": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。",
+        "阶段": "沿用签约合同履约",
+        "可能商机金额": null,
+        "金额口径": "沿用既有演示合同；核对当前单据，不重复新增成交",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-11-SRC-01",
+            "type": "presentation",
+            "date": "2026-09-01T02:00:00.000Z",
+            "summary": "验收尾款与质保收尾；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-11-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-18T02:00:00.000Z",
+            "summary": "客户围绕验收尾款与质保收尾沟通：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步需核对：核对验收报告和遗留问题清单。"
+          },
+          {
+            "sourceId": "TYAI-11-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-24T02:00:00.000Z",
+            "summary": "讨论主题：验收尾款与质保收尾。当前问题：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 会议待办：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-11-SRC-04",
+            "type": "contract_review",
+            "date": "2026-11-04T02:00:00.000Z",
+            "summary": "已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 AI整理结论：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对验收报告和遗留问题清单",
+          "逐笔核对开票、已收与合同未收金额",
+          "与客户确认尾款及质保释放条件"
+        ],
+        "原合同引用": 10010,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-11-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】临澜成套（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10010,
+      "summary": "客户围绕验收尾款与质保收尾沟通：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步需核对：核对验收报告和遗留问题清单。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-11-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000011",
+        "caseKey": "TYAI-11",
+        "occurredAt": "2026-09-18T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕验收尾款与质保收尾沟通：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 下一步需核对：核对验收报告和遗留问题清单。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-11-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】临澜成套（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10010,
+      "summary": "讨论主题：验收尾款与质保收尾。当前问题：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 会议待办：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-11-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000011",
+        "caseKey": "TYAI-11",
+        "occurredAt": "2026-09-24T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：验收尾款与质保收尾。当前问题：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。 会议待办：核对验收报告和遗留问题清单；逐笔核对开票、已收与合同未收金额；与客户确认尾款及质保释放条件。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:project:TYAI-12",
+      "kind": "project",
+      "title": "【演示数据】青屿水利（天雨示例）｜渠道复购与现场服务报价",
+      "customerId": 10011,
+      "summary": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-01",
+          "label": "选型与业务场景方案",
+          "location": "demo://TIANYU/TYAI-12-SRC-01"
+        },
+        {
+          "id": "TYAI-12-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-12-SRC-02"
+        },
+        {
+          "id": "TYAI-12-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-12-SRC-03"
+        },
+        {
+          "id": "TYAI-12-SRC-04",
+          "label": "报价V1",
+          "location": "demo://TIANYU/TYAI-12-SRC-04"
+        },
+        {
+          "id": "TYAI-12-SRC-05",
+          "label": "报价V2",
+          "location": "demo://TIANYU/TYAI-12-SRC-05"
+        },
+        {
+          "id": "TYAI-12-SRC-06",
+          "label": "证据整理与下一步判断",
+          "location": "demo://TIANYU/TYAI-12-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "customerKey": "TY-KH-000012",
+        "caseKey": "TYAI-12",
+        "事项": "渠道复购与现场服务报价",
+        "当前问题": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。",
+        "阶段": "已报价或待核报价",
+        "可能商机金额": "44800.00",
+        "金额口径": "本次独立事项的虚构报价总额；不是已确认应收",
+        "历史资料": [
+          {
+            "sourceId": "TYAI-12-SRC-01",
+            "type": "presentation",
+            "date": "2026-08-31T02:00:00.000Z",
+            "summary": "渠道复购与现场服务报价；资料为阀门应用场景与初步方案，形成线索，不代表客户接受报价。"
+          },
+          {
+            "sourceId": "TYAI-12-SRC-02",
+            "type": "authorized_chat",
+            "date": "2026-09-17T02:00:00.000Z",
+            "summary": "客户围绕渠道复购与现场服务报价沟通：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步需核对：核对现场服务地点和停机窗口。"
+          },
+          {
+            "sourceId": "TYAI-12-SRC-03",
+            "type": "meeting_summary",
+            "date": "2026-09-23T02:00:00.000Z",
+            "summary": "讨论主题：渠道复购与现场服务报价。当前问题：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 会议待办：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。未确认的签约、验收与到账不能当作已完成。"
+          },
+          {
+            "sourceId": "TYAI-12-SRC-04",
+            "type": "quotation",
+            "date": "2026-09-30T02:00:00.000Z",
+            "summary": "虚构报价V1，金额42600.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-12-SRC-05",
+            "type": "quotation_revision",
+            "date": "2026-10-04T02:00:00.000Z",
+            "summary": "虚构报价V2，金额44800.00 CNY；本次调整对应产品配置、供货或服务范围；报价文件制作不等于实际客户拜访。"
+          },
+          {
+            "sourceId": "TYAI-12-SRC-06",
+            "type": "work_review",
+            "date": "2026-11-03T02:00:00.000Z",
+            "summary": "渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 AI整理结论：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。这是一条工作资料整理记录，后续实际处理状态另行确认。"
+          }
+        ],
+        "未来行动": [
+          "核对现场服务地点和停机窗口",
+          "确认44800元报价、人员及差旅范围",
+          "客户接受后准备独立服务订单"
+        ],
+        "原合同引用": null,
+        "AI判断依据": "方案形成线索；报价形成商机；修订保留历史；合同草稿不当签约；实际收款沿用单据。",
+        "授权边界": "仅天雨合成资料，当前角色与客户数据范围；不读取或复制其他公司。"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-12-SRC-02",
+      "kind": "meeting",
+      "title": "【演示数据】青屿水利（天雨示例）｜获授权的客户沟通片段",
+      "customerId": 10011,
+      "summary": "客户围绕渠道复购与现场服务报价沟通：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步需核对：核对现场服务地点和停机窗口。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-02",
+          "label": "获授权的客户沟通片段",
+          "location": "demo://TIANYU/TYAI-12-SRC-02"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000012",
+        "caseKey": "TYAI-12",
+        "occurredAt": "2026-09-17T02:00:00.000Z",
+        "资料类型": "authorized_chat",
+        "正文": "客户围绕渠道复购与现场服务报价沟通：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 下一步需核对：核对现场服务地点和停机窗口。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:source:TYAI-12-SRC-03",
+      "kind": "meeting",
+      "title": "【演示数据】青屿水利（天雨示例）｜需求澄清会议纪要",
+      "customerId": 10011,
+      "summary": "讨论主题：渠道复购与现场服务报价。当前问题：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 会议待办：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。未确认的签约、验收与到账不能当作已完成。",
+      "evidenceStatus": "historical",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-03",
+          "label": "需求澄清会议纪要",
+          "location": "demo://TIANYU/TYAI-12-SRC-03"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "associationStatus": "linked",
+        "customerKey": "TY-KH-000012",
+        "caseKey": "TYAI-12",
+        "occurredAt": "2026-09-23T02:00:00.000Z",
+        "资料类型": "meeting_summary",
+        "正文": "讨论主题：渠道复购与现场服务报价。当前问题：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。 会议待办：核对现场服务地点和停机窗口；确认44800元报价、人员及差旅范围；客户接受后准备独立服务订单。未确认的签约、验收与到账不能当作已完成。",
+        "授权": "仅本公开演示资料；不代表授权读取真实企业、员工或个人账号"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:product:TY-S001",
+      "kind": "product",
+      "title": "【演示数据】标准球阀 DN25 PN16",
+      "customerId": null,
+      "summary": "天雨虚构演示产品；按客户需求确认规格和供货范围。",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S001",
+        "产品": "标准球阀 DN25 PN16",
+        "规格": "碳钢 / 法兰 / 手动",
+        "目录单价": "1200.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S001",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S001"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:product:TY-S002",
+      "kind": "product",
+      "title": "【演示数据】标准闸阀 DN50 PN25",
+      "customerId": null,
+      "summary": "天雨虚构演示产品；按客户需求确认规格和供货范围。",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S002",
+        "产品": "标准闸阀 DN50 PN25",
+        "规格": "不锈钢 / 对夹 / 气动",
+        "目录单价": "2000.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S002",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S002"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:product:TY-S003",
+      "kind": "product",
+      "title": "【演示数据】标准蝶阀 DN80 PN40",
+      "customerId": null,
+      "summary": "天雨虚构演示产品；按客户需求确认规格和供货范围。",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S003",
+        "产品": "标准蝶阀 DN80 PN40",
+        "规格": "碳钢 / 法兰 / 电动",
+        "目录单价": "2800.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S003",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S003"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:product:TY-S004",
+      "kind": "product",
+      "title": "【演示数据】标准止回阀 DN100 PN16",
+      "customerId": null,
+      "summary": "天雨虚构演示产品；按客户需求确认规格和供货范围。",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S004",
+        "产品": "标准止回阀 DN100 PN16",
+        "规格": "不锈钢 / 对夹 / 手动",
+        "目录单价": "3600.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S004",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S004"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:price:TY-S001",
+      "kind": "price",
+      "title": "【演示数据】标准球阀 DN25 PN16｜版本价格",
+      "customerId": null,
+      "summary": "虚构目录单价 1200.00 CNY/台",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S001",
+        "产品": "标准球阀 DN25 PN16",
+        "规格": "碳钢 / 法兰 / 手动",
+        "目录单价": "1200.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。",
+        "价格版本": "2026-11-16",
+        "报价层": "虚构产品目录价",
+        "销售折扣": "按演示报价版本另核"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S001",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S001"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:price:TY-S002",
+      "kind": "price",
+      "title": "【演示数据】标准闸阀 DN50 PN25｜版本价格",
+      "customerId": null,
+      "summary": "虚构目录单价 2000.00 CNY/台",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S002",
+        "产品": "标准闸阀 DN50 PN25",
+        "规格": "不锈钢 / 对夹 / 气动",
+        "目录单价": "2000.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。",
+        "价格版本": "2026-11-16",
+        "报价层": "虚构产品目录价",
+        "销售折扣": "按演示报价版本另核"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S002",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S002"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:price:TY-S003",
+      "kind": "price",
+      "title": "【演示数据】标准蝶阀 DN80 PN40｜版本价格",
+      "customerId": null,
+      "summary": "虚构目录单价 2800.00 CNY/台",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S003",
+        "产品": "标准蝶阀 DN80 PN40",
+        "规格": "碳钢 / 法兰 / 电动",
+        "目录单价": "2800.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。",
+        "价格版本": "2026-11-16",
+        "报价层": "虚构产品目录价",
+        "销售折扣": "按演示报价版本另核"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S003",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S003"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:price:TY-S004",
+      "kind": "price",
+      "title": "【演示数据】标准止回阀 DN100 PN16｜版本价格",
+      "customerId": null,
+      "summary": "虚构目录单价 3600.00 CNY/台",
+      "content": {
+        "fictional": true,
+        "产品编码": "TY-S004",
+        "产品": "标准止回阀 DN100 PN16",
+        "规格": "不锈钢 / 对夹 / 手动",
+        "目录单价": "3600.00",
+        "币种": "CNY",
+        "单位": "台",
+        "说明": "虚构阀门产品价表，不是任何实际厂商报价。",
+        "价格版本": "2026-11-16",
+        "报价层": "虚构产品目录价",
+        "销售折扣": "按演示报价版本另核"
+      },
+      "evidenceStatus": "verified_source",
+      "sources": [
+        {
+          "id": "TY-CATALOGUE-TY-S004",
+          "label": "天雨虚构产品目录",
+          "location": "demo://TIANYU/catalogue/TY-S004"
+        }
+      ],
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-01-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜清源装备（天雨示例）｜收齐工况参数和设备位照片",
+      "customerId": 10000,
+      "summary": "收齐工况参数和设备位照片；来源：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-01"
+        },
+        {
+          "id": "TYAI-01-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-02"
+        },
+        {
+          "id": "TYAI-01-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-03"
+        },
+        {
+          "id": "TYAI-01-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-01",
+        "customerKey": "TY-KH-000001",
+        "行动": "收齐工况参数和设备位照片",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-01-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜清源装备（天雨示例）｜确认设计院与采购决策人",
+      "customerId": 10000,
+      "summary": "确认设计院与采购决策人；来源：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-01"
+        },
+        {
+          "id": "TYAI-01-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-02"
+        },
+        {
+          "id": "TYAI-01-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-03"
+        },
+        {
+          "id": "TYAI-01-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-01",
+        "customerKey": "TY-KH-000001",
+        "行动": "确认设计院与采购决策人",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-01-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜清源装备（天雨示例）｜形成选型建议后再评估报价",
+      "customerId": 10000,
+      "summary": "形成选型建议后再评估报价；来源：客户提供介质和空间照片，初步确认DN150与DN200两种口径；尚未确定设计压力、预算和采购主体。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-01-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-01"
+        },
+        {
+          "id": "TYAI-01-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-02"
+        },
+        {
+          "id": "TYAI-01-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-03"
+        },
+        {
+          "id": "TYAI-01-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-01-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-01",
+        "customerKey": "TY-KH-000001",
+        "行动": "形成选型建议后再评估报价",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-02-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜云澜化工（天雨示例）｜确认最终配置清单与图纸C版",
+      "customerId": 10001,
+      "summary": "确认最终配置清单与图纸C版；来源：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-01"
+        },
+        {
+          "id": "TYAI-02-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-02"
+        },
+        {
+          "id": "TYAI-02-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-03"
+        },
+        {
+          "id": "TYAI-02-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-04"
+        },
+        {
+          "id": "TYAI-02-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-05"
+        },
+        {
+          "id": "TYAI-02-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-06"
+        },
+        {
+          "id": "TYAI-02-SRC-07",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-07"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-02",
+        "customerKey": "TY-KH-000002",
+        "行动": "确认最终配置清单与图纸C版",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-02-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜云澜化工（天雨示例）｜核对152600元报价反馈及付款条件",
+      "customerId": 10001,
+      "summary": "核对152600元报价反馈及付款条件；来源：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-01"
+        },
+        {
+          "id": "TYAI-02-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-02"
+        },
+        {
+          "id": "TYAI-02-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-03"
+        },
+        {
+          "id": "TYAI-02-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-04"
+        },
+        {
+          "id": "TYAI-02-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-05"
+        },
+        {
+          "id": "TYAI-02-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-06"
+        },
+        {
+          "id": "TYAI-02-SRC-07",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-07"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-02",
+        "customerKey": "TY-KH-000002",
+        "行动": "核对152600元报价反馈及付款条件",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-02-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜云澜化工（天雨示例）｜技术确认后准备供货合同草稿",
+      "customerId": 10001,
+      "summary": "技术确认后准备供货合同草稿；来源：首轮144000元，加入定位器后156800元，调整分批供货最终152600元；图纸仍需客户书面确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-02-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-01"
+        },
+        {
+          "id": "TYAI-02-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-02"
+        },
+        {
+          "id": "TYAI-02-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-03"
+        },
+        {
+          "id": "TYAI-02-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-04"
+        },
+        {
+          "id": "TYAI-02-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-05"
+        },
+        {
+          "id": "TYAI-02-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-06"
+        },
+        {
+          "id": "TYAI-02-SRC-07",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-02-SRC-07"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-02",
+        "customerKey": "TY-KH-000002",
+        "行动": "技术确认后准备供货合同草稿",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-03-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜慕源电力（天雨示例）｜归档报价与客户要求的交付窗口",
+      "customerId": 10002,
+      "summary": "归档报价与客户要求的交付窗口；来源：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-01"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-04"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-05"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-03",
+        "customerKey": "TY-KH-000003",
+        "行动": "归档报价与客户要求的交付窗口",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-03-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜慕源电力（天雨示例）｜补齐高温密封试验和控制联调资源",
+      "customerId": 10002,
+      "summary": "补齐高温密封试验和控制联调资源；来源：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-01"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-04"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-05"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-03",
+        "customerKey": "TY-KH-000003",
+        "行动": "补齐高温密封试验和控制联调资源",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-03-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜慕源电力（天雨示例）｜有新窗口后先做产能评审再决定重启",
+      "customerId": 10002,
+      "summary": "有新窗口后先做产能评审再决定重启；来源：客户要求四周内完成改造，高温密封验证与控制联调人员同期已满；我方在商务阶段确认无法承接并主动放弃。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-03-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-01"
+        },
+        {
+          "id": "TYAI-03-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-02"
+        },
+        {
+          "id": "TYAI-03-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-03"
+        },
+        {
+          "id": "TYAI-03-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-04"
+        },
+        {
+          "id": "TYAI-03-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-05"
+        },
+        {
+          "id": "TYAI-03-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-03-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-03",
+        "customerKey": "TY-KH-000003",
+        "行动": "有新窗口后先做产能评审再决定重启",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-04-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜溪原水利（天雨示例）｜核对试制样件、测试标准及12人天范围",
+      "customerId": 10003,
+      "summary": "核对试制样件、测试标准及12人天范围；来源：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-01"
+        },
+        {
+          "id": "TYAI-04-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-02"
+        },
+        {
+          "id": "TYAI-04-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-03"
+        },
+        {
+          "id": "TYAI-04-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-04"
+        },
+        {
+          "id": "TYAI-04-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-05"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-04",
+        "customerKey": "TY-KH-000004",
+        "行动": "核对试制样件、测试标准及12人天范围",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-04-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜溪原水利（天雨示例）｜确认含税金额与两期付款约定",
+      "customerId": 10003,
+      "summary": "确认含税金额与两期付款约定；来源：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-01"
+        },
+        {
+          "id": "TYAI-04-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-02"
+        },
+        {
+          "id": "TYAI-04-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-03"
+        },
+        {
+          "id": "TYAI-04-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-04"
+        },
+        {
+          "id": "TYAI-04-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-05"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-04",
+        "customerKey": "TY-KH-000004",
+        "行动": "确认含税金额与两期付款约定",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-04-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜溪原水利（天雨示例）｜签章完成后另走正式签约与收款计划",
+      "customerId": 10003,
+      "summary": "签章完成后另走正式签约与收款计划；来源：12人天试制与测试服务，单价1450元；双方方案范围基本对齐，合同尚未签章，不能建立正式应收。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-04-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-01"
+        },
+        {
+          "id": "TYAI-04-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-02"
+        },
+        {
+          "id": "TYAI-04-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-03"
+        },
+        {
+          "id": "TYAI-04-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-04"
+        },
+        {
+          "id": "TYAI-04-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-04-SRC-05"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-04",
+        "customerKey": "TY-KH-000004",
+        "行动": "签章完成后另走正式签约与收款计划",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-05-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜澄源水务（天雨示例）｜核对供货批次签收与付款触发条件",
+      "customerId": 10004,
+      "summary": "核对供货批次签收与付款触发条件；来源：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-01"
+        },
+        {
+          "id": "TYAI-05-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-02"
+        },
+        {
+          "id": "TYAI-05-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-03"
+        },
+        {
+          "id": "TYAI-05-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-05",
+        "customerKey": "TY-KH-000005",
+        "行动": "核对供货批次签收与付款触发条件",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-05-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜澄源水务（天雨示例）｜跟进已开票部分的付款审批",
+      "customerId": 10004,
+      "summary": "跟进已开票部分的付款审批；来源：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-01"
+        },
+        {
+          "id": "TYAI-05-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-02"
+        },
+        {
+          "id": "TYAI-05-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-03"
+        },
+        {
+          "id": "TYAI-05-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-05",
+        "customerKey": "TY-KH-000005",
+        "行动": "跟进已开票部分的付款审批",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-05-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜澄源水务（天雨示例）｜取得到账凭据后由另一管理员复核核销",
+      "customerId": 10004,
+      "summary": "取得到账凭据后由另一管理员复核核销；来源：基于演示帐套已有签约合同，分别核对预付款、供货款、验收款和质保款；已有实际单据优先。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-05-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-01"
+        },
+        {
+          "id": "TYAI-05-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-02"
+        },
+        {
+          "id": "TYAI-05-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-03"
+        },
+        {
+          "id": "TYAI-05-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-05-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-05",
+        "customerKey": "TY-KH-000005",
+        "行动": "取得到账凭据后由另一管理员复核核销",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-06-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜沧海化工（天雨示例）｜评审图纸D版对材料和交期的影响",
+      "customerId": 10005,
+      "summary": "评审图纸D版对材料和交期的影响；来源：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-01"
+        },
+        {
+          "id": "TYAI-06-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-02"
+        },
+        {
+          "id": "TYAI-06-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-03"
+        },
+        {
+          "id": "TYAI-06-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-06",
+        "customerKey": "TY-KH-000006",
+        "行动": "评审图纸D版对材料和交期的影响",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-06-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜沧海化工（天雨示例）｜形成变更前后范围及费用对照",
+      "customerId": 10005,
+      "summary": "形成变更前后范围及费用对照；来源：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-01"
+        },
+        {
+          "id": "TYAI-06-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-02"
+        },
+        {
+          "id": "TYAI-06-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-03"
+        },
+        {
+          "id": "TYAI-06-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-06",
+        "customerKey": "TY-KH-000006",
+        "行动": "形成变更前后范围及费用对照",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-06-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜沧海化工（天雨示例）｜按现有审批流程确认后再修改正式单据",
+      "customerId": 10005,
+      "summary": "按现有审批流程确认后再修改正式单据；来源：18个月供货周期，客户提出法兰接口与驱动方案调整；先评审变更影响，保留原已签金额和原始图纸版本。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-06-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-01"
+        },
+        {
+          "id": "TYAI-06-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-02"
+        },
+        {
+          "id": "TYAI-06-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-03"
+        },
+        {
+          "id": "TYAI-06-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-06-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-06",
+        "customerKey": "TY-KH-000006",
+        "行动": "按现有审批流程确认后再修改正式单据",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-07-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜海岚流控经销商（天雨示例）｜核对渠道甲方、终端业主与付款主体",
+      "customerId": 10006,
+      "summary": "核对渠道甲方、终端业主与付款主体；来源：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-01"
+        },
+        {
+          "id": "TYAI-07-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-02"
+        },
+        {
+          "id": "TYAI-07-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-03"
+        },
+        {
+          "id": "TYAI-07-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-07",
+        "customerKey": "TY-KH-000007",
+        "行动": "核对渠道甲方、终端业主与付款主体",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-07-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜海岚流控经销商（天雨示例）｜按本公司合同核对开票和未收余额",
+      "customerId": 10006,
+      "summary": "按本公司合同核对开票和未收余额；来源：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-01"
+        },
+        {
+          "id": "TYAI-07-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-02"
+        },
+        {
+          "id": "TYAI-07-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-03"
+        },
+        {
+          "id": "TYAI-07-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-07",
+        "customerKey": "TY-KH-000007",
+        "行动": "按本公司合同核对开票和未收余额",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-07-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜海岚流控经销商（天雨示例）｜产品奖励与服务供货收入分别记录",
+      "customerId": 10006,
+      "summary": "产品奖励与服务供货收入分别记录；来源：渠道公司作为合同付款方，终端项目总盘子680万元只是业务背景；本公司业绩以已有合同和实际回款为依据，不把终端总额全算进来。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-07-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-01"
+        },
+        {
+          "id": "TYAI-07-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-02"
+        },
+        {
+          "id": "TYAI-07-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-03"
+        },
+        {
+          "id": "TYAI-07-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-07-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-07",
+        "customerKey": "TY-KH-000007",
+        "行动": "产品奖励与服务供货收入分别记录",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-08-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜远澜能源（天雨示例）｜与采购确认两份版本的先后和适用范围",
+      "customerId": 10007,
+      "summary": "与采购确认两份版本的先后和适用范围；来源：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-01"
+        },
+        {
+          "id": "TYAI-08-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-02"
+        },
+        {
+          "id": "TYAI-08-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-03"
+        },
+        {
+          "id": "TYAI-08-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-08",
+        "customerKey": "TY-KH-000008",
+        "行动": "与采购确认两份版本的先后和适用范围",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-08-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜远澜能源（天雨示例）｜明确维保期间、备件及响应约定",
+      "customerId": 10007,
+      "summary": "明确维保期间、备件及响应约定；来源：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-01"
+        },
+        {
+          "id": "TYAI-08-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-02"
+        },
+        {
+          "id": "TYAI-08-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-03"
+        },
+        {
+          "id": "TYAI-08-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-08",
+        "customerKey": "TY-KH-000008",
+        "行动": "明确维保期间、备件及响应约定",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-08-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜远澜能源（天雨示例）｜确认最终金额后形成新版报价",
+      "customerId": 10007,
+      "summary": "确认最终金额后形成新版报价；来源：两份材料分别提及每季8700元和9600元，服务期间、备件包及最终价未核；金额保持未知，不年化并入销售预测。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-08-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-01"
+        },
+        {
+          "id": "TYAI-08-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-02"
+        },
+        {
+          "id": "TYAI-08-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-03"
+        },
+        {
+          "id": "TYAI-08-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-08-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-08",
+        "customerKey": "TY-KH-000008",
+        "行动": "确认最终金额后形成新版报价",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-09-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜星屿装备（天雨示例）｜核对开票抬头与签约及付款主体",
+      "customerId": 10008,
+      "summary": "核对开票抬头与签约及付款主体；来源：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-01"
+        },
+        {
+          "id": "TYAI-09-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-02"
+        },
+        {
+          "id": "TYAI-09-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-03"
+        },
+        {
+          "id": "TYAI-09-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-09",
+        "customerKey": "TY-KH-000009",
+        "行动": "核对开票抬头与签约及付款主体",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-09-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜星屿装备（天雨示例）｜寻找订单、验收或历史协议依据",
+      "customerId": 10008,
+      "summary": "寻找订单、验收或历史协议依据；来源：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-01"
+        },
+        {
+          "id": "TYAI-09-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-02"
+        },
+        {
+          "id": "TYAI-09-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-03"
+        },
+        {
+          "id": "TYAI-09-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-09",
+        "customerKey": "TY-KH-000009",
+        "行动": "寻找订单、验收或历史协议依据",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-09-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜星屿装备（天雨示例）｜证据齐备后补合同草稿并按正常审批处理",
+      "customerId": 10008,
+      "summary": "证据齐备后补合同草稿并按正常审批处理；来源：模拟历史开票资料载明32450元，但未取得有效合同对应关系；只形成待核资料与补单行动，不凭开票材料伪造合同签署。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-09-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-01"
+        },
+        {
+          "id": "TYAI-09-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-02"
+        },
+        {
+          "id": "TYAI-09-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-03"
+        },
+        {
+          "id": "TYAI-09-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-09-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-09",
+        "customerKey": "TY-KH-000009",
+        "行动": "证据齐备后补合同草稿并按正常审批处理",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-10-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜雁川冶金（天雨示例）｜整理低温测试与现场调试技能要求",
+      "customerId": 10009,
+      "summary": "整理低温测试与现场调试技能要求；来源：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-01"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-04"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-05"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-10",
+        "customerKey": "TY-KH-000010",
+        "行动": "整理低温测试与现场调试技能要求",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-10-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜雁川冶金（天雨示例）｜复盘缺少的合格人员和排期窗口",
+      "customerId": 10009,
+      "summary": "复盘缺少的合格人员和排期窗口；来源：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-01"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-04"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-05"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-10",
+        "customerKey": "TY-KH-000010",
+        "行动": "复盘缺少的合格人员和排期窗口",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-10-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜雁川冶金（天雨示例）｜建立合作资源清单，后续重新评审",
+      "customerId": 10009,
+      "summary": "建立合作资源清单，后续重新评审；来源：客户要求耐低温测试与同时驻场调试，既有交付团队无法覆盖同期开工；商务沟通后主动放弃，保留报价轮次与资源原因。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-10-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-01"
+        },
+        {
+          "id": "TYAI-10-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-02"
+        },
+        {
+          "id": "TYAI-10-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-03"
+        },
+        {
+          "id": "TYAI-10-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-04"
+        },
+        {
+          "id": "TYAI-10-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-05"
+        },
+        {
+          "id": "TYAI-10-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-10-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-10",
+        "customerKey": "TY-KH-000010",
+        "行动": "建立合作资源清单，后续重新评审",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "medium"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-11-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜临澜成套（天雨示例）｜核对验收报告和遗留问题清单",
+      "customerId": 10010,
+      "summary": "核对验收报告和遗留问题清单；来源：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-01"
+        },
+        {
+          "id": "TYAI-11-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-02"
+        },
+        {
+          "id": "TYAI-11-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-03"
+        },
+        {
+          "id": "TYAI-11-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-11",
+        "customerKey": "TY-KH-000011",
+        "行动": "核对验收报告和遗留问题清单",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-11-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜临澜成套（天雨示例）｜逐笔核对开票、已收与合同未收金额",
+      "customerId": 10010,
+      "summary": "逐笔核对开票、已收与合同未收金额；来源：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-01"
+        },
+        {
+          "id": "TYAI-11-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-02"
+        },
+        {
+          "id": "TYAI-11-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-03"
+        },
+        {
+          "id": "TYAI-11-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-11",
+        "customerKey": "TY-KH-000011",
+        "行动": "逐笔核对开票、已收与合同未收金额",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-11-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜临澜成套（天雨示例）｜与客户确认尾款及质保释放条件",
+      "customerId": 10010,
+      "summary": "与客户确认尾款及质保释放条件；来源：已有演示供货合同进入收尾核对，验收、开票、到账是不同事实；不把计划日期当作已经收款。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-11-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-01"
+        },
+        {
+          "id": "TYAI-11-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-02"
+        },
+        {
+          "id": "TYAI-11-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-03"
+        },
+        {
+          "id": "TYAI-11-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-11-SRC-04"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-11",
+        "customerKey": "TY-KH-000011",
+        "行动": "与客户确认尾款及质保释放条件",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-12-1",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜青屿水利（天雨示例）｜核对现场服务地点和停机窗口",
+      "customerId": 10011,
+      "summary": "核对现场服务地点和停机窗口；来源：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-01"
+        },
+        {
+          "id": "TYAI-12-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-02"
+        },
+        {
+          "id": "TYAI-12-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-03"
+        },
+        {
+          "id": "TYAI-12-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-04"
+        },
+        {
+          "id": "TYAI-12-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-05"
+        },
+        {
+          "id": "TYAI-12-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-12",
+        "customerKey": "TY-KH-000012",
+        "行动": "核对现场服务地点和停机窗口",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-12-2",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜青屿水利（天雨示例）｜确认44800元报价、人员及差旅范围",
+      "customerId": 10011,
+      "summary": "确认44800元报价、人员及差旅范围；来源：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-01"
+        },
+        {
+          "id": "TYAI-12-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-02"
+        },
+        {
+          "id": "TYAI-12-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-03"
+        },
+        {
+          "id": "TYAI-12-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-04"
+        },
+        {
+          "id": "TYAI-12-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-05"
+        },
+        {
+          "id": "TYAI-12-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-12",
+        "customerKey": "TY-KH-000012",
+        "行动": "确认44800元报价、人员及差旅范围",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    },
+    {
+      "key": "tianyu:ai:plan:TYAI-12-3",
+      "kind": "project",
+      "title": "【演示数据】AI行动｜青屿水利（天雨示例）｜客户接受后准备独立服务订单",
+      "customerId": 10011,
+      "summary": "客户接受后准备独立服务订单；来源：渠道提出增加现场定位与检修服务，报价44800元；服务订单与原供货合同分开，采购反馈尚未确认。",
+      "evidenceStatus": "proposed",
+      "sources": [
+        {
+          "id": "TYAI-12-SRC-01",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-01"
+        },
+        {
+          "id": "TYAI-12-SRC-02",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-02"
+        },
+        {
+          "id": "TYAI-12-SRC-03",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-03"
+        },
+        {
+          "id": "TYAI-12-SRC-04",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-04"
+        },
+        {
+          "id": "TYAI-12-SRC-05",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-05"
+        },
+        {
+          "id": "TYAI-12-SRC-06",
+          "label": "天雨虚构业务资料",
+          "location": "demo://TIANYU/TYAI-12-SRC-06"
+        }
+      ],
+      "content": {
+        "fictional": true,
+        "entryType": "action_plan",
+        "caseKey": "TYAI-12",
+        "customerKey": "TY-KH-000012",
+        "行动": "客户接受后准备独立服务订单",
+        "日期性质": "拟定内部处理日期，非客户承诺或已完成事实",
+        "计划优先级": "high"
+      },
+      "expectedVersion": 0
+    }
+  ],
+  "counts": {
+    "cases": 12,
+    "sources": 58,
+    "knowledge": 82,
+    "newCases": 8,
+    "referenceCases": 4
+  },
+  "externalEffects": 0,
+  "sha256": "e33f9c5ac5f687f5ff04a773dc2b9c469a5c6435615114b175288440e823acf6"
+}

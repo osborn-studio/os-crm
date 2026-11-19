@@ -9,6 +9,8 @@ describe('historical activity planning boundary',()=>{
   const createdAt=new Date('2026-11-15T00:00:00Z');
   expect(followupTime({createdAt,aiStructured:{salesIntake:{occurredAt:null}}})).toBeNull();
   expect(followupTime({createdAt,aiStructured:{salesIntake:{occurredAt:'2026-10-01T00:00:00Z'}}})?.toISOString()).toBe('2026-10-01T00:00:00.000Z');
+  expect(followupTime({createdAt,aiStructured:{knowledge:{occurredAt:null}}})).toBeNull();
+  expect(followupTime({createdAt,aiStructured:{knowledge:{occurredAt:'2025-12-01T00:00:00Z'}}})?.toISOString()).toBe('2025-12-01T00:00:00.000Z');
   expect(followupTime({createdAt,aiStructured:null})).toEqual(createdAt);
  });
 });

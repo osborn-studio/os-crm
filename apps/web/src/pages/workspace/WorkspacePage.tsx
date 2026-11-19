@@ -123,6 +123,8 @@ const labels: Record<string, string> = {
   estimatedPrice: '报价单价',
   estimatedAmount: '报价金额',
   listPrice: '目录单价',
+  pricingStatus:'定价状态',
+  specification:'规格与报价依据',
   category: '分类',
   unit: '单位',
   description: '说明',
@@ -148,7 +150,7 @@ const stages: Record<string, string> = {
 };
 const display = (name: string, v: unknown) =>
   v === null || v === undefined ? (
-    '—'
+    name==='listPrice'?'按范围核价':'—'
   ) : name === 'status' || name === 'poolType' || name === 'acceptanceState' || name === 'customerCategory' || name === 'channelBrand' ? (
     <Tag
       color={
@@ -161,8 +163,8 @@ const display = (name: string, v: unknown) =>
     >
       {statusNames[String(v)] ?? String(v)}
     </Tag>
-  ) : name === 'source' || name === 'contractType' || name === 'category' ? (
-    (statusNames[String(v)] ?? String(v))
+  ) : name === 'source' || name === 'contractType' || name === 'category' || name === 'pricingStatus' ? (
+    (({fixed:'固定目录价',quote_required:'按范围核价'} as Record<string,string>)[String(v)] ?? statusNames[String(v)] ?? String(v))
   ) : name === 'stage' ? (
     (stages[String(v)] ?? String(v))
   ) : name.toLowerCase().includes('amount') || name === 'listPrice' || name === 'estimatedPrice' ? (
@@ -507,7 +509,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
     tasks: ['status', 'assigneeName', 'dueDate'],
     actions: ['status', 'assigneeName', 'dueDate'],
     followups: ['customerName', 'activityAt', 'nextAction', 'nextFollowAt'],
-    products: ['category', 'unit', 'listPrice', 'taxRate'],
+    products: ['category', 'unit', 'pricingStatus', 'listPrice', 'taxRate'],
     'payment-plans': ['status', 'amount', 'receivedAmount', 'outstandingAmount', 'dueDate'],
     invoices: ['customerName', 'amount', 'invoiceDate', 'status'],
     receipts: ['customerName', 'amount', 'receiptDate', 'status'],
@@ -567,6 +569,7 @@ export default function WorkspacePage({ kind, poolType }: { kind: string; poolTy
           </Typography.Text>
         </div>
         <Space>
+          {kind==='products' && spec?.canCreate && <Button href='/business-knowledge'>查看版本报价与产品知识</Button>}
           <Button icon={<ExportOutlined />} disabled={!rows.length} onClick={() => void exportData()}>
             导出 Excel
           </Button>

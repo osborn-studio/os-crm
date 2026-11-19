@@ -1,45 +1,26 @@
 {
-  "version": 2,
+  "version": "2.0-ai-20261116",
   "fictional": true,
-  "companyCode": "TIANYU",
-  "baseDate": "2026-11-15",
-  "scope": "public synthetic Tianyu fixture only",
-  "enhancements": {
-    "publishedApprovalScenarioTemplates": 22,
-    "additionalApprovalInstances": 110,
-    "additionalPendingIncludingResubmissions": 44,
-    "additionalApproved": 22,
-    "additionalRejected": 22,
-    "additionalWithdrawn": 22,
-    "approvalTotal": 3710,
-    "signedContractLifecycleForms": 800,
-    "openOpportunityNextActions": 6640,
-    "actionPlanTotal": 7802,
-    "proposedBusinessCalendars": 7658,
-    "calendarTotalIncludingOriginal42": 7700,
-    "classifiedBusinessContracts": 800
+  "result": "PASS",
+  "checks": 1561,
+  "database": "isolated synthetic MySQL",
+  "stories": 12,
+  "sourceMaterials": 58,
+  "aiPlans": 36,
+  "localCalendarEntries": 36,
+  "approvalFlows": 36,
+  "approvals": 246,
+  "approvalStates": {
+    "pending": 102,
+    "approved": 72,
+    "rejected": 36,
+    "withdrawn": 36
   },
-  "verification": {
-    "classificationUsesApplicationServices": true,
-    "invoiceInstallmentLinksComplete": true,
-    "originalFinancialAmountsPreserved": true,
-    "opportunityActionFixtureReplayCreatedZero": true,
-    "managerSelectionIncludesSubordinates": true,
-    "desktopAndMobileLayoutReviewed": true,
-    "externalNotificationsSent": 0,
-    "apiUnitTests": 415,
-    "nodeTests": 46,
-    "isolatedMysqlScopeAndReportChecks": 283,
-    "isolatedMysqlIntakeAndFollowupChecks": 111,
-    "isolatedMysqlAllocationChecks": 163,
-    "isolatedMysqlFullBusinessChecks": 378
-  },
-  "reproduce": [
-    "scripts/tianyu-demo.mjs",
-    "scripts/tianyu-approval-scenarios.mjs",
-    "scripts/tianyu-business-plans.mjs",
-    "scripts/tianyu-opportunity-actions.mjs",
-    "scripts/tianyu-trade-classification.mjs"
-  ],
-  "sourceEvidence": "Synthetic-only installation receipts retained by the operator; no private company credentials or data included."
+  "externalEffects": 0,
+  "existingFinancialRowsPreserved": true,
+  "containsRealCompanyData": false,
+  "additionalBaseOpportunityPlans": 1752,
+  "localContractPathForms": 240,
+  "localSignedBusinessClassifications": 240,
+  "supplementalReplaysDuplicateFree": true
 }

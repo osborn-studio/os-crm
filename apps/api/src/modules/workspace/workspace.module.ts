@@ -1,3 +1,5 @@
+import { KnowledgeService } from './knowledge.service';
+import { KnowledgeController } from './knowledge.controller';
 import { AnalyticsController } from './analytics.controller';
 import { AllocationController } from './allocation.controller';
 import { AnalyticsService } from './analytics.service';
@@ -18,9 +20,9 @@ import { SourceArchiveService } from './source-archive.service';
 import { BusinessRulesController } from './business-rules.controller';
 import { SalesIntakeController } from './sales-intake.controller';
 import { SalesIntakeService } from './sales-intake.service';
-import {TradeController} from './trade.controller';
-import {TradeService} from './trade.service';
-import {BusinessReportService} from './business-report.service';
+import { TradeController } from './trade.controller';
+import { TradeService } from './trade.service';
+import { BusinessReportService } from './business-report.service';
 @Module({
   imports: [ApprovalModule],
   controllers: [
@@ -35,6 +37,7 @@ import {BusinessReportService} from './business-report.service';
     BusinessRulesController,
     SalesIntakeController,
     TradeController,
+    KnowledgeController,
   ],
   providers: [
     AnalyticsService,
@@ -46,8 +49,9 @@ import {BusinessReportService} from './business-report.service';
     SourceArchiveService,
     SalesIntakeService,
     TradeService,
+    KnowledgeService,
     BusinessReportService,
   ],
-  exports: [WorkspaceService, AnalyticsService,BusinessReportService],
+  exports: [WorkspaceService, AnalyticsService, BusinessReportService],
 })
 export class WorkspaceModule {}

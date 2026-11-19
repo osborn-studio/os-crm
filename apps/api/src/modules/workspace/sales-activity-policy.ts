@@ -21,8 +21,8 @@ export const salesActivityBody = z.object({
 /** Imported events carry their actual source date; creation time is only a fallback for normal records. */
 export function followupTime(row: { createdAt: Date; aiStructured: unknown }): Date | null {
   const raw = row.aiStructured;
-  if (raw && typeof raw === 'object' && 'salesIntake' in raw) {
-    const m = raw.salesIntake;
+  if (raw && typeof raw === 'object' && ('salesIntake' in raw || 'knowledge' in raw)) {
+    const m = 'salesIntake' in raw ? raw.salesIntake : 'knowledge' in raw ? raw.knowledge : null;
     if (m && typeof m === 'object' && 'occurredAt' in m) {
       const v = m.occurredAt;
       return typeof v === 'string' && Number.isFinite(Date.parse(v)) ? new Date(v) : null;

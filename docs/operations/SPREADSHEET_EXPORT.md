@@ -23,7 +23,3 @@ CSV不能替代具有单元格类型的XLSX。公式前缀检测覆盖空白/控
 浏览器实际下载客户XLSX、客户CSV与销售预测XLSX，独立使用Python csv解析、ZIP CRC/XML解析和openpyxl3.1.5读回28项检查通过；最终报表另6项检查通过，商机金额871500、加权284100与页面/业务核对值一致，金额为数字、状态中文、日期不带时分秒。名称为无害公式样文本的【测试】客户保持字符串，不产生公式。全部数据仅在隔离测试库。
 
 本机未安装Microsoft Excel，未声称已完成Excel桌面保存/重开实测。当前提交云端结论以PR检查为准。
-
-![客户导出入口](screenshots/customer-export.jpg)
-
-![销售报表导出入口](screenshots/report-export.jpg)

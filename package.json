@@ -14,7 +14,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "eslint apps packages --max-warnings 0",
-    "test": "pnpm --filter @partneros/api test && node --test deploy/installation.test.mjs && node --test deploy/local-accounts.test.mjs && node --test deploy/local-recovery.test.mjs && node --test apps/web/src/utils/csv.test.mjs && node --test apps/web/src/utils/xlsx.test.mjs && node --test demo/tianyu/generate.test.mjs",
+    "test": "pnpm --filter @partneros/api test && node --test deploy/installation.test.mjs && node --test deploy/local-accounts.test.mjs && node --test deploy/local-recovery.test.mjs && node --test apps/web/src/utils/csv.test.mjs && node --test apps/web/src/utils/xlsx.test.mjs && node --test demo/tianyu/generate.test.mjs && node --test demo/tianyu/ai-workflow/generate.test.mjs",
     "db:migrate": "pnpm --filter @partneros/database migrate",
     "db:seed": "pnpm --filter @partneros/database seed",
     "db:studio": "pnpm --filter @partneros/database studio",
@@ -31,7 +31,8 @@
     "restore": "node --env-file=deploy/production.env deploy/data.mjs restore",
     "local:start": "node scripts/start-local.mjs",
     "accounts:serve": "node deploy/local-accounts.mjs serve",
-    "demo:tianyu:export": "node scripts/tianyu-demo.mjs --export"
+    "demo:tianyu:export": "node scripts/tianyu-demo.mjs --export && node demo/tianyu/ai-workflow/generate.mjs",
+    "public:audit": "node scripts/audit-public-tree.mjs"
   },
   "devDependencies": {
     "eslint": "^9.39.5",

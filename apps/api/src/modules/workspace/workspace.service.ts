@@ -465,7 +465,7 @@ export class WorkspaceService {
     else visibility = { contract: { tenantId: a.tenantId, deletedAt: null, ...(await ownerScope(tx, a)) } };
     return { ...base, AND: [visibility] };
   }
-  private async require(tx: Tx, a: Actor, kind: string, recordId: number) {
+  async require(tx: Tx, a: Actor, kind: string, recordId: number) {
     const row = await this.db(tx, kind).findFirst({ where: { ...(await this.scope(tx, a, kind)), id: recordId } });
     if (!row) throw new NotFoundException('记录不存在或无权访问');
     return row;
@@ -1073,6 +1073,13 @@ export class WorkspaceService {
             throw new BadRequestException('关联对象创建后不可修改，请新建记录');
         }
         if(kind==='opportunities' && row && data.amount!==undefined && Object.keys(salesIntakeMeta(row.healthFactors)).length)data.healthFactors=json({...object(row.healthFactors),salesIntake:{...salesIntakeMeta(row.healthFactors),amountKnown:true}});
+        if(kind==='products') {
+          const price=data.listPrice===undefined?row?.listPrice:data.listPrice;
+          const pricing=String(data.pricingStatus??row?.pricingStatus??(price==null?'quote_required':'fixed'));
+          if(pricing==='fixed' && price==null)throw new BadRequestException('固定价产品必须填写明确目录价');
+          if(pricing==='quote_required' && price!=null)throw new BadRequestException('按范围核价产品请清空目录价，版本价格保存在产品知识中');
+          data.pricingStatus=pricing;
+        }
         await this.references(tx, a, kind, { ...row, ...data });
         if (
           ['orders', 'projects'].includes(kind) &&

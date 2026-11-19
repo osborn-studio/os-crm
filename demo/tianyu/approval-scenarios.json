@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "fictional": true,
   "companyCode": "TIANYU",
   "fields": [
@@ -62,6 +62,42 @@
       "label": "拟定执行日期",
       "type": "date",
       "required": true
+    },
+    {
+      "key": "specification",
+      "label": "阀门规格及图纸版本",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "quantity",
+      "label": "数量及分批交付",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "commercialTerms",
+      "label": "付款及渠道往来口径",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "changeComparison",
+      "label": "变更前后对照",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "riskAndMitigation",
+      "label": "风险与处理措施",
+      "type": "text",
+      "required": true
+    },
+    {
+      "key": "completionEvidence",
+      "label": "批准后执行与完成依据",
+      "type": "text",
+      "required": true
     }
   ],
   "flows": [
@@ -69,17 +105,28 @@
       "key": "stage-1",
       "name": "天雨客户六步推进｜前期拜访",
       "reviewers": [
-        1010
+        1010,
+        1001
       ],
-      "nextStage": "前期拜访"
+      "nextStage": "前期拜访",
+      "mode": "any",
+      "applicantId": 1100,
+      "topic": "前期拜访",
+      "reasonTemplate": "【演示数据】申请前期拜访。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-01"
     },
     {
       "key": "stage-2",
       "name": "天雨客户六步推进｜确定教练",
       "reviewers": [
-        1010
+        1011
       ],
-      "nextStage": "确定教练"
+      "nextStage": "确定教练",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "确定教练",
+      "reasonTemplate": "【演示数据】申请确定教练。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-02"
     },
     {
       "key": "stage-3",
@@ -87,15 +134,25 @@
       "reviewers": [
         1010
       ],
-      "nextStage": "核心公关"
+      "nextStage": "核心公关",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "核心公关",
+      "reasonTemplate": "【演示数据】申请核心公关。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-03"
     },
     {
       "key": "stage-4",
       "name": "天雨客户六步推进｜方案提供",
       "reviewers": [
-        1010
+        1011
       ],
-      "nextStage": "方案提供"
+      "nextStage": "方案提供",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "方案提供",
+      "reasonTemplate": "【演示数据】申请方案提供。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-04"
     },
     {
       "key": "stage-5",
@@ -103,15 +160,25 @@
       "reviewers": [
         1010
       ],
-      "nextStage": "达成合作"
+      "nextStage": "达成合作",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "达成合作",
+      "reasonTemplate": "【演示数据】申请达成合作。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-05"
     },
     {
       "key": "stage-6",
       "name": "天雨客户六步推进｜重复购买",
       "reviewers": [
-        1010
+        1011
       ],
-      "nextStage": "重复购买"
+      "nextStage": "重复购买",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "重复购买",
+      "reasonTemplate": "【演示数据】申请重复购买。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-06"
     },
     {
       "key": "new-customer",
@@ -119,15 +186,26 @@
       "reviewers": [
         1010
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "客户建档申请",
+      "reasonTemplate": "【演示数据】申请客户建档申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-07"
     },
     {
       "key": "public-claim",
       "name": "天雨｜客户公海领取申请",
       "reviewers": [
-        1010
+        1011,
+        1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "all",
+      "applicantId": 1103,
+      "topic": "客户公海领取申请",
+      "reasonTemplate": "【演示数据】申请客户公海领取申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-08"
     },
     {
       "key": "customer-transfer",
@@ -135,15 +213,26 @@
       "reviewers": [
         1010
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "客户转移申请",
+      "reasonTemplate": "【演示数据】申请客户转移申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-09"
     },
     {
       "key": "value-customer",
       "name": "天雨｜公司价值客户申请",
       "reviewers": [
-        1010
+        1011,
+        1001
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "any",
+      "applicantId": 1103,
+      "topic": "公司价值客户申请",
+      "reasonTemplate": "【演示数据】申请公司价值客户申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-10"
     },
     {
       "key": "account-change",
@@ -152,7 +241,12 @@
         1010,
         1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "户头资料变更",
+      "reasonTemplate": "【演示数据】申请户头资料变更。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-11"
     },
     {
       "key": "account-enable",
@@ -160,7 +254,12 @@
       "reviewers": [
         1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "户头启用申请",
+      "reasonTemplate": "【演示数据】申请户头启用申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-12"
     },
     {
       "key": "account-disable",
@@ -169,33 +268,54 @@
         1010,
         1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "户头停用申请",
+      "reasonTemplate": "【演示数据】申请户头停用申请。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-13"
     },
     {
       "key": "buyer-change",
       "name": "天雨｜购货单位资料变更",
       "reviewers": [
-        1010,
+        1011,
         1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "购货单位资料变更",
+      "reasonTemplate": "【演示数据】申请购货单位资料变更。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-14"
     },
     {
       "key": "buyer-enable",
       "name": "天雨｜购货单位启用",
       "reviewers": [
-        1400
+        1400,
+        1001
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "all",
+      "applicantId": 1100,
+      "topic": "购货单位启用",
+      "reasonTemplate": "【演示数据】申请购货单位启用。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-15"
     },
     {
       "key": "buyer-disable",
       "name": "天雨｜购货单位停用",
       "reviewers": [
-        1010,
+        1011,
         1400
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "购货单位停用",
+      "reasonTemplate": "【演示数据】申请购货单位停用。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-16"
     },
     {
       "key": "project-amount",
@@ -204,15 +324,25 @@
         1010,
         1001
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "项目预计金额变更",
+      "reasonTemplate": "【演示数据】申请项目预计金额变更。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-17"
     },
     {
       "key": "project-claim",
       "name": "天雨｜项目公海领取",
       "reviewers": [
-        1010
+        1011
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "项目公海领取",
+      "reasonTemplate": "【演示数据】申请项目公海领取。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-18"
     },
     {
       "key": "custom-review",
@@ -221,16 +351,26 @@
         1200,
         1010
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "any",
+      "applicantId": 1100,
+      "topic": "定制阀门技术评审",
+      "reasonTemplate": "【演示数据】申请定制阀门技术评审。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-19"
     },
     {
       "key": "quote-discount",
       "name": "天雨｜报价与折扣评审",
       "reviewers": [
-        1010,
+        1011,
         1001
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "报价与折扣评审",
+      "reasonTemplate": "【演示数据】申请报价与折扣评审。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-20"
     },
     {
       "key": "credit-release",
@@ -239,7 +379,12 @@
         1400,
         1001
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "信用账期发运放行评审",
+      "reasonTemplate": "【演示数据】申请信用账期发运放行评审。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-21"
     },
     {
       "key": "collection-adjust",
@@ -248,7 +393,209 @@
         1400,
         1010
       ],
-      "nextStage": "申请事项确认"
+      "nextStage": "申请事项确认",
+      "mode": "all",
+      "applicantId": 1103,
+      "topic": "分期回款行动调整",
+      "reasonTemplate": "【演示数据】申请分期回款行动调整。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-22"
+    },
+    {
+      "key": "technical-change",
+      "name": "天雨｜技术图纸变更会签",
+      "reviewers": [
+        1200,
+        1400,
+        1001
+      ],
+      "nextStage": "技术图纸变更会签",
+      "mode": "all",
+      "applicantId": 1100,
+      "topic": "技术图纸变更会签",
+      "reasonTemplate": "【演示数据】申请技术图纸变更会签。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-23"
+    },
+    {
+      "key": "sample-test",
+      "name": "天雨｜样件试验与验证",
+      "reviewers": [
+        1200,
+        1010
+      ],
+      "nextStage": "样件试验与验证",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "样件试验与验证",
+      "reasonTemplate": "【演示数据】申请样件试验与验证。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-24"
+    },
+    {
+      "key": "split-delivery",
+      "name": "天雨｜分批供货及交期调整",
+      "reviewers": [
+        1200,
+        1010
+      ],
+      "nextStage": "分批供货及交期调整",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "分批供货及交期调整",
+      "reasonTemplate": "【演示数据】申请分批供货及交期调整。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-25"
+    },
+    {
+      "key": "quality-rework",
+      "name": "天雨｜质量整改与复验",
+      "reviewers": [
+        1200,
+        1010
+      ],
+      "nextStage": "质量整改与复验",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "质量整改与复验",
+      "reasonTemplate": "【演示数据】申请质量整改与复验。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-26"
+    },
+    {
+      "key": "acceptance-close",
+      "name": "天雨｜验收遗留事项收尾",
+      "reviewers": [
+        1200,
+        1400
+      ],
+      "nextStage": "验收遗留事项收尾",
+      "mode": "all",
+      "applicantId": 1100,
+      "topic": "验收遗留事项收尾",
+      "reasonTemplate": "【演示数据】申请验收遗留事项收尾。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-27"
+    },
+    {
+      "key": "warranty-release",
+      "name": "天雨｜质保金释放评审",
+      "reviewers": [
+        1400,
+        1001
+      ],
+      "nextStage": "质保金释放评审",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "质保金释放评审",
+      "reasonTemplate": "【演示数据】申请质保金释放评审。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-28"
+    },
+    {
+      "key": "channel-fee",
+      "name": "天雨｜渠道甲方供货与服务金额确认",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "渠道甲方供货与服务金额确认",
+      "mode": "all",
+      "applicantId": 1100,
+      "topic": "渠道甲方供货与服务金额确认",
+      "reasonTemplate": "【演示数据】申请渠道甲方供货与服务金额确认。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-29"
+    },
+    {
+      "key": "rebate-review",
+      "name": "天雨｜渠道产品奖励核对",
+      "reviewers": [
+        1400,
+        1001
+      ],
+      "nextStage": "渠道产品奖励核对",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "渠道产品奖励核对",
+      "reasonTemplate": "【演示数据】申请渠道产品奖励核对。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-30"
+    },
+    {
+      "key": "renewal-conflict",
+      "name": "天雨｜维保续费价格冲突核对",
+      "reviewers": [
+        1010,
+        1400
+      ],
+      "nextStage": "维保续费价格冲突核对",
+      "mode": "single",
+      "applicantId": 1100,
+      "topic": "维保续费价格冲突核对",
+      "reasonTemplate": "【演示数据】申请维保续费价格冲突核对。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-31"
+    },
+    {
+      "key": "missing-contract",
+      "name": "天雨｜历史单据缺合同补录",
+      "reviewers": [
+        1400,
+        1001
+      ],
+      "nextStage": "历史单据缺合同补录",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "历史单据缺合同补录",
+      "reasonTemplate": "【演示数据】申请历史单据缺合同补录。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-32"
+    },
+    {
+      "key": "capacity-decline",
+      "name": "天雨｜资源不足放弃承接",
+      "reviewers": [
+        1200,
+        1001
+      ],
+      "nextStage": "资源不足放弃承接",
+      "mode": "all",
+      "applicantId": 1100,
+      "topic": "资源不足放弃承接",
+      "reasonTemplate": "【演示数据】申请资源不足放弃承接。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-33"
+    },
+    {
+      "key": "loss-review",
+      "name": "天雨｜商务掉单复盘",
+      "reviewers": [
+        1011,
+        1200
+      ],
+      "nextStage": "商务掉单复盘",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "商务掉单复盘",
+      "reasonTemplate": "【演示数据】申请商务掉单复盘。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-34"
+    },
+    {
+      "key": "ai-plan",
+      "name": "天雨｜AI行动计划核对或签",
+      "reviewers": [
+        1010,
+        1001
+      ],
+      "nextStage": "AI行动计划核对或签",
+      "mode": "any",
+      "applicantId": 1100,
+      "topic": "AI行动计划核对或签",
+      "reasonTemplate": "【演示数据】申请AI行动计划核对或签。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-35"
+    },
+    {
+      "key": "expense-visit",
+      "name": "天雨｜拜访出差与服务安排",
+      "reviewers": [
+        1011,
+        1400
+      ],
+      "nextStage": "拜访出差与服务安排",
+      "mode": "single",
+      "applicantId": 1103,
+      "topic": "拜访出差与服务安排",
+      "reasonTemplate": "【演示数据】申请拜访出差与服务安排。已将原资料、拟变更内容、责任分工和执行日期逐项列示，请按本节点职责核对；缺少证据时退回补充，不直接修改合同、开票或回款事实。",
+      "evidenceTemplate": "天雨虚构技术参数表、图纸版本对照、报价版本和阶段确认记录；来源编号 TY-SP-SRC-36"
     }
   ],
   "states": [
@@ -257,5 +604,7 @@
     "rejected",
     "withdrawn"
   ],
-  "note": "虚构阀门业务流程模板及审批实例；通用事项表单保留审批决定，业务对象的实际状态修改仍走其受控业务命令。"
+  "note": "虚构阀门业务流程模板及审批实例；通用事项表单保留审批决定，业务对象的实际状态修改仍走其受控业务命令。",
+  "asOf": "2026-11-16",
+  "description": "全部为天雨虚构演示数据；审批处理记录通过本机应用服务复演，不发送外部通知。"
 }

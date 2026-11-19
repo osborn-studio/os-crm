@@ -1,136 +1,69 @@
-# 天雨阀门 · CRM 业务应用全景
+# 天雨阀门 · AI操作型CRM公开场景 v2
 
-这是可公开分发的虚构阀门行业场景，使用伴圆 CRM 的客户、线索、商机报价、合同审批、订单、项目协作、回款和经营分析功能。公司、人员、联系方式、单据和交易均为合成数据，时间基准为 2026-11-15。
+公司、人员、联系方式、材料、交易和审批全部虚构，用于产品演示与测试，不是真实企业的脱敏副本。基准日期2026-11-16。
 
-## 业务规模
+## 精简规模
 
-| 对象 | 初始数量 |
+| 对象 | 基础数量 |
 | --- | ---: |
-| 客户 / 公海 / 私海 | 60,000 / 48,000 / 12,000 |
-| 联系人 | 24,000 |
-| 线索 / 商机 | 720 / 9,000 |
-| 跟进 / 行动计划 | 30,000 / 360 |
-| 产品（标准 / 定制） | 48（32 / 16） |
-| 合同 / 订单 | 1,200 / 800 |
-| 审批记录 | 3,600 |
-| 回款计划 / 开票记录 / 收款登记 | 3,200 / 2,200 / 602 |
-| 项目 / 里程碑 / 任务 | 240 / 960 / 960 |
-| 售后工单 / 日程 | 30 / 42 |
-| 账号 / 部门（含管理部） | 14 / 5 |
+| 客户 / 私海客户 / 联系人 | 15,000 / 3,000 / 6,000 |
+| 线索 / 商机 / 跟进 | 240 / 2,400 / 9,000 |
+| 产品 / 合同 / 订单 | 48 / 360 / 240 |
+| 基础审批 / 回款计划 / 开票 / 收款 | 1,080 / 960 / 660 / 182 |
+| 项目 / 里程碑 / 项目任务 | 84 / 336 / 336 |
+| 基础行动 / 日程 | 120 / 42 |
+| 角色账号 / 部门（含管理部） | 14 / 5 |
 
-以 `manifest.json` 为初始数据清单。现场操作会产生新的记录与审计事件。
+客户减少75%，商机减少73%，合同减少70%。保留标准件、定制件、长周期交付、渠道甲方、分期款、质保款和资源掉单等链路。追加包另含12个业务故事、58份虚构源材料、82条知识、34条历史跟进、36项AI行动及对应36项本地日程；8个新案例只生成6个新商机和1份未签草稿，不重复已有成交收入。
 
-## 本机直接体验
+## 账号与权限
 
-打开 <http://localhost:3000/login?company=TIANYU>，选择 **天雨阀门**。
+本机入口：<http://localhost:3000/login?company=TIANYU>。老板`ty_boss`、华东主管`ty_mgr_east`、销售`ty_sales01`至`ty_sales06`、渠道`ty_channel`、项目`ty_pm`、技术`ty_engineer`、财务`ty_finance`、管理员`admin`。全部公开演示密码`12345`，仅供测试帐套。完整账号见manifest.json。
 
-- 经营负责人：`ty_boss`
-- 华东销售主管：`ty_mgr_east`
-- 销售：`ty_sales01` ～ `ty_sales06`
-- 渠道业务：`ty_channel`（公司内部渠道岗位）
-- 项目负责人 / 技术协作：`ty_pm` / `ty_engineer`
-- 财务复核演示管理员：`ty_finance`
-- 管理员：`admin`
-- 全部演示账号初始密码：`12345`。完整用户名和人员编号见 `manifest.json` 和账号操作手册。
+老板与管理员默认全公司；主管默认部门和下属；销售默认本人。筛选、穿透和导出沿用同一权限范围。
 
-统计页面按角色默认：经营负责人和管理员为全公司，销售主管为本部门及子部门，销售为本人。可显式选择权限内其他范围。建议总体预测使用2025-01-01至2027-12-31；看板支持全公司分页，也可选本月、指定销售。
+## 首次安装顺序
 
-## 现场案例
-
-| 案例 | 检索入口 | 重点 |
-| --- | --- | --- |
-| 标准件供货 | 客户“澄源水务”；合同 `TY-HT-00005` | 12万元合同，30/50/15/5分期，预收和待复核登记 |
-| 定制件项目 | “沧海化工”；`TY-HT-00006` | 240万元，报价版本、需求说明、合同、交付协作 |
-| 渠道业务 | “海岚流控经销商”；`TY-HT-00007` | 96万元，经销渠道与终端项目背景分开记录 |
-| 长周期供货 | “远澜能源”；`TY-HT-00008` | 150万元，订单、里程碑与回款节点 |
-| 分期催收 | “雁川冶金”；`TY-HT-00010` | 80万元合同，已收32万元，未收48万元 |
-| 质保尾款 | “青屿水利”；`TY-HT-00012` | 100万元合同，已收95万元，5万元待收质保尾款 |
-| 审批处理 | `TY-HT-00002` | 待华东主管审批；可查看驳回、撤回、重提历史 |
-| 或签结果 | `TY-HT-00014` | 初始为管理层任一同意；本机已验证老板同意后同组他人保留免审状态 |
-| 商务掉单 | 商机 `TY-SJ-01209` / `TY-SJ-01210` | 180万元竞品因素 / 90万元资源窗口因素，从漏斗下钻复盘 |
-| 新报价推进 | `TY-SJ-01201`，桐澜设备 | 方案报价、跟进记录、行动安排 |
-
-## 在另一台机器安装
-
-1. 按[多公司本地安装说明](../../docs/LOCAL_COMPANY_INSTALL.md)完成 MySQL、依赖、迁移及多公司网关启动。
-2. 在帐套管理页面新建编码 **TIANYU**、名称 **天雨阀门**、用途 **测试** 的空帐套。保留系统创建的独立数据库及连接账号。
-3. 在仓库根目录执行下面命令。配置文件由本机帐套管理器生成，不需要复制凭证到命令或文档中。
+先按[本地多公司安装](../../docs/LOCAL_COMPANY_INSTALL.md)创建独立数据库、独立账号、编码TIANYU、用途test的空帐套，再执行：
 
 ```sh
-node scripts/tianyu-demo.mjs --apply \
-  --company-config .local/accounts/TIANYU.json \
-  --confirm-fictional-tianyu
+node scripts/tianyu-demo.mjs --apply --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
+# 启动网站后，追加经应用服务校验的历史、计划和审批
+node scripts/tianyu-ai-workflow.mjs --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
+node scripts/tianyu-approval-scenarios.mjs --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
 ```
 
-仅接受本机、TIANYU、测试用途和全新业务数据库。整批写入为事务；已完成同版本安装再次执行仅返回 `reused: true`，不重置现场操作数据。脚本不读取其他公司、不创建外部联系人、不发送消息、不调用钉钉、飞书或ERP。
+两项追加命令默认连接本机3000端口，可用`--base-url http://127.0.0.1:端口`指定本地服务。配置、密钥和执行回执仅在本机保存。脚本拒绝业务用途、其他公司和远程数据库。基础v2只能装入空帐套；旧v1应备份后另建数据库切换，不能覆盖真实业务或已有操作。回执实现断点继续及重放去重，请保留本机回执文件。
+
+## 展示路径
+
+1. 产品介绍（历史资料已归档）：AI输入、历史过程、未来计划、经营闭环。
+2. [AI场景与资料](ai-workflow/README.md)：12个完整故事及来源证据。
+3. [审批操作说明](APPROVAL_GUIDE.md)：36类流程、246张申请、16项表单。
+4. 看板进入客户与商机，查看历史报价、跟进和下一步；未知金额不填零，不进入确定收入。
+5. 合同应收、开票应收、已回款分别查看，再进入计划和核销单据。
+6. 智能体通过授权接口操作，流程决定由实际审批角色作出；本演示无任何外部消息、钉钉待办或会议邀请。
+
+## 重新生成与验证
 
 ```sh
 pnpm demo:tianyu:export
-node --test demo/tianyu/generate.test.mjs
+pnpm public:audit
+node --test demo/tianyu/generate.test.mjs demo/tianyu/ai-workflow/generate.test.mjs
+# 仅在独立、空的 tb_crm_test_tianyu_* MySQL库中执行
+SMOKE_ALLOW_WRITES=true node scripts/tianyu-workflow-smoke.mjs
 ```
 
-`generate.mjs` 是确定性生成器；`data.jsonl.gz` 为公开 JSONL 压缩数据，`manifest.json` 含 SHA-256。安装器直接使用同一生成器，并保留初始化审计记录。
+数据生成器只读公开合成源，不读取任何实际公司数据库、聊天或文件。数据哈希见manifest.json；实际MySQL及HTTP验证摘要见verification.json。
 
-## AI 原生体验
+## 可选：为全部基础业务补足下一步
 
-可展示当前账号权限内的客户能力查询、销售预测与回款分析接口，以及智能体授权、行动预演、人工批准、执行回执和补偿取消。现场通过实际能力调用和审计回执说明业务如何被智能体调用，不以静态文字替代执行结果。
-
-对外材料见本目录 Word 文件和 `screenshots/`。设计原件、客户原始资料、真实业务数据库及凭证不属于此公开场景。
-
-功能截图取自实际操作后的天雨帐套，包含审批处理、核销撤销、AI行动与项目附件等记录；全新安装保留可操作的初始业务状态，按操作手册即可复演。
-
-## 资料再生成
-
-介绍网页内嵌九张实际业务截图，可独立分发；两份 Word 分别是八页业务应用全景、十页账号与操作手册。原始截图在 `screenshots/`，虚构项目确认单在 `evidence/`。
-
-需要编辑资料源时，可在仓库根目录安装 `materials-requirements.txt` 中的文档库后，运行 `python3 demo/tianyu/build_docs.py`、`python3 demo/tianyu/build_product_page.py`。技术确认单使用 `python3 demo/tianyu/evidence/build_evidence.py` 再生成。
-
-## 追加审批与成交后路径
-
-`approval-scenarios.json`提供22类虚构阀门业务流程：六步推进、公海领取、客户资料和交易主体资料变更、项目金额、定制件评审、报价折扣、账期及回款行动调整。每类创建待审、通过、退回、撤回和退回后重提记录，共110条，完整保留人、节点、表单和决定。只调用TIANYU本机应用服务及虚构账号，不调用外部通讯。
+以下命令只处理固定天雨基础编号，新增AI故事保留自己的来源和计划。先运行基础商机行动，再运行合同路径，最后确认已签阀门业务分类；已存在的计划及分类复用，不外发。
 
 ```sh
-node scripts/tianyu-approval-scenarios.mjs \
-  --company-config .local/accounts/TIANYU.json \
-  --confirm-fictional-tianyu
-```
-
-通用事项审批不冒充生产、发运、开票或自动业务回调。合同/订单/项目仍由各自受控命令推进。管理员可通过`sales.contract.plan@1.0`为已签合同创建成交路径行动表单，沿用真实合同归属，列出已知合同/开票/回款及待核步骤；拟定日期与实际事实分开保留。
-
-已签合同的路径表单和待办日程可在完成基础初始化后追加：
-
-```sh
-node scripts/tianyu-business-plans.mjs \
-  --company-config .local/accounts/TIANYU.json \
-  --confirm-fictional-tianyu
-```
-
-脚本按现有有效合同和负责人生成具体行动与来源，再为当前未完成行动安排本地拟定工作时段；当前日期作为排程起点，避开周末和已占用时段。所有写入走管理员应用服务、幂等命令及审计。日程不自动外发，也不把行动安排变成客户确认事实。老板选择华东销售主管时，统计包含其下属销售；主管自己选择“本人”才只看本人单据。
-
-为全部进行中的虚构商机追加下一步行动及日程（固定测试安装命令，不提供HTTP/智能体数据库入口）：
-
-```sh
-node scripts/tianyu-opportunity-actions.mjs \
-  --company-config .local/accounts/TIANYU.json \
-  --confirm-fictional-tianyu
-```
-
-仅允许已初始化的本机TIANYU测试库、固定天雨编号及虚构客户；核对账号和企业标记后整批事务追加，已有同类行动及日程复用，保留审计，不修改财务、审批或发出消息。已在本机为6640条进行中机会各追加一项行动和日程，重放不重复；已成交的800份合同由前一命令提供路径表单。日程按负责人避开占用时段，原有其他类别记录保留。
-
-
-合同经营统计可在补充流程后确认虚构业务分类（先启动网站）：
-
-```sh
+node scripts/tianyu-opportunity-actions.mjs --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
+node scripts/tianyu-business-plans.mjs --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
 node scripts/tianyu-trade-classification.mjs --company-config .local/accounts/TIANYU.json --confirm-fictional-tianyu
 ```
 
-该脚本只读取本机天雨测试帐套并调用管理员应用服务，确认800份已签阀门供货为我方业务；原合同金额、开票、回款不改变，不发外部通知。重复运行跳过已有分类。配置文件只在接收方本机产生，不随源码分发。日期/人员统计、排序和回款新口径详见 `docs/operations/BUSINESS_CASH_METRICS.md`。
-
-## v2展示资料
-
-- `天雨阀门CRM_业务应用全景.docx`：沿用既有版式的8页对外业务介绍。
-- `天雨阀门CRM_演示账号与操作手册.docx`：14个统一密码12345的虚构角色账号及10页操作流程。
-- `天雨阀门CRM_产品介绍_v2.html`：9张实际业务截图内嵌，可离线打开并放大图片；另有团队范围、排序与手机补充截图。
-- `enrichment-verification.json`：公开合成场景补充数量、受控安装脚本及验证范围。
-
-资料生成使用 `materials-requirements.txt` 中的Python库。`build_docs.py`生成并更新既有Word设计；`update_delivery_docs.py --reference-dir <参考文件目录>`可在保留样式、页眉页脚和页面设置时更新文字、截图及补充页。`build_product_page.py`生成v2单文件HTML。应用依赖仍按仓库锁文件安装；材料生成依赖不参与线上服务。
+新增计划日期为安装当日之后的拟定时段，不是实际客户承诺。未签的AI整理草稿不确认为已签业务。

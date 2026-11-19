@@ -74,6 +74,70 @@ jobs:
       - run: pnpm --filter @partneros/database migrate:deploy
       - run: pnpm build
       - run: node scripts/sales-intake-smoke.mjs
+  business-knowledge-intake:
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: tb_crm_test_knowledge
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -ptest"
+          --health-interval=5s --health-timeout=5s --health-retries=12
+    env:
+      DATABASE_URL: mysql://root:test@127.0.0.1:3306/tb_crm_test_knowledge
+      SMOKE_ALLOW_WRITES: 'true'
+      DEMO_MODE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: pnpm --filter @partneros/database generate
+      - run: pnpm --filter @partneros/database migrate:deploy
+      - run: pnpm build
+      - run: node scripts/knowledge-smoke.mjs
+  tianyu-ai-workflow:
+    runs-on: ubuntu-latest
+    needs: verify
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: tb_crm_test_tianyu_workflow
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -ptest"
+          --health-interval=5s --health-timeout=5s --health-retries=12
+    env:
+      DATABASE_URL: mysql://root:test@127.0.0.1:3306/tb_crm_test_tianyu_workflow
+      SMOKE_ALLOW_WRITES: 'true'
+      DEMO_MODE: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: pnpm --filter @partneros/database generate
+      - run: pnpm --filter @partneros/database migrate:deploy
+      - run: pnpm build
+      - run: node scripts/tianyu-workflow-smoke.mjs
   dingtalk-native-approval:
     runs-on: ubuntu-latest
     needs: verify
@@ -393,6 +457,7 @@ jobs:
           node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm public:audit
       - run: pnpm check
       - name: Block known vulnerabilities in production dependencies
         run: pnpm audit --prod --audit-level=low

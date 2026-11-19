@@ -47,8 +47,3 @@
 ## 界面记录
 
 以下是本机空业务公司实际页面，不是预置经营数据。
-
-![销售预测](screenshots/forecast.jpg)
-![回款分析](screenshots/collections.jpg)
-![手机H5](screenshots/mobile-h5.jpg)
-![外网配置](screenshots/remote-access.jpg)

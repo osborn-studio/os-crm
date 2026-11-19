@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { generate, exportData, VERSION, AS_OF, accounts, DEMO_PASSWORD } from '../demo/tianyu/generate.mjs';
+import { generate, exportData, VERSION, AS_OF, accounts, DEMO_PASSWORD, SCALE } from '../demo/tianyu/generate.mjs';
 const require = createRequire(new URL('../packages/database/package.json', import.meta.url));
 const { PrismaClient } = require('@prisma/client'),
   bcrypt = require('bcrypt');
@@ -98,7 +98,7 @@ export async function installTianyu(db, env) {
       // Optional links close only after both ends have been materialized.
       for (const c of data.get('paymentPlan').filter((p) => p.invoiceId))
         await tx.paymentPlan.update({ where: { id: c.id }, data: { invoiceId: c.invoiceId } });
-      for (let i = 0; i < 500; i++)
+      for (let i = 0; i < SCALE.convertedLeads; i++)
         await tx.opportunity.update({ where: { id: 10000 + i }, data: { leadId: 10000 + i } });
       for (const [id, name, bizType, approver] of [
         [1000, '天雨供货合同审批', 'contract', 1010],

@@ -3,9 +3,20 @@ import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-export const VERSION = '1.0';
+export const VERSION = '2.0';
 export const DEMO_PASSWORD = '12345';
-export const AS_OF = '2026-11-15';
+export const AS_OF = '2026-11-16';
+export const SCALE = Object.freeze({
+  customers: 15000,
+  privateCustomers: 3000,
+  opportunities: 2400,
+  contracts: 360,
+  leads: 240,
+  convertedLeads: 150,
+  followups: 9000,
+  projects: 84,
+  initialActions: 120,
+});
 export const accounts = [
   [1, 'admin', '天雨演示管理员', 'super_admin', 1],
   [1001, 'ty_boss', '天雨经营负责人', 'gm', 1],
@@ -103,8 +114,8 @@ export function generate() {
     };
   });
   for (const p of products) add('product', p);
-  for (let i = 0; i < 60000; i++) {
-    const privateCustomer = i < 12000,
+  for (let i = 0; i < SCALE.customers; i++) {
+    const privateCustomer = i < SCALE.privateCustomers,
       u = owner(i),
       name = customerName(i);
     add('customer', {
@@ -170,10 +181,10 @@ export function generate() {
   const probability = [10, 20, 40, 60, 80, 90, 95, 100];
   const amounts = [180000, 360000, 420000, 600000, 120000, 2400000, 960000, 1500000, 1200000, 800000, 500000, 1000000];
   const contracts = [];
-  for (let i = 0; i < 9000; i++) {
+  for (let i = 0; i < SCALE.opportunities; i++) {
     const signed =
-      i < 1200 && !['draft', 'pending_approval', 'rejected', 'approved'].includes(contractStatuses[i % 12]);
-    const status = signed ? 'won' : i >= 1200 && i % 10 >= 8 ? 'lost' : 'open';
+      i < SCALE.contracts && !['draft', 'pending_approval', 'rejected', 'approved'].includes(contractStatuses[i % 12]);
+    const status = signed ? 'won' : i >= SCALE.contracts && i % 10 >= 8 ? 'lost' : 'open';
     const stage =
       status === 'won'
         ? i % 12 === 6 || i % 12 === 10
@@ -214,7 +225,7 @@ export function generate() {
       source: i === 6 || i % 6 === 5 ? '经销渠道' : '直销',
       priority: i < 24 ? 'high' : 'medium',
       isKey: i < 24,
-      leadId: i < 500 ? 10000 + i : null,
+      leadId: i < SCALE.convertedLeads ? 10000 + i : null,
       healthScore: 35 + (i % 60),
       healthFactors: {
         salesIntake: {
@@ -236,7 +247,7 @@ export function generate() {
             ? '评估后确认项目窗口内人员与产能无法满足，主动放弃。'
             : '商务评估后客户选择其他供应方案，归档报价及跟进。'
           : null,
-      contractId: i < 1200 ? 10000 + i : null,
+      contractId: i < SCALE.contracts ? 10000 + i : null,
       demandSummary: `${p.name}；${p.specification}；${custom ? '客户图纸版本B，技术澄清、评审及交付协调' : '目录供货，确认数量、交期及付款安排'}。${i === 6 ? '渠道为海岚流控，终端为澄源化工，合同付款方按经销商保留。' : ''}`,
       nextAction:
         status === 'open'
@@ -276,7 +287,7 @@ export function generate() {
         createdBy: u,
         createdAt: day(-20 - (i % 450) + v),
       });
-    if (i < 1200) {
+    if (i < SCALE.contracts) {
       const cs = contractStatuses[i % 12];
       contracts.push({ i, id: 10000 + i, customerId: 10000 + i, ownerId: u, amount, signed, status: cs, title });
       add('contract', {
@@ -319,25 +330,25 @@ export function generate() {
       });
     }
   }
-  for (let i = 0; i < 720; i++)
+  for (let i = 0; i < SCALE.leads; i++)
     add('lead', {
       id: 10000 + i,
       code: 'TY-XS-' + String(i + 1).padStart(5, '0'),
-      companyName: customerName(i < 500 ? i : 1200 + i),
+      companyName: customerName(i < SCALE.convertedLeads ? i : 1200 + i),
       contactName: '采购联络人' + (i + 1),
       source: ['exhibition', 'referral', 'partner', 'website'][i % 4],
       industry: industries[i % 6],
       demand: '阀门产品询价、设备改造或渠道补货需求。',
-      status: i < 500 ? 'converted' : ['new', 'assigned', 'qualified', 'unqualified'][i % 4],
+      status: i < SCALE.convertedLeads ? 'converted' : ['new', 'assigned', 'qualified', 'unqualified'][i % 4],
       assigneeId: owner(i),
-      convertedCustomerId: i < 500 ? 10000 + i : null,
-      convertedOpportunityId: i < 500 ? 10000 + i : null,
-      convertedAt: i < 500 ? day(-15) : null,
+      convertedCustomerId: i < SCALE.convertedLeads ? 10000 + i : null,
+      convertedOpportunityId: i < SCALE.convertedLeads ? 10000 + i : null,
+      convertedAt: i < SCALE.convertedLeads ? day(-15) : null,
       createdBy: owner(i),
       createdAt: day(-i % 120),
     });
-  for (let i = 0; i < 30000; i++) {
-    const oi = i % 9000,
+  for (let i = 0; i < SCALE.followups; i++) {
+    const oi = i % SCALE.opportunities,
       u = owner(oi);
     add('followUp', {
       id: 10000 + i,
@@ -358,7 +369,7 @@ export function generate() {
       createdAt: day(-(i % 600)),
     });
   }
-  for (let i = 0; i < 360; i++)
+  for (let i = 0; i < SCALE.initialActions; i++)
     add('actionPlan', {
       id: 10000 + i,
       targetType: 'customer',
@@ -563,7 +574,7 @@ export function generate() {
       });
   }
   // Existing platform project/task/acceptance services supply the coordination story.
-  const eligible = contracts.filter((c) => c.signed).slice(0, 240);
+  const eligible = contracts.filter((c) => c.signed).slice(0, SCALE.projects);
   for (const [k, c] of eligible.entries()) {
     const completed = k % 8 === 7,
       hold = k % 8 === 6;

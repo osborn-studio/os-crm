@@ -55,9 +55,3 @@
 ## 实际页面验证
 
 下图来自独立合成测试企业。客户导入已经实际提交，显示导入1条、跳过1条重复；交接与合同变更截图仅为预检，没有在页面提交最终操作。完整写入、并发、权限和审批回调由真实MySQL集成检查覆盖，证据见[当前进度](PROGRESS.md)。
-
-![客户导入结果](screenshots/c3-import.png)
-
-![销售关联归属交接预检](screenshots/c3-handover.png)
-
-![合同变更前后对照及设计器字段](screenshots/c3-contract-change.png)

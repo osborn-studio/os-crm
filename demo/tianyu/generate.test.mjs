@@ -21,10 +21,10 @@ test('deterministic public synthetic archive and scale', () => {
         .digest('hex'),
       first.sha256,
     );
-    assert.equal(rows('customer').length, 60000);
-    assert.equal(new Set(rows('customer').map((c) => c.nameFingerprint)).size, 60000);
-    assert.equal(rows('opportunity').length, 9000);
-    assert.equal(rows('followUp').length, 30000);
+    assert.equal(rows('customer').length, 15000);
+    assert.equal(new Set(rows('customer').map((c) => c.nameFingerprint)).size, 15000);
+    assert.equal(rows('opportunity').length, 2400);
+    assert.equal(rows('followUp').length, 9000);
     assert.equal(accounts.length, 14);
     assert(first.accounts.every((a) => a.password === '12345'));
     assert(rows('customer').every((c) => c.website.startsWith('https://example.invalid/')));

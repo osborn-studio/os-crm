@@ -954,10 +954,11 @@ model Product {
   description       String?  @db.Text
   specification     String?  @db.VarChar(200)
   unit              String   @default("个") @db.VarChar(20)
-  listPrice         Decimal  @default(0) @map("list_price") @db.Decimal(12, 2)
+  listPrice         Decimal? @map("list_price") @db.Decimal(12, 2)
+  pricingStatus String @default("fixed") @map("pricing_status") @db.VarChar(30)
   partnerPrice      Decimal? @map("partner_price") @db.Decimal(12, 2)
   costPrice         Decimal? @map("cost_price") @db.Decimal(12, 2)
-  taxRate           Decimal  @default(13) @map("tax_rate") @db.Decimal(5, 2)
+  taxRate           Decimal? @map("tax_rate") @db.Decimal(5, 2)
   yonyouProductCode String?  @map("yonyou_product_code") @db.VarChar(50)
   isActive          Boolean  @default(true) @map("is_active")
   sortOrder         Int      @default(0) @map("sort_order")
@@ -2478,4 +2479,29 @@ model SystemCommandExecution {
 
   @@unique([tenantId, jobName, requestKey], map: "system_command_identity_key")
   @@map("system_command_executions")
+}
+
+// Evidence-backed private product, pricing and customer-project knowledge.
+// Administrator-only in the first release; no automatic quote/financial/external effects.
+model KnowledgeEntry {
+  id Int @id @default(autoincrement())
+  tenantId Int @map("tenant_id")
+  sourceKey String @map("source_key") @db.VarChar(120)
+  kind String @db.VarChar(20)
+  title String @db.VarChar(200)
+  customerId Int? @map("customer_id")
+  summary String @db.Text
+  evidenceStatus String @map("evidence_status") @db.VarChar(30)
+  sources Json
+  content Json
+  activityLinks Json? @map("activity_links")
+  contentHash String @map("content_hash") @db.VarChar(64)
+  version Int @default(1)
+  createdBy Int @map("created_by")
+  updatedBy Int @map("updated_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@unique([tenantId, sourceKey])
+  @@index([tenantId, kind, customerId])
+  @@map("knowledge_entries")
 }

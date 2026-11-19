@@ -76,7 +76,3 @@ node deploy/bind-dingtalk-person.mjs COMPANY CRM_USERNAME EXACT_PROFILE --apply
 ## 本批页面验证
 
 桌面已实际新建日程、加入队列、发送并查看已验证回执、历史分页，以及密集日程全部展开。手机尺寸390×844已实际新建日程，默认为列表，页头保留公司和账号入口；此结论仅为浏览器响应式验证。
-
-![手机日程](dingtalk/screenshots/activity-mobile.jpg)
-
-![桌面发送记录](dingtalk/screenshots/activity-desktop.jpg)
