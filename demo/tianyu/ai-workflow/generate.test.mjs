@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildWorkflow } from './generate.mjs';
-import { validateTianyuTarget, prepareManifest } from '../../../scripts/tianyu-ai-workflow.mjs';
+import { validateTianyuTarget, prepareManifest, proposedCalendarStart } from '../../../scripts/tianyu-ai-workflow.mjs';
 import { readFileSync } from 'node:fs';
 const pack = buildWorkflow();
 test('fictional workflow preserves independent source provenance and all requested business situations', () => {
@@ -51,6 +51,19 @@ test('installer refuses business and other-company destinations before any datab
     { DATABASE_URL: 'mysql://fixture:fixture@127.0.0.1/production' },
   ])
     assert.throws(() => validateTianyuTarget({ ...v, ...patch }));
+});
+test('proposed calendar slots stay on a later Shanghai weekday', () => {
+  const samples = ['2026-11-19T16:38:00+08:00', '2026-11-20T23:50:00+08:00', '2026-11-21T09:00:00+08:00'];
+  for (const stamp of samples) {
+    const now = Date.parse(stamp);
+    for (let i = 0; i < 36; i++) {
+      const startsAt = proposedCalendarStart(i, now);
+      const at = Date.parse(startsAt);
+      assert(at > now, startsAt + ' is not after ' + stamp);
+      assert(![0, 6].includes(new Date(at).getUTCDay()));
+      assert(new Date(at).getUTCFullYear() <= 2060);
+    }
+  }
 });
 test('richer approval fixtures have enough business content, distinct reviewers and sequential/all/any paths', () => {
   const s = JSON.parse(readFileSync(new URL('../approval-scenarios.json', import.meta.url)));
