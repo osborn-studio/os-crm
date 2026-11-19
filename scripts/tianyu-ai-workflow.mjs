@@ -20,6 +20,19 @@ const day = (n) => {
   while ([0, 6].includes(d.getUTCDay())) d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString().slice(0, 10);
 };
+/** Proposed local calendar slots must stay after "now"; the fixed 2026-11-17 anchor does not. */
+export function proposedCalendarStart(index, now = Date.now()) {
+  const slot = index % 12,
+    hour = slot < 6 ? 9 + Math.floor(slot / 2) : 13 + Math.floor((slot - 6) / 2),
+    minute = slot % 2 ? '30' : '00',
+    today = new Date(now + 8 * 3600000).toISOString().slice(0, 10),
+    d = new Date(today + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + 1 + Math.floor(index / 12));
+  while ([0, 6].includes(d.getUTCDay())) d.setUTCDate(d.getUTCDate() + 1);
+  return (
+    d.toISOString().slice(0, 10) + 'T' + String(hour).padStart(2, '0') + ':' + minute + ':00+08:00'
+  );
+}
 export function prepareManifest(pack, customers, archiveId) {
   const newCases = pack.cases.filter((c) => c.kind !== 'reference');
   return {
@@ -232,16 +245,9 @@ export async function applyWorkflow({ call, state = {}, save = () => {}, pack = 
   for (const [i, p] of plans.entries()) {
     const label = 'calendar-' + p.actionId;
     if (state[label]?.receipt) continue;
-    if (!state[label]) {
+    if (!state[label] || Date.parse(state[label].startsAt) <= Date.now()) {
       const a = await call('workspace/actions/' + p.actionId);
-      const slot = i % 12,
-        hour = slot < 6 ? 9 + Math.floor(slot / 2) : 13 + Math.floor((slot - 6) / 2),
-        minute = slot % 2 ? '30' : '00';
-      state[label] = {
-        actionId: a.id,
-        actionVersion: a.updatedAt,
-        startsAt: day(Math.floor(i / 12)) + 'T' + String(hour).padStart(2, '0') + ':' + minute + ':00+08:00',
-      };
+      state[label] = { actionId: a.id, actionVersion: a.updatedAt, startsAt: proposedCalendarStart(i) };
       save(state);
     }
     const spec = state[label];
